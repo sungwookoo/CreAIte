@@ -16,9 +16,14 @@ import java.util.Set;
 public class Search {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
+
+    @Column(name = "search_word")
     private String searchWord;
 
-    @OneToMany
+    @OneToMany(mappedBy = "search")
+    @ToString.Exclude
+    @Builder.Default
     private Set<UserSearch> userSearches = new LinkedHashSet<>();
 }
