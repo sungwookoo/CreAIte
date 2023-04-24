@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Setter
 @ToString
 @Entity
+@Table(name = "user_search")
 public class UserSearch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
