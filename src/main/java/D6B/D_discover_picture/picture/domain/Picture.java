@@ -27,6 +27,9 @@ public class Picture {
     @Column(name = "is_public")
     private Boolean isPublic;
 
-    @Column(name = "like_count")
-    private Long likeCount;
+    @Column(name = "love_count")
+    private Long loveCount;
+
+    @Column(name = "is_disabled")
+    private Boolean isDisabled;
 }
