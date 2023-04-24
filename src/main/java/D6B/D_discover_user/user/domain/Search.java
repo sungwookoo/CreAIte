@@ -13,6 +13,7 @@ import java.util.Set;
 @Setter
 @ToString
 @Entity
+@Table(name = "search")
 public class Search {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

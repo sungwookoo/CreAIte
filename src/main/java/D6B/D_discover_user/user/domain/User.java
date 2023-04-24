@@ -62,5 +62,5 @@ public class User {
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
     @Builder.Default
-    private Set<Like> likes = new LinkedHashSet<>();
+    private Set<Love> loves = new LinkedHashSet<>();
 }

@@ -11,7 +11,8 @@ import javax.persistence.*;
 @Setter
 @ToString
 @Entity
-public class Like {
+@Table(name = "love")
+public class Love {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
