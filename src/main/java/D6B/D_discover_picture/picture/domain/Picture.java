@@ -32,4 +32,8 @@ public class Picture {
 
     @Column(name = "is_disabled")
     private Boolean isDisabled;
+
+    // 이미지가 생성 or 편집인지를 나타냄
+    @Column(name = "is_created")
+    private Boolean isCreated;
 }
