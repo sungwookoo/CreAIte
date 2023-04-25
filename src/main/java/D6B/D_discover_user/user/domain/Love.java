@@ -13,10 +13,14 @@ import javax.persistence.*;
 @Entity
 @Table(name = "love")
 public class Love {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
+
+    @Column(name = "is_loved")
+    private boolean isLoved;
 
     // 좋아요를 누른 유저 객체
     @ManyToOne
