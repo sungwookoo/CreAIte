@@ -1,8 +1,11 @@
 package D6B.D_discover_picture.picture.domain;
 
+import D6B.D_discover_picture.common.StringToInstant;
+import D6B.D_discover_picture.picture.controller.dto.PictureSaveRequest;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.Instant;
 
 @Builder
 @AllArgsConstructor
@@ -36,4 +39,19 @@ public class Picture {
     // 이미지가 생성 or 편집인지를 나타냄
     @Column(name = "is_created")
     private Boolean isCreated;
+
+    @Column(name = "created_at")
+    private Instant createdAt;
+
+    public static Picture from(PictureSaveRequest pictureSaveRequest, Long userId) {
+        return Picture.builder()
+                .imgUrl(pictureSaveRequest.getImg_url())
+                .makerId(userId)
+                .isPublic(pictureSaveRequest.getIs_public())
+                .loveCount(0L)
+                .isDisabled(false)
+                .isCreated(pictureSaveRequest.getIs_created())
+                .createdAt(Instant.now().plusSeconds(60*60*9))
+                .build();
+    }
 }
