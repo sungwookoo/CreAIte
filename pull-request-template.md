@@ -1,4 +1,3 @@
-```
 ## Type
 - [ ] BF = BugFix
 - [ ] FE = Feature Implementation
@@ -10,4 +9,4 @@
 
 ## Jira number(s)
  *
-```
+
