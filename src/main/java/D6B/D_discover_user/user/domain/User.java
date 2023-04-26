@@ -4,7 +4,9 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @Builder
@@ -21,8 +23,11 @@ public class User {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(name = "google_id")
+    private String googleId;
+
     @Column(name = "email")
-    private String email;
+    private String gmail;
 
     @Column(name = "nickname")
     private String nickname;
@@ -32,15 +37,6 @@ public class User {
 
     @Column(name = "gender")
     private String gender;
-
-    @Column(name = "role")
-    private String role;
-
-    @Column(name = "provide")
-    private String provider;
-
-    @Column(name = "token")
-    private String token;
 
     @Column(name = "age")
     private Integer age;
