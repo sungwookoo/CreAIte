@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 @Getter
 @Setter
 @ToString

@@ -8,17 +8,17 @@ import lombok.Data;
  */
 @Data
 public class UserRequestDto {
-    private final String g_id;
-    private final String g_mail;
-    private final String g_name;
+    private final String uid;
+    private final String email;
+    private final String name;
     private final String img_src;
 
     public static User to(UserRequestDto userRequestDto, Long userId) {
         return User.builder()
-                .googleId(userRequestDto.g_id)
-                .gmail(userRequestDto.g_mail)
-                .nickname(userRequestDto.g_name)
-                .imgSrc(userRequestDto.img_src)
+                .uid(userRequestDto.getUid())
+                .email(userRequestDto.getEmail())
+                .name(userRequestDto.getEmail())
+                .imgSrc(userRequestDto.getImg_src())
                 .id(userId)
                 .build();
     }

@@ -23,14 +23,14 @@ public class User {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "google_id")
-    private String googleId;
+    @Column(name = "uid")
+    private String uid;
 
     @Column(name = "email")
-    private String gmail;
+    private String email;
 
-    @Column(name = "nickname")
-    private String nickname;
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "img_src", length = 200)
     private String imgSrc;
