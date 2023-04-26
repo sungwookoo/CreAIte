@@ -20,7 +20,7 @@ public class Love {
     private Long id;
 
     @Column(name = "is_loved")
-    private boolean isLoved;
+    private Boolean isLoved;
 
     // 좋아요를 누른 유저 객체
     @ManyToOne

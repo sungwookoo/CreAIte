@@ -62,10 +62,15 @@ public class UserController {
                 UserExistInfoDto.from(UserService.enrollUser(UserRequestDto.to(userRequestDto, userId), token)));
     }
 
-    /
+    /**
+     * 좋아요 한 그림 id리스트를 반환
+     * @param token
+     */
     @GetMapping("/love")
-    public void readUserLoves(@RequestHeader("Authorization") String token) {
-
+    public ResponseEntity<Object> readUserLoves(@RequestHeader("Authorization") String token) {
+        // 유저 아이디를 찾기
+        final Long userId = authorizeService.getAuthorization(token);
+        //
     }
 
     /**
@@ -79,11 +84,10 @@ public class UserController {
         // 토큰을 통해서 유저 아이디를 찾는다.
         final Long userId = authorizeService.getAuthorization(token);
         // 먼저 유저아이디와 이미지아이디로 좋아요 여부 찾기
-        userService.clickLoveToggle(userId, pictureId);
-        // 기존에 좋아요가 눌렸다면 좋아요 취소
-
-        // 기존에 좋아요가 없다면 좋아요
+        userService.clickLoveToggle(userId, picture_id);
     }
+
+    @PostMapping("/search/")
 
 
 }
