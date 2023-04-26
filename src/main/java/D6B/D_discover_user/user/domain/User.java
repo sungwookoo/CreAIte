@@ -21,6 +21,9 @@ public class User {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(name = "g_id")
+    private Long gId;
+
     @Column(name = "email")
     private String email;
 
@@ -32,15 +35,6 @@ public class User {
 
     @Column(name = "gender")
     private String gender;
-
-    @Column(name = "role")
-    private String role;
-
-    @Column(name = "provide")
-    private String provider;
-
-    @Column(name = "token")
-    private String token;
 
     @Column(name = "age")
     private Integer age;

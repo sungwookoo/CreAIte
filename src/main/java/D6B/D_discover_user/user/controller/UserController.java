@@ -1,16 +1,16 @@
 package D6B.D_discover_user.user.controller;
 
 import D6B.D_discover_user.common.service.AuthorizeService;
+import D6B.D_discover_user.user.controller.dto.UserExistInfoDto;
+import D6B.D_discover_user.user.controller.dto.UserRequestDto;
 import D6B.D_discover_user.user.domain.User;
 import D6B.D_discover_user.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 
 import static D6B.D_discover_user.common.ConstValues.*;
 
@@ -28,11 +28,17 @@ public class UserController {
         this.authorizeService = authorizeService;
     }
 
+    /**
+     * 클라이언트단에서 header에 토큰을 넣어보낸다.
+     * @param token Firebase에서 받은 token값
+     * @return
+     */
     @GetMapping("")
     public ResponseEntity<UserExistInfoDto> isMember(@RequestHeader("Authorization") String token) {
-        final Long userId = authorizeService.getAuthorization(token);
-        if(authorizeService.isAuthorization(userId))
-            return ReponseEntity.ok(UserExistInfoDto.from(userId));
+        final Long gId = authorizeService.getAuthorization(token);   // 토큰으로 userId를 얻는다.
+        // 해당 gId로 인가
+        if(authorizeService.isAuthorization(gId))
+            return ResponseEntity.ok(UserExistInfoDto.from(gId));
         else
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -51,6 +57,12 @@ public class UserController {
         }
     }
 
+    /**
+     * 구글로그인으로 처음 회원이 접속할 때, 회원정보를 우리 DB에 저장하기 위한 Controller
+     * @param token : Firebase를 통해서 받은 구글 토큰
+     * @param userRequestDto : (구글로그인 후) g_id, g_mail, g_name, img_url을 받을 수 있다.
+     * @return : 등록 후, 유저의 id를 반환한다.
+     */
     @PostMapping("")
     public ResponseEntity<Object> enrollUserInformation(@RequestHeader("Authorization") String token,
                                                         @RequestBody UserRequestDto userRequestDto) {
@@ -59,19 +71,18 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.ok(
-                UserExistInfoDto.from(UserService.enrollUser(UserRequestDto.to(userRequestDto, userId), token)));
+                UserExistInfoDto.from(userService.enrollUser(UserRequestDto.to(userRequestDto, userId), token)));
     }
 
     /**
      * 좋아요 한 그림 id리스트를 반환
      * @param token
      */
-    @GetMapping("/love")
-    public ResponseEntity<Object> readUserLoves(@RequestHeader("Authorization") String token) {
-        // 유저 아이디를 찾기
-        final Long userId = authorizeService.getAuthorization(token);
-        //
-    }
+//    @GetMapping("/love")
+//    public ResponseEntity<Object> readUserLoves(@RequestHeader("Authorization") String token) {
+//        // 유저 아이디를 찾기
+//        final Long userId = authorizeService.getAuthorization(token);
+//    }
 
     /**
      * 좋아요 클릭(토글 역할)
@@ -86,8 +97,4 @@ public class UserController {
         // 먼저 유저아이디와 이미지아이디로 좋아요 여부 찾기
         userService.clickLoveToggle(userId, picture_id);
     }
-
-    @PostMapping("/search/")
-
-
 }

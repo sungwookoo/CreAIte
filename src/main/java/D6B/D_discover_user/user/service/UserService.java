@@ -22,6 +22,34 @@ public class UserService {
     }
 
     /**
+     * 회원등록하기(첫번째 로그인 때 수행)
+     */
+    public Long enrollUser(User user, String token) {
+        Optional<User> optUser = userRepository.findById(user.getId());
+        // 이미 회원인 경우
+        if(optUser.isPresent()) {
+            return optUser.get().getId();   // 기존회원의 아이디를 반환한다.
+        // 비회원이거나 이전에 탈퇴했던 유저인 경우
+        } else {
+            Optional<User> isUnActiveUser = userRepository.findByGId(user.getGId());
+            // 비활성 유저인 경우
+            if(isUnActiveUser.isPresent()) {
+                User unActiveUser = isUnActiveUser.get();
+                unActiveUser.setActivate(true);
+                unActiveUser.setNickname(user.getNickname());
+                unActiveUser.setImgSrc(user.getImgSrc());
+                userRepository.save(unActiveUser);  // 비활성 유저를 다시 활성시킨다.
+                return unActiveUser.getId();        // 회원의 id값을 반환한다.
+            // 신규 유저인 경우
+            } else {
+                user.setId(null);   // autoincrement를 활용하기 위해서 null처리
+                User newUser = userRepository.save(user);
+                return newUser.getId();
+            }
+        }
+    }
+
+    /**
      * 좋아요 토글 서비스 함수
      * @param userId : 접속한 유저의 아이디
      * @param pictureId : 클릭한 사진
