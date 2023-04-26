@@ -1,5 +1,6 @@
 package D6B.D_discover_alarm.domain;
 
+import D6B.D_discover_alarm.controller.dto.NotificationDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -22,6 +23,9 @@ public class Alarm {
     @Column(name = "sender_id")
     private Long senderId;  // 좋아요를 누른사람
 
+//    @Column(name = "sender_name")
+//    private Long senderName;  // 좋아요를 누른사람이름
+
     @Column(name = "receiver_id")
     private Long receiverId;    // 좋아요 받은 이미지를 만든사람
 
@@ -43,4 +47,11 @@ public class Alarm {
     @Column(name = "type")
     private Integer type;
 
+    public static Alarm createAlarm(NotificationDto dto) {
+        return new Alarm(
+                dto.getReceiverId(),
+                dto.getSenderId(),
+                dto.getPictureId()
+        )
+    }
 }
