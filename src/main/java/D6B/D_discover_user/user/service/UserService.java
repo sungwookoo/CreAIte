@@ -6,6 +6,7 @@ import D6B.D_discover_user.user.domain.Love;
 import D6B.D_discover_user.user.domain.LoveRepository;
 import D6B.D_discover_user.user.domain.User;
 import D6B.D_discover_user.user.domain.UserRepository;
+import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -25,37 +26,36 @@ public class UserService {
     }
 
     /**
-     * 구글 로그인을 통해 들어온 유저의 정보를 우리 DB에 저장하기 위함
-     * @param userRequestDto : 구글로 로그인한 유저의 정보를 바탕으로 유저 객체를 만든 것
-     * @return : 해당 유저의 id값을 반환한다.
+     * 구글로그인으로 접속한 유저의 정보를 DB에 저장하거나 갱신시킨다.
+     * @param firebaseToken : Firebase 로부터 받은 idToken -> 유저의 정보가 담겨있음
+     * @return : 저장된 유저의 id
      */
-    public Long enrollUser(UserRequestDto userRequestDto) {
-        Optional<User> optUser = userRepository.findByGoogleId(userRequestDto.getG_id());
-        // 이미 회원인 경우 -> 구글 정보를 바탕으로 이미지정보, 닉네임정보를 갱신한다.
+    public Long enrollUser(FirebaseToken firebaseToken) {
+        Optional<User> optUser = userRepository.findByUid(firebaseToken.getUid());
+        // 이미 회원인 경우 -> 구글 정보를 바탕으로 닉네임정보, 이미지 정보를 갱신한다.
         if(optUser.isPresent()) {
             User activeUser = optUser.get();
-            activeUser.setNickname(userRequestDto.getG_name());
-            activeUser.setImgSrc(userRequestDto.getImg_src());
+            activeUser.setName(firebaseToken.getName());
+            activeUser.setImgSrc(firebaseToken.getPicture());
             return optUser.get().getId();   // 기존회원의 아이디를 반환한다.
         // 신규유저이거나 이전에 탈퇴했던 유저인 경우
         } else {
-            Optional<User> isUnActiveUser = userRepository.findByGoogleId(userRequestDto.getG_id());
+            Optional<User> isUnActiveUser = userRepository.findByUid(firebaseToken.getUid());
             // 비활성 유저인 경우
             if(isUnActiveUser.isPresent()) {
                 User unActiveUser = isUnActiveUser.get();
                 unActiveUser.setActivate(true);
-                unActiveUser.setNickname(userRequestDto.getG_name());
-                unActiveUser.setImgSrc(userRequestDto.getImg_src());
-                // *** 현재 국내 시간으로 변경해야함 *** //
+                unActiveUser.setName(firebaseToken.getName());
+                unActiveUser.setImgSrc(firebaseToken.getPicture());
                 unActiveUser.setCreatedAt(Instant.now().plusSeconds(60 * 60 * 9));
                 userRepository.save(unActiveUser);  // 비활성 유저를 다시 활성시킨다.
                 return unActiveUser.getId();        // 회원의 id값을 반환한다.
             // 신규 유저인 경우
             } else {
                 User newUser = new User();
-                newUser.setGoogleId(userRequestDto.getG_id());
-                newUser.setGmail(userRequestDto.getG_mail());
-                newUser.setImgSrc(userRequestDto.getImg_src());
+                newUser.setUid(firebaseToken.getUid());
+                newUser.setEmail(firebaseToken.getEmail());
+                newUser.setImgSrc(firebaseToken.getPicture());
                 newUser.setCreatedAt(Instant.now().plusSeconds(60 * 60 * 9));
                 newUser.setActivate(true);
                 User user = userRepository.save(newUser);

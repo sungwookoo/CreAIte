@@ -10,9 +10,9 @@ import java.time.Instant;
 @Data
 public class UserDetailsDto {
     // 유저의 이메일
-    private String gmail;
+    private String email;
     // 유저의 닉네임
-    private String nickname;
+    private String name;
     // 유저의 이미지소스
     private String img_src;
     // 유저의 성별
@@ -26,8 +26,8 @@ public class UserDetailsDto {
 
     public static UserDetailsDto from(User user) {
         return UserDetailsDto.builder()
-                .gmail(user.getGmail())
-                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .name(user.getName())
                 .img_src(user.getImgSrc())
                 .gender(user.getGender())
                 .age(user.getAge())

@@ -1,17 +1,25 @@
 package D6B.D_discover_user.user.controller;
 
 //import D6B.D_discover_user.common.service.AuthorizeService;
-import D6B.D_discover_user.user.controller.dto.UserDetailsDto;
 import D6B.D_discover_user.user.controller.dto.UserExistInfoDto;
 import D6B.D_discover_user.user.controller.dto.UserRequestDto;
-import D6B.D_discover_user.user.controller.dto.UserUpdateRequestDto;
-import D6B.D_discover_user.user.domain.User;
 import D6B.D_discover_user.user.service.UserService;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Objects;
 
 
 //import static D6B.D_discover_user.common.ConstValues.*;
@@ -48,19 +56,29 @@ public class UserController {
 
     /**
      * 구글로그인으로 처음 회원이 접속할 때, 회원정보를 우리 DB에 저장하기 위한 Controller
-     * @param token : Firebase 통해서 받은 구글 토큰
-     * @param userRequestDto : (구글로그인 후) g_id, g_mail, g_name, img_url 받을 수 있다.
+     * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
+     * @param userRequestDto : (구글로그인 후) 프론트단에서 유저관련 정보를 받을 수 있다.
      * @return : 등록 후, 유저의 id를 반환한다.
      */
     @PostMapping("")
-    public ResponseEntity<UserExistInfoDto> enrollUserInformation(@RequestHeader("Authorization") String token,
-                                                        @RequestBody UserRequestDto userRequestDto) {
-        // token 유무만 판단한다.
-        if(!token.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    public ResponseEntity<UserExistInfoDto> enrollUserInformation(@RequestHeader("Authorization") String idToken,
+                                                        @RequestBody UserRequestDto userRequestDto) throws IOException, FirebaseAuthException {
+        // Firebase 초기화
+        if(FirebaseApp.getApps().isEmpty()) {
+            FileInputStream serviceAccount = new FileInputStream("creaite-app-firebase-adminsdk.json");
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
+            FirebaseApp.initializeApp(options);
         }
-        else {
-            return ResponseEntity.ok(UserExistInfoDto.from(userService.enrollUser(userRequestDto)));
+        // Firebase 토큰 디코드
+        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+        String uid = decodedToken.getUid();
+        // uid 변형이 없었는지 검증
+        if(Objects.equals(userRequestDto.getUid(), uid)) {
+            return ResponseEntity.ok(UserExistInfoDto.from(userService.enrollUser(decodedToken)));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
