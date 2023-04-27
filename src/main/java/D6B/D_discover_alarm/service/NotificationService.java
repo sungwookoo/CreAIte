@@ -13,10 +13,10 @@ public class NotificationService {
     private AlarmRepository alarmRepository;
 
 
-    public NotificationDto createNotification(NotificationDto dto) {
-
-        Alarm alarm = Alarm.createAlarm(dto);
-        Alarm created = alarmRepository.save(alarm);
-        return null;
-    }
+//    public NotificationDto createNotification(NotificationDto dto) {
+//
+//        Alarm alarm = Alarm.createAlarm(dto);
+//        Alarm created = alarmRepository.save(alarm);
+//        return null;
+//    }
 }

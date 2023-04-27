@@ -47,11 +47,11 @@ public class Alarm {
     @Column(name = "type")
     private Integer type;
 
-    public static Alarm createAlarm(NotificationDto dto) {
-        return new Alarm(
-                dto.getReceiverId(),
-                dto.getSenderId(),
-                dto.getPictureId()
-        )
-    }
+//    public static Alarm createAlarm(NotificationDto dto) {
+//        return new Alarm(
+//                dto.getReceiverId(),
+//                dto.getSenderId(),
+//                dto.getPictureId()
+//        )
+//    }
 }

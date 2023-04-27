@@ -15,7 +15,8 @@ public class NotificationDto {
         return  NotificationDto.builder()
                 .senderId(alarm.getId())
                 .receiverId(alarm.getId())
-                .pictureId()
+                .pictureId(1L)
+                .build();
     }
 
 }

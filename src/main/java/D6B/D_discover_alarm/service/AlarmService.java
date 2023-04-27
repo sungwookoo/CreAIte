@@ -29,8 +29,9 @@ public class AlarmService {
      */
     public List<AlarmDto> getAlarmList(Long userId) {
         List<Alarm> alarms = alarmRepository.findByReceiverId(userId);
+        log.info(alarms.toString());
         return alarms.stream()
-                .map(alarm -> AlarmDto.from(alarm, this))
+                .map(alarm -> AlarmDto.from(alarm))
                 .collect(Collectors.toList());
     }
 
@@ -39,55 +40,55 @@ public class AlarmService {
      * @param userId
      * @return
      */
-    public String getNameByUserId(Long userId) {
-        try {
-            return USER_SERVER_CLIENT.get()
-                    .uri("/user/" + userId.toString() + "/nickname")
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(Client4xxException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(Client5xxException::new))
-                    .bodyToMono(String.class)
-                    .block();
-        } catch (Exception e) {
-            return "";
-        }
-    }
+//    public String getNameByUserId(Long userId) {
+//        try {
+//            return USER_SERVER_CLIENT.get()
+//                    .uri("/user/" + userId.toString() + "/nickname")
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(Client4xxException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(Client5xxException::new))
+//                    .bodyToMono(String.class)
+//                    .block();
+//        } catch (Exception e) {
+//            return "";
+//        }
+//    }
 
     /**
      * 유저 이미지 가져오기
      * @param userId
      * @return
      */
-    public String getUserImgSrc(Long userId) {
-        try {
-            return USER_SERVER_CLIENT.get()
-                    .uri("/user/img/" + userId.toString())
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(Client4xxException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(Client5xxException::new))
-                    .bodyToMono(String.class)
-                    .block();
-        } catch (Exception e) {
-            return "";
-        }
-    }
+//    public String getUserImgSrc(Long userId) {
+//        try {
+//            return USER_SERVER_CLIENT.get()
+//                    .uri("/user/img/" + userId.toString())
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(Client4xxException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(Client5xxException::new))
+//                    .bodyToMono(String.class)
+//                    .block();
+//        } catch (Exception e) {
+//            return "";
+//        }
+//    }
 
     /**
      * 사진 이미지 가져오기
      * @param pictureId
      * @return
      */
-    public String getPictureImgSrc(Long pictureId) {
-        try {
-            return USER_SERVER_CLIENT.get()
-                    .uri("/picture/img/" + pictureId.toString())
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(Client4xxException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(Client5xxException::new))
-                    .bodyToMono(String.class)
-                    .block();
-        } catch (Exception e) {
-            return "";
-        }
-    }
+//    public String getPictureImgSrc(Long pictureId) {
+//        try {
+//            return USER_SERVER_CLIENT.get()
+//                    .uri("/picture/img/" + pictureId.toString())
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(Client4xxException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(Client5xxException::new))
+//                    .bodyToMono(String.class)
+//                    .block();
+//        } catch (Exception e) {
+//            return "";
+//        }
+//    }
 }

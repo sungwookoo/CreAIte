@@ -39,12 +39,12 @@ public class AlarmDto {
                 .type(alarm.getType())
                 .build();
     }
-    public static AlarmDto from(Alarm e, AlarmService alarmService) {
-        AlarmDto alarmDto = AlarmDto.from(e);
-        alarmDto.senderName = alarmService.getNameByUserId(e.getSenderId());
-        alarmDto.senderImgSrc = alarmService.getUserImgSrc(e.getSenderId());
-        alarmDto.pictureImgSrc = alarmService.getPictureImgSrc(e.getPictureId());
-        return alarmDto;
-    }
+//    public static AlarmDto from(Alarm e, AlarmService alarmService) {
+//        AlarmDto alarmDto = AlarmDto.from(e);
+//        alarmDto.senderName = alarmService.getNameByUserId(e.getSenderId());
+//        alarmDto.senderImgSrc = alarmService.getUserImgSrc(e.getSenderId());
+//        alarmDto.pictureImgSrc = alarmService.getPictureImgSrc(e.getPictureId());
+//        return alarmDto;
+//    }
 
 }

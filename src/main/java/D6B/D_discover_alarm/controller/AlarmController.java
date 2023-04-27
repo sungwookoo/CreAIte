@@ -27,13 +27,15 @@ public class AlarmController {
     }
     @GetMapping("/list")
     public ResponseEntity<List<AlarmDto>> getAlarmList(@PathVariable Long user_id){
+        log.info("3");
             List<AlarmDto> dtos = alarmService.getAlarmList(user_id);
         return ResponseEntity.status(HttpStatus.OK).body(dtos);
     }
 
-    @PostMapping("/create")
-    public  ResponseEntity<String> createNotification(@RequestBody NotificationDto dto){
-        NotificationDto Dto = notificationService.createNotification(dto);
-        return null;
-    }
+
+//    @PostMapping("/create")
+//    public  ResponseEntity<String> createNotification(@RequestBody NotificationDto dto){
+//        NotificationDto Dto = notificationService.createNotification(dto);
+//        return null;
+//    }
 }
