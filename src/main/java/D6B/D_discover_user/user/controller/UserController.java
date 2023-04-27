@@ -2,10 +2,7 @@ package D6B.D_discover_user.user.controller;
 
 import D6B.D_discover_user.common.dto.AuthResponse;
 import D6B.D_discover_user.common.service.AuthorizeService;
-import D6B.D_discover_user.user.controller.dto.LoveRequestDto;
-import D6B.D_discover_user.user.controller.dto.UserDetailsResponseDto;
-import D6B.D_discover_user.user.controller.dto.UserRequestDto;
-import D6B.D_discover_user.user.controller.dto.UserUpdateRequestDto;
+import D6B.D_discover_user.user.controller.dto.*;
 import D6B.D_discover_user.user.service.UserService;
 import com.google.firebase.auth.FirebaseAuthException;
 import lombok.extern.slf4j.Slf4j;
@@ -33,12 +30,12 @@ public class UserController {
     /**
      * 구글로그인으로 처음 회원이 접속할 때, 회원정보를 우리 DB에 저장하기 위한 Controller
      * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
-     * @param userRequestDto : (구글로그인 후) 프론트단에서 유저관련 정보를 받을 수 있다.
+     * @param userReadRequestDto : (구글로그인 후) 프론트단에서 유저관련 정보를 받을 수 있다.
      */
     @PostMapping("")
     public void enrollUserInformation(@RequestHeader("Authorization") String idToken,
-                                                        @RequestBody UserRequestDto userRequestDto) throws IOException, FirebaseAuthException {
-        AuthResponse authResponse = authorizeService.isAuthorized(idToken, userRequestDto.getUid());
+                                                        @RequestBody UserReadRequestDto userReadRequestDto) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, userReadRequestDto.getUid());
         if(authResponse.getIsUser()) {
             userService.enrollUser(authResponse.getDecodedToken());
         } else {
@@ -55,11 +52,11 @@ public class UserController {
      * @throws FirebaseAuthException : 에러
      */
     @GetMapping("/{uid}")
-    public ResponseEntity<UserDetailsResponseDto> readUserDetail(@RequestHeader("Authorization") String idToken,
-                                                                 @PathVariable String uid) throws IOException, FirebaseAuthException {
+    public ResponseEntity<UserInfoResponseDto> readUserInfo(@RequestHeader("Authorization") String idToken,
+                                                            @PathVariable String uid) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
         if(authResponse.getIsUser()) {
-            return ResponseEntity.ok(UserDetailsResponseDto
+            return ResponseEntity.ok(UserInfoResponseDto
                     .from(userService.findUserByUid(authResponse.getDecodedToken().getUid())));
         } else {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -76,11 +73,11 @@ public class UserController {
      * @throws FirebaseAuthException : 에러
      */
     @PutMapping("")
-    public ResponseEntity<UserDetailsResponseDto> updateUserInfos(@RequestHeader("Authorization") String idToken,
-                                                                    @RequestBody UserUpdateRequestDto userUpdateRequestDto) throws IOException, FirebaseAuthException {
+    public ResponseEntity<UserInfoResponseDto> updateUserInfos(@RequestHeader("Authorization") String idToken,
+                                                               @RequestBody UserUpdateRequestDto userUpdateRequestDto) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, userUpdateRequestDto.getUid());
         if(authResponse.getIsUser()) {
-            return ResponseEntity.ok(UserDetailsResponseDto
+            return ResponseEntity.ok(UserInfoResponseDto
                     .from(userService.updateUserInfos(authResponse.getDecodedToken(), userUpdateRequestDto)));
         } else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
@@ -95,25 +92,22 @@ public class UserController {
         } else return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
-    // 똑같은 그림으로 또 누른다면??? -> able로 바꾸기
     @PostMapping("/like")
     public void toggleLove(@RequestHeader("Authorization") String idToken,
-                                              @RequestBody LoveRequestDto loveRequestDto) throws IOException, FirebaseAuthException {
-        AuthResponse authResponse = authorizeService.isAuthorized(idToken, loveRequestDto.getUid());
-        if(authResponse.getIsUser()) userService.toggleLove(loveRequestDto.getUid(), loveRequestDto.getPicture_id());
+                                              @RequestBody LoveReadRequestDto loveReadRequestDto) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, loveReadRequestDto.getUid());
+        if(authResponse.getIsUser()) userService.toggleLove(loveReadRequestDto.getUid(), loveReadRequestDto.getPicture_id());
     }
 
-//    /**
-//     * 좋아요 클릭(토글 역할)
-//     * @param token 사용자 정보
-//     * @param picture_id 좋아요 클릭한 그림
-//     */
-//    @PostMapping("/love/{picture_id}")
-//    public void clickLoveToggle(@RequestHeader("Authorization") String token,
-//                                @PathVariable Long picture_id) {
-//        // 토큰을 통해서 유저 아이디를 찾는다.
-//        final Long userId = authorizeService.getAuthorization(token);
-//        // 먼저 유저아이디와 이미지아이디로 좋아요 여부 찾기
-//        userService.clickLoveToggle(userId, picture_id);
-//    }
+    @GetMapping("{uid}/{other_uid}")
+    public ResponseEntity<OtherUserInfoResponseDto> readOtherUserInfo(@RequestHeader("Authorization") String idToken,
+                                                                      @PathVariable String uid,
+                                                                      @PathVariable String other_uid) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+        if(authResponse.getIsUser()) {
+            return ResponseEntity.ok(OtherUserInfoResponseDto.from(userService.findUserByUid(other_uid)));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
 }

@@ -1,6 +1,5 @@
 package D6B.D_discover_user.user.service;
 
-import D6B.D_discover_user.user.controller.dto.UserRequestDto;
 import D6B.D_discover_user.user.controller.dto.UserUpdateRequestDto;
 import D6B.D_discover_user.user.domain.Love;
 import D6B.D_discover_user.user.domain.LoveRepository;
@@ -28,8 +27,10 @@ public class UserService {
 
     public void enrollUser(FirebaseToken decodedToken) {
         Optional<User> optUser = userRepository.findByUid(decodedToken.getUid());
+        // 기존에 회원 정보가 있는 경우(회원 or 탈퇴했던 회원)
         if(optUser.isPresent()) {
             User user = optUser.get();
+            // 탈퇴한 회원의 경우 다시 activate 해야한다.
             if(!user.getActivate()) userRepository.save(activateUser(user, decodedToken));
         // 신규 회원
         } else {
