@@ -11,56 +11,51 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
 public class UserService {
-//    private final LoveRepository loveRepository;
+    private final LoveRepository loveRepository;
     private final UserRepository userRepository;
 
     public UserService(LoveRepository loveRepository,
                        UserRepository userRepository) {
-//        this.loveRepository = loveRepository;
+        this.loveRepository = loveRepository;
         this.userRepository = userRepository;
     }
 
-    public void enrollUser(FirebaseToken firebaseToken) {
-        Optional<User> optUser = userRepository.findByUid(firebaseToken.getUid());
-        // 이미 회원인 경우 -> 구글 정보를 바탕으로 닉네임정보, 이미지 정보를 갱신한다.
+    public void enrollUser(FirebaseToken decodedToken) {
+        Optional<User> optUser = userRepository.findByUid(decodedToken.getUid());
         if(optUser.isPresent()) {
-            User activeUser = optUser.get();
-            activeUser.setName(firebaseToken.getName());
-            activeUser.setImgSrc(firebaseToken.getPicture());
-        // 신규유저이거나 이전에 탈퇴했던 유저인 경우
-        } else {
-            Optional<User> isUnActiveUser = userRepository.findByUid(firebaseToken.getUid());
-            // 비활성 유저인 경우
-            if(isUnActiveUser.isPresent()) {
-                User unActiveUser = isUnActiveUser.get();
-                unActiveUser.setActivate(true);
-                unActiveUser.setName(firebaseToken.getName());
-                unActiveUser.setImgSrc(firebaseToken.getPicture());
-                unActiveUser.setCreatedAt(Instant.now().plusSeconds(60 * 60 * 9));
-                userRepository.save(unActiveUser);  // 비활성 유저를 다시 활성시킨다.
-            // 신규 유저인 경우
-            } else {
-                User newUser = new User();
-                newUser.setUid(firebaseToken.getUid());
-                newUser.setName(firebaseToken.getName());
-                newUser.setEmail(firebaseToken.getEmail());
-                newUser.setImgSrc(firebaseToken.getPicture());
-                newUser.setCreatedAt(Instant.now().plusSeconds(60 * 60 * 9));
-                newUser.setActivate(true);
-                userRepository.save(newUser);
+            User user = optUser.get();
+            if(user.getActivate()) {
+                user.setName(decodedToken.getName());
+                user.setImgSrc(decodedToken.getPicture());
+                userRepository.save(user);
+            } else {    // 회원탈퇴 상태였던 경우
+                userRepository.save(activateUser(user, decodedToken));
             }
+        // 신규 회원
+        } else {
+            User user = new User(decodedToken);
+            userRepository.save(user);
         }
+    }
+
+    public User activateUser(User unActivateUser, FirebaseToken decodedToken) {
+        unActivateUser.setActivate(true);
+        unActivateUser.setName(decodedToken.getName());
+        unActivateUser.setImgSrc((decodedToken.getPicture()));
+        unActivateUser.setCreatedAt(Instant.now().plusSeconds(60 * 60 * 9));
+        return unActivateUser;
     }
 
     public User findUserByUid(String uid) {
         Optional<User> optUser = userRepository.findByUid(uid);
         if(optUser.isPresent()) return optUser.get();
-        else log.info("해당 id에 대한 유저가 없습니다");
+        else log.info("해당 uid에 대한 유저가 없습니다");
         return null;
     }
 
@@ -72,7 +67,7 @@ public class UserService {
             user.setGender(userUpdateRequestDto.getGender());
             user.setMobileNumber(userUpdateRequestDto.getMobile_number());
             return userRepository.save(user);
-        } else log.info("해당 id에 대한 유저가 없습니다.");
+        } else log.info("해당 uid에 대한 유저가 없습니다.");
         return null;
     }
 
@@ -82,39 +77,47 @@ public class UserService {
             User user = optUser.get();
             user.setActivate(false);
             userRepository.save(user);
-        } else log.info("해당 id에 대한 유저가 없습니다.");
+            disableLove(user.getUid());
+        } else log.info("해당 uid에 대한 유저가 없습니다.");
     }
 
-//    /**
-//     * 좋아요 토글 서비스 함수
-//     * @param userId : 접속한 유저의 아이디
-//     * @param pictureId : 클릭한 사진
-//     */
-//    public void clickLoveToggle(Long userId, Long pictureId) {
-//        Optional<Love> optLove = loveRepository.findByUserIdAndPictureId(userId, pictureId);
-//        // 좋아요 엔티티가 이미 있다면
-//        if(optLove.isPresent()) {
-//            Love love = optLove.get();
-//            // 좋아요가 눌러진 상태라면
-//            if(love.getIsLoved()) {
-//                love.setIsLoved(false);
-//                loveRepository.save(love);
-//            }
-//            // 좋아요가 눌리지지 않은 상태라면
-//            else {
-//                love.setIsLoved(true);
-//                loveRepository.save(love);
-//            }
-//        // 좋아요 엔티티가 없다면 좋아요 엔티티를 생성해서 저장한다.
-//        } else {
-//            User user = userRepository.findById(userId).get();
-//            loveRepository.save(Love.builder()
-//                    .isLoved(Boolean.TRUE)
-//                    .user(user)
-//                    .pictureId(pictureId)
-//                    .build());
-//        }
-//    }
+    public Long findIdByUid(String uid) {
+        User user = findUserByUid(uid);
+        return user.getId();
+    }
 
+    // 탈퇴한 유저의 좋아요는 비활성화 시키는 함수
+    public void disableLove(String uid) {
+        List<Love> loves = loveRepository.findByUserId(findIdByUid(uid));
+        for(Love love : loves) {
+            love.setIsLoved(false);
+            love.setIsAlive(false);
+            loveRepository.save(love);
+        }
+    }
+
+    public void toggleLove(String uid, Long pictureId) {
+        Long userId = findIdByUid(uid);
+        Optional<Love> optLove = loveRepository.findByUserIdAndPictureId(userId, pictureId);
+        // 기존의 좋아요 객체가 있는 경우
+        if(optLove.isPresent()) {
+            Love love = optLove.get();
+            if(love.getIsAlive()) { // 좋아요가 alive 상태라면 토글
+                love.setIsLoved(!love.getIsLoved());
+            } else {    // 탈퇴하면서 지워진 좋아요
+                love.setIsAlive(true);
+                love.setIsLoved(true);
+            }
+            loveRepository.save(love);
+        // 좋아요 객체를 처음 생성해야하는 경우
+        } else {
+            loveRepository.save(Love.builder()
+                            .isLoved(true)
+                            .isAlive(true)
+                            .user(findUserByUid(uid))
+                            .pictureId(pictureId)
+                            .build());
+        }
+    }
 
 }

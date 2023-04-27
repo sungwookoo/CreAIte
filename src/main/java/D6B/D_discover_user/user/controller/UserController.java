@@ -2,6 +2,7 @@ package D6B.D_discover_user.user.controller;
 
 import D6B.D_discover_user.common.dto.AuthResponse;
 import D6B.D_discover_user.common.service.AuthorizeService;
+import D6B.D_discover_user.user.controller.dto.LoveRequestDto;
 import D6B.D_discover_user.user.controller.dto.UserDetailsResponseDto;
 import D6B.D_discover_user.user.controller.dto.UserRequestDto;
 import D6B.D_discover_user.user.controller.dto.UserUpdateRequestDto;
@@ -14,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-
 
 @Slf4j
 @RestController
@@ -94,16 +94,14 @@ public class UserController {
         } else return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
-//    /**
-//     * 좋아요 한 그림 id리스트를 반환
-//     * @param token
-//     */
-////    @GetMapping("/love")
-////    public ResponseEntity<Object> readUserLoves(@RequestHeader("Authorization") String token) {
-////        // 유저 아이디를 찾기
-////        final Long userId = authorizeService.getAuthorization(token);
-////    }
-//
+    // 똑같은 그림으로 또 누른다면??? -> able로 바꾸기
+    @PostMapping("/like")
+    public void toggleLove(@RequestHeader("Authorization") String idToken,
+                                              @RequestBody LoveRequestDto loveRequestDto) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, loveRequestDto.getUid());
+        if(authResponse.getIsUser()) userService.toggleLove(loveRequestDto.getUid(), loveRequestDto.getPicture_id());
+    }
+
 //    /**
 //     * 좋아요 클릭(토글 역할)
 //     * @param token 사용자 정보

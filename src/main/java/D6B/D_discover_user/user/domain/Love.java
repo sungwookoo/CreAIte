@@ -22,6 +22,10 @@ public class Love {
     @Column(name = "is_loved")
     private Boolean isLoved;
 
+    // 좋아요를 누른 회원이 alive인지 판단한다.
+    @Column(name = "is_alive")
+    private Boolean isAlive;
+
     // 좋아요를 누른 유저 객체
     @ManyToOne
     @JoinColumn(name = "user_id")   // 매핑은 유저 id랑 해놓기
