@@ -8,25 +8,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-
-//import static D6B.D_discover_user.common.ConstValues.*;
 
 @Slf4j
 @Service
 public class AuthorizeService {
-    // 토큰과 uid 검증
-    // 회원인증
     public AuthResponse isAuthorized(String idToken, String uid) throws IOException, FirebaseAuthException {
         // Firebase 초기화
         if(FirebaseApp.getApps().isEmpty()) {

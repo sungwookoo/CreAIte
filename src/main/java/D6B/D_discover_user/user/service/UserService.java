@@ -30,13 +30,7 @@ public class UserService {
         Optional<User> optUser = userRepository.findByUid(decodedToken.getUid());
         if(optUser.isPresent()) {
             User user = optUser.get();
-            if(user.getActivate()) {
-                user.setName(decodedToken.getName());
-                user.setImgSrc(decodedToken.getPicture());
-                userRepository.save(user);
-            } else {    // 회원탈퇴 상태였던 경우
-                userRepository.save(activateUser(user, decodedToken));
-            }
+            if(!user.getActivate()) userRepository.save(activateUser(user, decodedToken));
         // 신규 회원
         } else {
             User user = new User(decodedToken);
