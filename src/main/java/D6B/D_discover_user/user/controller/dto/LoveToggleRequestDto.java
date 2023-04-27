@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Builder
 @Data
-public class LoveRequestDto {
+public class LoveToggleRequestDto {
     private String uid;
     private Long picture_id;
 }

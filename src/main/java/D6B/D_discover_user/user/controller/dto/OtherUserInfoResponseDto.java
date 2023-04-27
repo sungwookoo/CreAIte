@@ -8,31 +8,20 @@ import java.time.Instant;
 
 @Builder
 @Data
-public class UserDetailsResponseDto {
-    // 유저의 이메일
-    private String email;
-    // 유저의 닉네임
+public class OtherUserInfoResponseDto {
     private String name;
-    // 유저의 이미지소스
     private String img_src;
-    // 유저의 성별
     private String gender;
-    // 유저의 나이
     private Integer age;
-    // 유저의 가입일
     private Instant created_at;
-    // 유저의 핸드폰 번호->핸드폰 인증?
-    private String mobile_number;
 
-    public static UserDetailsResponseDto from(User user) {
-        return UserDetailsResponseDto.builder()
-                .email(user.getEmail())
+    public static OtherUserInfoResponseDto from(User user) {
+        return OtherUserInfoResponseDto.builder()
                 .name(user.getName())
                 .img_src(user.getImgSrc())
                 .gender(user.getGender())
                 .age(user.getAge())
                 .created_at(user.getCreatedAt())
-                .mobile_number(user.getMobileNumber())
                 .build();
     }
 }
