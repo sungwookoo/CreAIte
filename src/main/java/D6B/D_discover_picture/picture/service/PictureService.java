@@ -5,9 +5,11 @@ import D6B.D_discover_picture.picture.domain.Picture;
 import D6B.D_discover_picture.picture.domain.PictureRepository;
 import D6B.D_discover_picture.picture.domain.PictureTagRepository;
 import D6B.D_discover_picture.picture.domain.TagRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class PictureService {
     private final PictureRepository pictureRepository;
     private final PictureTagRepository pictureTagRepository;

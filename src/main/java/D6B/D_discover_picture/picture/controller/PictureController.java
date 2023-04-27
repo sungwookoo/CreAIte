@@ -46,14 +46,15 @@ public class PictureController {
             @RequestHeader("Authorization") String token,
             @RequestBody PictureSaveRequest pictureSaveRequest) {
         final Long userId = authorizeService.getAuthorization(token);
+        final Long userId = 1L;
         if (authorizeService.isAuthorization(userId)) {
-            try {
-                pictureService.savePicture(pictureSaveRequest, userId);
-                return ResponseEntity.status(HttpStatus.CREATED).build();
-            } catch (PictureNotSavedException e) {
-                log.error(e.getMessage());
-                return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
-            }
+        try {
+            pictureService.savePicture(pictureSaveRequest, userId);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (PictureNotSavedException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        }
         } else {
             return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).build();
         }
