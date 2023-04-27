@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+creaite-app-firebase-adminsdk.json
+application.yaml
