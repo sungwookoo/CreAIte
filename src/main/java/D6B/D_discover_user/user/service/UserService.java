@@ -64,7 +64,7 @@ public class UserService {
         return null;
     }
 
-    public User updateUserDetails(FirebaseToken decodedToken, UserUpdateRequestDto userUpdateRequestDto) {
+    public User updateUserInfos(FirebaseToken decodedToken, UserUpdateRequestDto userUpdateRequestDto) {
         Optional<User> optUser = userRepository.findByUid(decodedToken.getUid());
         if(optUser.isPresent()) {
             User user = optUser.get();
@@ -74,6 +74,15 @@ public class UserService {
             return userRepository.save(user);
         } else log.info("해당 id에 대한 유저가 없습니다.");
         return null;
+    }
+
+    public void deleteUserInfo(FirebaseToken decodedToken) {
+        Optional<User> optUser = userRepository.findByUid(decodedToken.getUid());
+        if(optUser.isPresent()) {
+            User user = optUser.get();
+            user.setActivate(false);
+            userRepository.save(user);
+        } else log.info("해당 id에 대한 유저가 없습니다.");
     }
 
 //    /**
