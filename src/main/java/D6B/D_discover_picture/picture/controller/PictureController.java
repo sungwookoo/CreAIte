@@ -1,6 +1,5 @@
 package D6B.D_discover_picture.picture.controller;
 
-import D6B.D_discover_picture.common.service.AuthorizeService;
 import D6B.D_discover_picture.picture.controller.dto.PictureSaveRequest;
 import D6B.D_discover_picture.picture.domain.PictureRepository;
 import D6B.D_discover_picture.picture.domain.PictureTagRepository;
@@ -23,17 +22,14 @@ public class PictureController {
     private final PictureTagRepository pictureTagRepository;
     private final TagRepository tagRepository;
     private final PictureService pictureService;
-    private final AuthorizeService authorizeService;
 
     @Autowired
     public PictureController(PictureRepository pictureRepository, PictureTagRepository pictureTagRepository,
-                             TagRepository tagRepository, PictureService pictureService,
-                             AuthorizeService authorizeService) {
+                             TagRepository tagRepository, PictureService pictureService) {
         this.pictureRepository = pictureRepository;
         this.pictureTagRepository = pictureTagRepository;
         this.tagRepository = tagRepository;
         this.pictureService = pictureService;
-        this.authorizeService = authorizeService;
     }
 
     /*
@@ -45,18 +41,15 @@ public class PictureController {
     public ResponseEntity<Boolean> savePicture(
             @RequestHeader("Authorization") String token,
             @RequestBody PictureSaveRequest pictureSaveRequest) {
-        final Long userId = authorizeService.getAuthorization(token);
+//        final Long userId = authorizeService.getAuthorization(token);
         final Long userId = 1L;
-        if (authorizeService.isAuthorization(userId)) {
+        System.out.println(pictureSaveRequest);
         try {
             pictureService.savePicture(pictureSaveRequest, userId);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (PictureNotSavedException e) {
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
-        }
-        } else {
-            return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).build();
         }
     }
 }

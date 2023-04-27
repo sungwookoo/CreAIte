@@ -5,16 +5,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PictureSaveRequest {
+public class PictureDetailResponse {
+    public Long id;
     public String img_url;
-    public Boolean is_public;
+    public Long maker_id;
+    public Long love_count;
     public Boolean is_created;
+    public Instant created_at;
     public List<String> image_tags;
-    // 이미지에 달린 태그들
 }

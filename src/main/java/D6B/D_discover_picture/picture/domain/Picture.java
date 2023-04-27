@@ -44,6 +44,7 @@ public class Picture {
     private Instant createdAt;
 
     public static Picture from(PictureSaveRequest pictureSaveRequest, Long userId) {
+        System.out.println(pictureSaveRequest.getImg_url());
         return Picture.builder()
                 .imgUrl(pictureSaveRequest.getImg_url())
                 .makerId(userId)
