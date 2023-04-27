@@ -30,22 +30,6 @@ public class UserController {
         this.authorizeService = authorizeService;
     }
 
-//    /**
-//     * 해당 유저가 회원인지 아닌지를 판단하는 함수 -> UI 구성이 달라질 때 사용하는 API Controller
-//     * @param token : 파이어베이스에서 받은 token
-//     * @return : 로그인한 유저의 id를 보낸다.
-//     */
-//    @GetMapping("")
-//    public ResponseEntity<UserExistInfoDto> isMember(@RequestHeader("Authorization") String token) {
-//        // 토큰으로 userId를 얻는다.
-//        final Long userId = authorizeService.getAuthorization(token);
-//        // 해당 userId로 인가
-//        if(authorizeService.isAuthorization(userId))
-//            return ResponseEntity.ok(UserExistInfoDto.from(userId));
-//        else
-//            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//    }
-
     /**
      * 구글로그인으로 처음 회원이 접속할 때, 회원정보를 우리 DB에 저장하기 위한 Controller
      * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
@@ -80,6 +64,24 @@ public class UserController {
         } else {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
+    }
+
+    /**
+     * 유저의 정보를 변경하는 Controller(구글에서 안오는 정보 : 나이, 성별, 번호)
+     * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
+     * @param userUpdateRequestDto : 변경 혹은 추가할 정보
+     * @return : 추가된 정보가 추가된 유저 정보 반환
+     * @throws IOException : 에러
+     * @throws FirebaseAuthException : 에러
+     */
+    @PutMapping("")
+    public ResponseEntity<UserDetailsResponseDto> updateUserDetails(@RequestHeader("Authorization") String idToken,
+                                                                    @RequestBody UserUpdateRequestDto userUpdateRequestDto) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, userUpdateRequestDto.getUid());
+        if(authResponse.getIsUser()) {
+            return ResponseEntity.ok(UserDetailsResponseDto
+                    .from(userService.updateUserDetails(authResponse.getDecodedToken(), userUpdateRequestDto)));
+        } else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
 //    /**
