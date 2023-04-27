@@ -57,12 +57,18 @@ public class UserService {
         Optional<User> optUser = userRepository.findByUid(decodedToken.getUid());
         if(optUser.isPresent()) {
             User user = optUser.get();
-            user.setAge(userUpdateRequestDto.getAge());
-            user.setGender(userUpdateRequestDto.getGender());
-            user.setMobileNumber(userUpdateRequestDto.getMobile_number());
-            return userRepository.save(user);
+            return userRepository.save(updateUser(user, userUpdateRequestDto));
         } else log.info("해당 uid에 대한 유저가 없습니다.");
         return null;
+    }
+
+    public User updateUser(User user, UserUpdateRequestDto userUpdateRequestDto) {
+        user.setAge(userUpdateRequestDto.getAge());
+        user.setGender(userUpdateRequestDto.getGender());
+        user.setMobileNumber(userUpdateRequestDto.getMobile_number());
+        user.setImgSrc(userUpdateRequestDto.getImg_src());
+        user.setName(userUpdateRequestDto.getName());
+        return user;
     }
 
     public void deleteUserInfo(FirebaseToken decodedToken) {
