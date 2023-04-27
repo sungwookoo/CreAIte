@@ -66,6 +66,7 @@ public class UserController {
         }
     }
 
+    //***** 유저 정보는 이제 DB에서 온전히 갖고 있기로 한다. ******//
     /**
      * 유저의 정보를 변경하는 Controller(구글에서 안오는 정보 : 나이, 성별, 번호)
      * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
