@@ -7,15 +7,16 @@ import lombok.Data;
 @Data
 @Builder
 public class NotificationDto {
+
     private final Long senderId;
     private final Long receiverId;
     private final Long pictureId;
 
     public static NotificationDto createNotificationDto(Alarm alarm){
         return  NotificationDto.builder()
-                .senderId(alarm.getId())
-                .receiverId(alarm.getId())
-                .pictureId(1L)
+                .senderId(alarm.getSenderId())
+                .receiverId(alarm.getReceiverId())
+                .pictureId(alarm.getPictureId())
                 .build();
     }
 

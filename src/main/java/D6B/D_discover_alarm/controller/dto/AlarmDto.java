@@ -17,6 +17,7 @@ import java.time.Instant;
 @ToString
 public class AlarmDto {
 
+    private Long id;
     public Long senderId;  // 좋아요를 누른사람
     public Long receiverId;    // 좋아요 받은 이미지를 만든사람
     public Long pictureId;     // 좋아요 받은 이미지 id
@@ -30,6 +31,7 @@ public class AlarmDto {
 
     public static AlarmDto from(Alarm alarm) {
         return AlarmDto.builder()
+                .id(alarm.getId())
                 .senderId(alarm.getSenderId())
                 .receiverId(alarm.getReceiverId())
                 .pictureId(alarm.getPictureId())

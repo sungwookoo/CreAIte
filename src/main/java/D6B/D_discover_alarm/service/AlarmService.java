@@ -29,10 +29,22 @@ public class AlarmService {
      */
     public List<AlarmDto> getAlarmList(Long userId) {
         List<Alarm> alarms = alarmRepository.findByReceiverId(userId);
-        log.info(alarms.toString());
         return alarms.stream()
+                .filter(alarm -> !alarm.getIsRead())
                 .map(alarm -> AlarmDto.from(alarm))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 알림창 들어가면 알림 전부 읽음으로 표시되게
+     * @param userId
+     */
+    public void checked(Long userId) {
+        List<Alarm> alarms = alarmRepository.findByReceiverId(userId);
+
+        alarms.forEach(alarm -> alarm.setIsRead(true));
+
+        alarmRepository.saveAll(alarms);
     }
 
     /**

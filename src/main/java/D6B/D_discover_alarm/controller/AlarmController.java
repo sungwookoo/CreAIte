@@ -25,17 +25,22 @@ public class AlarmController {
         this.alarmService = alarmService;
         this.notificationService = notificationService;
     }
-    @GetMapping("/list")
+    @GetMapping("/list/{user_id}")
     public ResponseEntity<List<AlarmDto>> getAlarmList(@PathVariable Long user_id){
-        log.info("3");
             List<AlarmDto> dtos = alarmService.getAlarmList(user_id);
         return ResponseEntity.status(HttpStatus.OK).body(dtos);
     }
 
 
-//    @PostMapping("/create")
-//    public  ResponseEntity<String> createNotification(@RequestBody NotificationDto dto){
-//        NotificationDto Dto = notificationService.createNotification(dto);
-//        return null;
-//    }
+    @PostMapping("/create")
+    public  ResponseEntity<NotificationDto> createNotification(@RequestBody NotificationDto notificationdto){
+        NotificationDto createDto = notificationService.createNotification(notificationdto);
+        return ResponseEntity.status(HttpStatus.OK).body(createDto);
+    }
+
+    @PutMapping("/{user_id}/check")
+    public ResponseEntity<String> Checked(@PathVariable Long user_id){
+        alarmService.checked(user_id);
+        return ResponseEntity.status(HttpStatus.OK).body("OK");
+    }
 }

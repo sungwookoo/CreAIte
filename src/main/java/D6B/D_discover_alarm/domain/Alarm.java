@@ -5,6 +5,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @Builder
 @AllArgsConstructor
@@ -47,11 +49,23 @@ public class Alarm {
     @Column(name = "type")
     private Integer type;
 
-//    public static Alarm createAlarm(NotificationDto dto) {
-//        return new Alarm(
-//                dto.getReceiverId(),
-//                dto.getSenderId(),
-//                dto.getPictureId()
-//        )
-//    }
+    public Alarm(Long receiverId, Long senderId, Long pictureId) {
+        this.receiverId = receiverId;
+        this.senderId = senderId;
+        this.pictureId = pictureId;
+        // 필요한 경우 기본값으로 다른 필드 초기화
+        this.isSended = false;
+        this.isRead = false;
+        ZonedDateTime koreaTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        this.createdAt = koreaTime.toInstant();
+        this.type = 1;
+        this.content = "좋아요를 클릭하였습니다";
+    }
+    public static Alarm createAlarm(NotificationDto dto) {
+        return new Alarm(
+                dto.getReceiverId(),
+                dto.getSenderId(),
+                dto.getPictureId()
+        );
+    }
 }
