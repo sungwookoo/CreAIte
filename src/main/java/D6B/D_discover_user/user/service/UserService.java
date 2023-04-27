@@ -52,19 +52,29 @@ public class UserService {
                 newUser.setImgSrc(firebaseToken.getPicture());
                 newUser.setCreatedAt(Instant.now().plusSeconds(60 * 60 * 9));
                 newUser.setActivate(true);
-                User user = userRepository.save(newUser);
+                userRepository.save(newUser);
             }
         }
     }
 
     public User findUserByUid(String uid) {
-        // uid 유저를 찾는다.
         Optional<User> optUser = userRepository.findByUid(uid);
         if(optUser.isPresent()) return optUser.get();
         else log.info("해당 id에 대한 유저가 없습니다");
         return null;
     }
 
+    public User updateUserDetails(FirebaseToken decodedToken, UserUpdateRequestDto userUpdateRequestDto) {
+        Optional<User> optUser = userRepository.findByUid(decodedToken.getUid());
+        if(optUser.isPresent()) {
+            User user = optUser.get();
+            user.setAge(userUpdateRequestDto.getAge());
+            user.setGender(userUpdateRequestDto.getGender());
+            user.setMobileNumber(userUpdateRequestDto.getMobile_number());
+            return userRepository.save(user);
+        } else log.info("해당 id에 대한 유저가 없습니다.");
+        return null;
+    }
 
 //    /**
 //     * 좋아요 토글 서비스 함수
@@ -97,23 +107,5 @@ public class UserService {
 //        }
 //    }
 
-//    /**
-//     * 유저의 정보를 수정하는 것
-//     * @param userId : 수정하고자 하는 유저의 아이디
-//     * @param userUpdateRequestDto : 수정정보가 담긴 request dto
-//     * @return : 수정된 유저의 객체
-//     */
-//    public User updateUserDetails(Long userId, UserUpdateRequestDto userUpdateRequestDto) {
-//        Optional<User> optUser = userRepository.findById(userId);
-//        // 유저가 있다면
-//        if(optUser.isPresent()) {
-//            User user = optUser.get();
-//            user.setGender(userUpdateRequestDto.getGender());
-//            user.setAge(userUpdateRequestDto.getAge());
-//            user.setMobileNumber(userUpdateRequestDto.getMobileNumber());
-//            return userRepository.save(user);
-//        }
-//        // ifPresent() -> Java 공부 더해야함
-//        return optUser.get();
-//    }
+
 }
