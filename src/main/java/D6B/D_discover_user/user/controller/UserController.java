@@ -75,35 +75,24 @@ public class UserController {
      * @throws FirebaseAuthException : 에러
      */
     @PutMapping("")
-    public ResponseEntity<UserDetailsResponseDto> updateUserDetails(@RequestHeader("Authorization") String idToken,
+    public ResponseEntity<UserDetailsResponseDto> updateUserInfos(@RequestHeader("Authorization") String idToken,
                                                                     @RequestBody UserUpdateRequestDto userUpdateRequestDto) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, userUpdateRequestDto.getUid());
         if(authResponse.getIsUser()) {
             return ResponseEntity.ok(UserDetailsResponseDto
-                    .from(userService.updateUserDetails(authResponse.getDecodedToken(), userUpdateRequestDto)));
+                    .from(userService.updateUserInfos(authResponse.getDecodedToken(), userUpdateRequestDto)));
         } else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-//    /**
-//     * 로그인한 유저 본인의 정보를 수정하는 Controller
-//     * @param token : Firebase 통해서 받은 구글 토큰
-//     * @param user_id : 수정하고자 하는 유저의 아이디 값(본인일 경우)
-//     * @param userUpdateRequestDto : 수정할 정보
-//     * @return : 변경된 유저의 정보를 반환한다.
-//     */
-//    @PutMapping("/{user_id}")
-//    public ResponseEntity<UserDetailsDto> updateUserDetails(@RequestHeader("Authorization") String token,
-//                                                            @RequestBody UserUpdateRequestDto userUpdateRequestDto) {
-//        final Long userId = authorizeService.getAuthorization(token);
-//        // 토큰인증이 실패할 경우, unauthorized 반환하도록 함
-//        if(userId.equals(UNAUTHORIZED_USER)) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        } else if (!userId.equals(user_id)) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        } else {
-//            return ResponseEntity.ok(UserDetailsDto.from(userService.updateUserDetails(user_id, userUpdateRequestDto)));
-//        }
-//    }
+    @DeleteMapping("{uid}")
+    public ResponseEntity<Object> deleteUserInfo(@RequestHeader("Authorization") String idToken,
+                                                 @PathVariable String uid) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+        if(authResponse.getIsUser()) {
+            userService.deleteUserInfo(authResponse.getDecodedToken());
+            return ResponseEntity.ok().build();
+        } else return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    }
 
 //    /**
 //     * 좋아요 한 그림 id리스트를 반환
