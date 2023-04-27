@@ -25,19 +25,13 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * 구글로그인으로 접속한 유저의 정보를 DB에 저장하거나 갱신시킨다.
-     * @param firebaseToken : Firebase 로부터 받은 idToken -> 유저의 정보가 담겨있음
-     * @return : 저장된 유저의 id
-     */
-    public Long enrollUser(FirebaseToken firebaseToken) {
+    public void enrollUser(FirebaseToken firebaseToken) {
         Optional<User> optUser = userRepository.findByUid(firebaseToken.getUid());
         // 이미 회원인 경우 -> 구글 정보를 바탕으로 닉네임정보, 이미지 정보를 갱신한다.
         if(optUser.isPresent()) {
             User activeUser = optUser.get();
             activeUser.setName(firebaseToken.getName());
             activeUser.setImgSrc(firebaseToken.getPicture());
-            return optUser.get().getId();   // 기존회원의 아이디를 반환한다.
         // 신규유저이거나 이전에 탈퇴했던 유저인 경우
         } else {
             Optional<User> isUnActiveUser = userRepository.findByUid(firebaseToken.getUid());
@@ -49,30 +43,28 @@ public class UserService {
                 unActiveUser.setImgSrc(firebaseToken.getPicture());
                 unActiveUser.setCreatedAt(Instant.now().plusSeconds(60 * 60 * 9));
                 userRepository.save(unActiveUser);  // 비활성 유저를 다시 활성시킨다.
-                return unActiveUser.getId();        // 회원의 id값을 반환한다.
             // 신규 유저인 경우
             } else {
                 User newUser = new User();
                 newUser.setUid(firebaseToken.getUid());
+                newUser.setName(firebaseToken.getName());
                 newUser.setEmail(firebaseToken.getEmail());
                 newUser.setImgSrc(firebaseToken.getPicture());
                 newUser.setCreatedAt(Instant.now().plusSeconds(60 * 60 * 9));
                 newUser.setActivate(true);
                 User user = userRepository.save(newUser);
-                return user.getId();
             }
         }
     }
 
-    /**
-     * 유저 아이디로 유저 객체를 찾는 함수
-     * @param userId : 찾고자 하는 유저의 id
-     * @return : 해당 id를 가진 유저 객체
-     */
-    public User findUserByUserId(Long userId) {
-        Optional<User> optUser = userRepository.findById(userId);
-        return optUser.orElseThrow();
+    public User findUserByUid(String uid) {
+        // uid 유저를 찾는다.
+        Optional<User> optUser = userRepository.findByUid(uid);
+        if(optUser.isPresent()) return optUser.get();
+        else log.info("해당 id에 대한 유저가 없습니다");
+        return null;
     }
+
 
 //    /**
 //     * 좋아요 토글 서비스 함수
