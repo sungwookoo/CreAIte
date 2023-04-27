@@ -82,6 +82,14 @@ public class UserController {
         } else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
+    /**
+     * 회원탈퇴
+     * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
+     * @param uid : Firebase 통해 얻은 uid
+     * @return : 삭제 여부를 판단해서 반환
+     * @throws IOException : 에러
+     * @throws FirebaseAuthException : 에러
+     */
     @DeleteMapping("{uid}")
     public ResponseEntity<Object> deleteUserInfo(@RequestHeader("Authorization") String idToken,
                                                  @PathVariable String uid) throws IOException, FirebaseAuthException {
@@ -92,13 +100,29 @@ public class UserController {
         } else return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
+    /**
+     * 좋아요
+     * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
+     * @param loveToggleRequestDto : 좋아요
+     * @throws IOException : 에러
+     * @throws FirebaseAuthException : 에러
+     */
     @PostMapping("/like")
     public void toggleLove(@RequestHeader("Authorization") String idToken,
-                                              @RequestBody LoveReadRequestDto loveReadRequestDto) throws IOException, FirebaseAuthException {
-        AuthResponse authResponse = authorizeService.isAuthorized(idToken, loveReadRequestDto.getUid());
-        if(authResponse.getIsUser()) userService.toggleLove(loveReadRequestDto.getUid(), loveReadRequestDto.getPicture_id());
+                                              @RequestBody LoveToggleRequestDto loveToggleRequestDto) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, loveToggleRequestDto.getUid());
+        if(authResponse.getIsUser()) userService.toggleLove(loveToggleRequestDto.getUid(), loveToggleRequestDto.getPicture_id());
     }
 
+    /**
+     * 다른 사람의 유저정보 조회
+     * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
+     * @param uid : Firebase 통해 얻은 uid
+     * @param other_uid : 찾고자하는 유저의 uid
+     * @return : 다른 사람의 유저 정보
+     * @throws IOException : 에러
+     * @throws FirebaseAuthException : 에러
+     */
     @GetMapping("{uid}/{other_uid}")
     public ResponseEntity<OtherUserInfoResponseDto> readOtherUserInfo(@RequestHeader("Authorization") String idToken,
                                                                       @PathVariable String uid,
