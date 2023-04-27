@@ -1,5 +1,6 @@
 package D6B.D_discover_user.user.domain;
 
+import com.google.firebase.auth.FirebaseToken;
 import lombok.*;
 
 import javax.persistence.*;
@@ -59,4 +60,13 @@ public class User {
     @ToString.Exclude
     @Builder.Default
     private Set<Love> loves = new LinkedHashSet<>();
+
+    public User(FirebaseToken decodedToken) {
+        this.uid = decodedToken.getUid();
+        this.name = decodedToken.getName();
+        this.email = decodedToken.getEmail();
+        this.imgSrc = decodedToken.getPicture();
+        this.createdAt = Instant.now().plusSeconds(60 * 60 * 9);
+        this.activate = true;
+    }
 }
