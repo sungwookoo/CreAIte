@@ -1,28 +1,20 @@
 package D6B.D_discover_user.user.controller;
 
-//import D6B.D_discover_user.common.service.AuthorizeService;
-import D6B.D_discover_user.user.controller.dto.UserExistInfoDto;
+import D6B.D_discover_user.common.dto.AuthResponse;
+import D6B.D_discover_user.common.service.AuthorizeService;
+import D6B.D_discover_user.user.controller.dto.UserDetailsResponseDto;
 import D6B.D_discover_user.user.controller.dto.UserRequestDto;
+import D6B.D_discover_user.user.controller.dto.UserUpdateRequestDto;
 import D6B.D_discover_user.user.service.UserService;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Objects;
 
-
-//import static D6B.D_discover_user.common.ConstValues.*;
 
 @Slf4j
 @RestController
@@ -30,12 +22,12 @@ import java.util.Objects;
 public class UserController {
 
     private final UserService userService;
-//    private final AuthorizeService authorizeService;
+    private final AuthorizeService authorizeService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AuthorizeService authorizeService) {
         this.userService = userService;
-//        this.authorizeService = authorizeService;
+        this.authorizeService = authorizeService;
     }
 
 //    /**
@@ -58,48 +50,38 @@ public class UserController {
      * 구글로그인으로 처음 회원이 접속할 때, 회원정보를 우리 DB에 저장하기 위한 Controller
      * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
      * @param userRequestDto : (구글로그인 후) 프론트단에서 유저관련 정보를 받을 수 있다.
-     * @return : 등록 후, 유저의 id를 반환한다.
      */
     @PostMapping("")
-    public ResponseEntity<UserExistInfoDto> enrollUserInformation(@RequestHeader("Authorization") String idToken,
+    public void enrollUserInformation(@RequestHeader("Authorization") String idToken,
                                                         @RequestBody UserRequestDto userRequestDto) throws IOException, FirebaseAuthException {
-        // Firebase 초기화
-        if(FirebaseApp.getApps().isEmpty()) {
-            FileInputStream serviceAccount = new FileInputStream("creaite-app-firebase-adminsdk.json");
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .build();
-            FirebaseApp.initializeApp(options);
-        }
-        // Firebase 토큰 디코드
-        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
-        String uid = decodedToken.getUid();
-        // uid 변형이 없었는지 검증
-        if(Objects.equals(userRequestDto.getUid(), uid)) {
-            return ResponseEntity.ok(UserExistInfoDto.from(userService.enrollUser(decodedToken)));
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, userRequestDto.getUid());
+        if(authResponse.getIsUser()) {
+            userService.enrollUser(authResponse.getDecodedToken());
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            log.info("없는 회원입니다.");
         }
     }
 
-//    /**
-//     * 특정한 회원의 정보를 반환한다.(본인 or 찾는 사람의 정보)
-//     * @param token : Firebase 통해서 받은 구글 토큰
-//     * @param user_id : 정보를 찾고자 하는 유저의 아이디 값
-//     * @return : 해당 유저의 정보를 반환한다.
-//     */
-//    @GetMapping("/{user_id}")
-//    public ResponseEntity<UserDetailsDto> readUserDetails(@RequestHeader("Authorization") String token,
-//                                                          @PathVariable Long user_id) {
-//        final Long userId = authorizeService.getAuthorization(token);
-//        // 토큰인증이 실패할 경우, unauthorized 반환하도록 함
-//        if (userId.equals(UNAUTHORIZED_USER)) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        } else {
-//            return ResponseEntity.ok(UserDetailsDto.from(userService.findUserByUserId(user_id)));
-//        }
-//    }
-//
+    /**
+     * 유저의 정보를 확인하는 Controller
+     * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
+     * @param uid : Firebase 통해 얻은 uid
+     * @return : 유저의 세부정보를 반환
+     * @throws IOException : 에러
+     * @throws FirebaseAuthException : 에러
+     */
+    @GetMapping("/{uid}")
+    public ResponseEntity<UserDetailsResponseDto> readUserDetail(@RequestHeader("Authorization") String idToken,
+                                                                 @PathVariable String uid) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+        if(authResponse.getIsUser()) {
+            return ResponseEntity.ok(UserDetailsResponseDto
+                    .from(userService.findUserByUid(authResponse.getDecodedToken().getUid())));
+        } else {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+    }
+
 //    /**
 //     * 로그인한 유저 본인의 정보를 수정하는 Controller
 //     * @param token : Firebase 통해서 받은 구글 토큰
@@ -109,7 +91,6 @@ public class UserController {
 //     */
 //    @PutMapping("/{user_id}")
 //    public ResponseEntity<UserDetailsDto> updateUserDetails(@RequestHeader("Authorization") String token,
-//                                                            @PathVariable Long user_id,
 //                                                            @RequestBody UserUpdateRequestDto userUpdateRequestDto) {
 //        final Long userId = authorizeService.getAuthorization(token);
 //        // 토큰인증이 실패할 경우, unauthorized 반환하도록 함
@@ -121,8 +102,7 @@ public class UserController {
 //            return ResponseEntity.ok(UserDetailsDto.from(userService.updateUserDetails(user_id, userUpdateRequestDto)));
 //        }
 //    }
-//
-//
+
 //    /**
 //     * 좋아요 한 그림 id리스트를 반환
 //     * @param token

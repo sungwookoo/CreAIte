@@ -8,7 +8,7 @@ import java.time.Instant;
 
 @Builder
 @Data
-public class UserDetailsDto {
+public class UserDetailsResponseDto {
     // 유저의 이메일
     private String email;
     // 유저의 닉네임
@@ -24,8 +24,8 @@ public class UserDetailsDto {
     // 유저의 핸드폰 번호->핸드폰 인증?
     private String mobile_number;
 
-    public static UserDetailsDto from(User user) {
-        return UserDetailsDto.builder()
+    public static UserDetailsResponseDto from(User user) {
+        return UserDetailsResponseDto.builder()
                 .email(user.getEmail())
                 .name(user.getName())
                 .img_src(user.getImgSrc())
