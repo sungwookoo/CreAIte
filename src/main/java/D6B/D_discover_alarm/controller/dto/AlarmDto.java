@@ -18,9 +18,9 @@ import java.time.Instant;
 public class AlarmDto {
 
     private Long id;
-    public Long senderId;  // 좋아요를 누른사람
-    public Long receiverId;    // 좋아요 받은 이미지를 만든사람
-    public Long pictureId;     // 좋아요 받은 이미지 id
+    public Long senderUid;  // 좋아요를 누른사람
+    public Long receiverUid;    // 좋아요 받은 이미지를 만든사람
+    public Long pictureUid;     // 좋아요 받은 이미지 id
     public String content;     // 알람 내용
     public Instant createdAt;  // 알람 생성일
     public Boolean isRead;
@@ -32,13 +32,16 @@ public class AlarmDto {
     public static AlarmDto from(Alarm alarm) {
         return AlarmDto.builder()
                 .id(alarm.getId())
-                .senderId(alarm.getSenderId())
-                .receiverId(alarm.getReceiverId())
-                .pictureId(alarm.getPictureId())
+                .senderUid(alarm.getSenderUid())
+                .receiverUid(alarm.getReceiverUid())
+                .pictureUid(alarm.getPictureUid())
                 .content(alarm.getContent())
                 .createdAt(alarm.getCreatedAt())
                 .isRead(alarm.getIsRead())
                 .type(alarm.getType())
+                .senderName(alarm.getSenderName())
+                .senderImgSrc(alarm.getSenderImgSrc())
+                .pictureImgSrc(alarm.getPictureImgSrc())
                 .build();
     }
 //    public static AlarmDto from(Alarm e, AlarmService alarmService) {

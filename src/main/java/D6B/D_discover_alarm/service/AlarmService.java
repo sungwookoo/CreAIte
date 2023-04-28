@@ -1,16 +1,21 @@
 package D6B.D_discover_alarm.service;
 
 import D6B.D_discover_alarm.controller.dto.AlarmDto;
+import D6B.D_discover_alarm.controller.dto.IsAliveDto;
 import D6B.D_discover_alarm.domain.Alarm;
 import D6B.D_discover_alarm.domain.AlarmRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,26 +29,60 @@ public class AlarmService {
 
     /**
      * 해당 user의 모든 알림정보를 반환한다.
-     * @param userId ( 조회 하려는 유저)
+     * @param userUid ( 조회 하려는 유저)
      * @return
      */
-    public List<AlarmDto> getAlarmList(Long userId) {
-        List<Alarm> alarms = alarmRepository.findByReceiverId(userId);
+    public List<AlarmDto> getAlarmList(Long userUid) {
+        List<Alarm> alarms = alarmRepository.findByReceiverUid(userUid);
+        log.info(alarms.toString());
         return alarms.stream()
-                .filter(alarm -> !alarm.getIsRead())
+                .filter(alarm -> !alarm.getIsRead() && alarm.getIsAlive())
                 .map(alarm -> AlarmDto.from(alarm))
                 .collect(Collectors.toList());
     }
 
     /**
      * 알림창 들어가면 알림 전부 읽음으로 표시되게
-     * @param userId
+     * @param userUid
      */
-    public void checked(Long userId) {
-        List<Alarm> alarms = alarmRepository.findByReceiverId(userId);
-
+    public void checked(Long userUid) {
+        List<Alarm> alarms = alarmRepository.findByReceiverUid(userUid);
         alarms.forEach(alarm -> alarm.setIsRead(true));
+        alarmRepository.saveAll(alarms);
+    }
+    @Transactional
+    public void isAlive(IsAliveDto isalivedto) {
+        Optional<Alarm> alarmOpt = alarmRepository.findBySenderUidAndReceiverUidAndPictureUid(
+                isalivedto.getSenderUid(),
+                isalivedto.getReceiverUid(),
+                isalivedto.getPictureUid()
+        );
+        if (alarmOpt.isPresent()) {
+            Alarm alarm = alarmOpt.get();
+            alarm.setIsAlive(false);
+            alarm.setIsRead(false);
+            alarmRepository.save(alarm);
+        }
+    }
 
+    public void marked(IsAliveDto isalivedto) {
+        Optional<Alarm> alarmOpt = alarmRepository.findBySenderUidAndReceiverUidAndPictureUid(
+                isalivedto.getSenderUid(),
+                isalivedto.getReceiverUid(),
+                isalivedto.getPictureUid()
+        );
+        if (alarmOpt.isPresent()) {
+            Alarm alarm = alarmOpt.get();
+            alarm.setIsAlive(true);
+            alarm.setIsRead(false);
+            alarm.setCreatedAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toInstant());
+            alarmRepository.save(alarm);
+        }
+    }
+
+    public void remove(Long userUid) {
+        List<Alarm> alarms = alarmRepository.findByReceiverUidOrSenderUid(userUid,userUid);
+        alarms.forEach(alarm -> alarm.setIsAlive(false));
         alarmRepository.saveAll(alarms);
     }
 

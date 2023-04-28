@@ -1,6 +1,8 @@
 package D6B.D_discover_alarm.controller;
 
 import D6B.D_discover_alarm.controller.dto.AlarmDto;
+import D6B.D_discover_alarm.controller.dto.IsAliveDto;
+
 import D6B.D_discover_alarm.controller.dto.NotificationDto;
 import D6B.D_discover_alarm.service.AlarmService;
 import D6B.D_discover_alarm.service.NotificationService;
@@ -10,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.management.Notification;
 import java.util.List;
 
 @Slf4j
@@ -25,9 +26,10 @@ public class AlarmController {
         this.alarmService = alarmService;
         this.notificationService = notificationService;
     }
-    @GetMapping("/list/{user_id}")
-    public ResponseEntity<List<AlarmDto>> getAlarmList(@PathVariable Long user_id){
-            List<AlarmDto> dtos = alarmService.getAlarmList(user_id);
+    @GetMapping("/list/{user_uid}")
+    public ResponseEntity<List<AlarmDto>> getAlarmList(@PathVariable Long user_uid){
+
+            List<AlarmDto> dtos = alarmService.getAlarmList(user_uid);
         return ResponseEntity.status(HttpStatus.OK).body(dtos);
     }
 
@@ -38,9 +40,27 @@ public class AlarmController {
         return ResponseEntity.status(HttpStatus.OK).body(createDto);
     }
 
-    @PutMapping("/{user_id}/check")
-    public ResponseEntity<String> Checked(@PathVariable Long user_id){
-        alarmService.checked(user_id);
+    @PutMapping("/{user_uid}/check")
+    public ResponseEntity<String> Checked(@PathVariable Long user_uid){
+        alarmService.checked(user_uid);
+        return ResponseEntity.status(HttpStatus.OK).body("OK");
+    }
+
+    @PutMapping("/isalive")
+    public ResponseEntity<String> isAlive(@RequestBody IsAliveDto isalivedto){
+        alarmService.isAlive(isalivedto);
+        return ResponseEntity.status(HttpStatus.OK).body("OK");
+    }
+
+    @PutMapping("/marked")
+    public ResponseEntity<String> marked(@RequestBody IsAliveDto isalivedto){
+        alarmService.marked(isalivedto);
+        return ResponseEntity.status(HttpStatus.OK).body("OK");
+    }
+
+    @PutMapping("/remove/{user_uid}")
+    public ResponseEntity<String> remove(@PathVariable Long user_uid){
+        alarmService.remove(user_uid);
         return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
 }
