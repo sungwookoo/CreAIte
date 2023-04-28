@@ -1,10 +1,13 @@
 package D6B.D_discover_user.user.domain;
 
+import com.google.firebase.auth.FirebaseToken;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @Builder
@@ -21,26 +24,20 @@ public class User {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(name = "uid")
+    private String uid;
+
     @Column(name = "email")
     private String email;
 
-    @Column(name = "nickname")
-    private String nickname;
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "img_src", length = 200)
     private String imgSrc;
 
     @Column(name = "gender")
     private String gender;
-
-    @Column(name = "role")
-    private String role;
-
-    @Column(name = "provide")
-    private String provider;
-
-    @Column(name = "token")
-    private String token;
 
     @Column(name = "age")
     private Integer age;
@@ -63,4 +60,13 @@ public class User {
     @ToString.Exclude
     @Builder.Default
     private Set<Love> loves = new LinkedHashSet<>();
+
+    public User(FirebaseToken decodedToken) {
+        this.uid = decodedToken.getUid();
+        this.name = decodedToken.getName();
+        this.email = decodedToken.getEmail();
+        this.imgSrc = decodedToken.getPicture();
+        this.createdAt = Instant.now().plusSeconds(60 * 60 * 9);
+        this.activate = true;
+    }
 }

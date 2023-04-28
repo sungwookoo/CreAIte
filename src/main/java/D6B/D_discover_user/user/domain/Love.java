@@ -20,7 +20,11 @@ public class Love {
     private Long id;
 
     @Column(name = "is_loved")
-    private boolean isLoved;
+    private Boolean isLoved;
+
+    // 좋아요를 누른 회원이 alive인지 판단한다.
+    @Column(name = "is_alive")
+    private Boolean isAlive;
 
     // 좋아요를 누른 유저 객체
     @ManyToOne

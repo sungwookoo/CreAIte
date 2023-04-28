@@ -1,48 +1,45 @@
 package D6B.D_discover_user.common.service;
 
+import D6B.D_discover_user.common.dto.AuthResponse;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
-import static D6B.D_discover_user.common.ConstValues.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Objects;
 
 @Slf4j
 @Service
 public class AuthorizeService {
-    /**
-     * token 정보 유효 확인 -> authorization : 인가
-     * @param token
-     * 정상적인 회원일 경우 : USER ID
-     * 요청이 실패한 경우 : NON_MEMBER(-1)
-     * 요청이 성공했으나, 회원이 아닌 경우 : UNAUTHORIZED_USER(-2)
-     */
-    public Long getAuthorization(String token) {
-        Long userId = NON_MEMBER;
-        try {
-            userId = AUTH_SERVER_CLIENT.get()
-                    .uri(AUTH_URI)
-                    .header("Authorization", token)
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(Long.class)
-                    .block();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            userId = UNAUTHORIZED_USER;
+    public AuthResponse isAuthorized(String idToken, String uid) throws IOException, FirebaseAuthException {
+        // Firebase 초기화
+        if(FirebaseApp.getApps().isEmpty()) {
+            FileInputStream serviceAccount = new FileInputStream("creaite-app-firebase-adminsdk.json");
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
+            FirebaseApp.initializeApp(options);
         }
-        return userId;
-    }
-
-    /**
-     * 해당 사용자가 회원인지 반환
-     * @param status getAuthorization 함수의 반환값
-     */
-    public boolean isAuthorization(Long status) {
-        if (status.equals(UNAUTHORIZED_USER) || status.equals(NON_MEMBER))
-            return false;
-        else
-            return true;
+        // Firebase 토큰 디코드
+        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+        String decodedTokenUid = decodedToken.getUid();
+        // uid 변형이 없었는지 검증
+        if(Objects.equals(decodedTokenUid, uid)) {
+            return AuthResponse.builder()
+                    .isUser(true)
+                    .decodedToken(decodedToken)
+                    .build();
+        } else {
+            return AuthResponse.builder()
+                    .isUser(false)
+                    .decodedToken(null)
+                    .build();
+        }
     }
 }
