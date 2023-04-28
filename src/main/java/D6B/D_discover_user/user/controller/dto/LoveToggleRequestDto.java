@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 public class LoveToggleRequestDto {
     private String uid;
-    private Long picture_id;
-    private Long maker_id;
+    private Long pictureId;
+    private String makerUid;
 }
