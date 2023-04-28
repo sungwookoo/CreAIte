@@ -12,9 +12,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PictureSaveRequest {
-    public String img_url;
-    public Boolean is_public;
-    public Boolean is_created;
-    public List<String> image_tags;
+    public String uid;
+    public String imgUrl;
+    public Boolean isPublic;
+    public Boolean isCreated;
+    public List<String> imageTags;
     // 이미지에 달린 태그들
 }

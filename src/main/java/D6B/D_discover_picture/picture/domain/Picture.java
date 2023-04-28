@@ -6,6 +6,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -24,8 +26,8 @@ public class Picture {
     @Column(name = "img_url")
     private String imgUrl;
 
-    @Column(name = "maker_id")
-    private Long makerId;
+    @Column(name = "maker_uid")
+    private String makerUid;
 
     @Column(name = "is_public")
     private Boolean isPublic;
@@ -33,8 +35,8 @@ public class Picture {
     @Column(name = "love_count")
     private Long loveCount;
 
-    @Column(name = "is_disabled")
-    private Boolean isDisabled;
+    @Column(name = "is_alive")
+    private Boolean isAlive;
 
     // 이미지가 생성 or 편집인지를 나타냄
     @Column(name = "is_created")
@@ -43,15 +45,19 @@ public class Picture {
     @Column(name = "created_at")
     private Instant createdAt;
 
-    public static Picture from(PictureSaveRequest pictureSaveRequest, Long userId) {
-        System.out.println(pictureSaveRequest.getImg_url());
+    @OneToMany(mappedBy = "picture")
+    @ToString.Exclude
+    @Builder.Default
+    private Set<PictureTag> pictureTags = new LinkedHashSet<>();
+
+    public static Picture from(PictureSaveRequest pictureSaveRequest) {
         return Picture.builder()
-                .imgUrl(pictureSaveRequest.getImg_url())
-                .makerId(userId)
-                .isPublic(pictureSaveRequest.getIs_public())
+                .imgUrl(pictureSaveRequest.getImgUrl())
+                .makerUid(pictureSaveRequest.getUid())
+                .isPublic(pictureSaveRequest.getIsPublic())
                 .loveCount(0L)
-                .isDisabled(false)
-                .isCreated(pictureSaveRequest.getIs_created())
+                .isAlive(true)
+                .isCreated(pictureSaveRequest.getIsCreated())
                 .createdAt(Instant.now().plusSeconds(60*60*9))
                 .build();
     }

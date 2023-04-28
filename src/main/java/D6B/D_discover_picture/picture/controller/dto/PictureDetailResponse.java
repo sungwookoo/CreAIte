@@ -1,5 +1,6 @@
 package D6B.D_discover_picture.picture.controller.dto;
 
+import D6B.D_discover_picture.picture.domain.Picture;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,10 +15,22 @@ import java.util.List;
 @AllArgsConstructor
 public class PictureDetailResponse {
     public Long id;
-    public String img_url;
-    public Long maker_id;
-    public Long love_count;
-    public Boolean is_created;
-    public Instant created_at;
-    public List<String> image_tags;
+    public String imgUrl;
+    public String makerUid;
+    public Long loveCount;
+    public Boolean isCreated;
+    public Instant createdAt;
+    public List<String> imageTags;
+
+    public static PictureDetailResponse from(Picture picture, List<String> tags) {
+        return PictureDetailResponse.builder()
+                .id(picture.getId())
+                .imgUrl(picture.getImgUrl())
+                .makerUid(picture.getMakerUid())
+                .loveCount(picture.getLoveCount())
+                .isCreated(picture.getIsCreated())
+                .createdAt(picture.getCreatedAt())
+                .imageTags(tags)
+                .build();
+    }
 }
