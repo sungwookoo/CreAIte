@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -44,7 +45,7 @@ public class UserController {
     }
 
     /**
-     * 유저의 정보를 확인하는 Controller
+     * 유저 본인의 정보를 확인하는 Controller
      * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
      * @param uid : Firebase 통해 얻은 uid
      * @return : 유저의 세부정보를 반환
@@ -63,9 +64,8 @@ public class UserController {
         }
     }
 
-    //***** 유저 정보는 이제 DB에서 온전히 갖고 있기로 한다. ******//
     /**
-     * 유저의 정보를 변경하는 Controller(구글에서 안오는 정보 : 나이, 성별, 번호)
+     * 유저의 정보를 변경하는 Controller(구글에서 안오는 정보 : 나이, 성별)
      * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
      * @param userUpdateRequestDto : 변경 혹은 추가할 정보
      * @return : 추가된 정보가 추가된 유저 정보 반환
@@ -82,6 +82,14 @@ public class UserController {
         } else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
+    // s3에 저장 후, img_url을 반환한다.
+    @PutMapping("/image")
+    public String uploadImage(@RequestParam("image") MultipartFile image) {
+        // 업데이트
+        return userService.updateUserImg(image);
+    }
+
+
     /**
      * 회원탈퇴
      * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
@@ -90,7 +98,7 @@ public class UserController {
      * @throws IOException : 에러
      * @throws FirebaseAuthException : 에러
      */
-    @DeleteMapping("{uid}")
+    @DeleteMapping("/{uid}")
     public ResponseEntity<Object> deleteUserInfo(@RequestHeader("Authorization") String idToken,
                                                  @PathVariable String uid) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
@@ -111,7 +119,7 @@ public class UserController {
     public void toggleLove(@RequestHeader("Authorization") String idToken,
                                               @RequestBody LoveToggleRequestDto loveToggleRequestDto) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, loveToggleRequestDto.getUid());
-        if(authResponse.getIsUser()) userService.toggleLove(loveToggleRequestDto.getUid(), loveToggleRequestDto.getPicture_id());
+        if(authResponse.getIsUser()) userService.toggleLove(loveToggleRequestDto);
     }
 
     /**
@@ -123,15 +131,20 @@ public class UserController {
      * @throws IOException : 에러
      * @throws FirebaseAuthException : 에러
      */
-    @GetMapping("{uid}/{other_uid}")
-    public ResponseEntity<OtherUserInfoResponseDto> readOtherUserInfo(@RequestHeader("Authorization") String idToken,
+    @GetMapping("/{uid}/{other_uid}")
+    public ResponseEntity<UserInfoResponseDto> readOtherUserInfo(@RequestHeader("Authorization") String idToken,
                                                                       @PathVariable String uid,
                                                                       @PathVariable String other_uid) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
         if(authResponse.getIsUser()) {
-            return ResponseEntity.ok(OtherUserInfoResponseDto.from(userService.findUserByUid(other_uid)));
+            return ResponseEntity.ok(UserInfoResponseDto.from(userService.findUserByUid(other_uid)));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+    }
+
+    @GetMapping("/find_id_by_uid/{uid}")
+    public Long findIdByUid(@PathVariable String uid) {
+        return userService.findIdByUid(uid);
     }
 }

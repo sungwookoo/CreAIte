@@ -8,4 +8,5 @@ import lombok.Data;
 public class LoveToggleRequestDto {
     private String uid;
     private Long picture_id;
+    private Long maker_id;
 }
