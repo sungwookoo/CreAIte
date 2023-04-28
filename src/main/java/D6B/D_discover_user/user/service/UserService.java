@@ -8,6 +8,7 @@ import D6B.D_discover_user.user.domain.Love;
 import D6B.D_discover_user.user.domain.LoveRepository;
 import D6B.D_discover_user.user.domain.User;
 import D6B.D_discover_user.user.domain.UserRepository;
+import D6B.D_discover_user.user.service.dto.DeleteUserHistoryInPicture;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -92,10 +93,8 @@ public class UserService {
         try {
             // 업로드할 파일을 InputStream으로 변환
             InputStream stream = image.getInputStream();
-
             // S3에 객체 업로드
             s3Client.putObject(bucketName, objectKey, stream, new ObjectMetadata());
-
             // 업로드한 객체의 URL 생성
             // 업로드한 객체의 URL을 반환하거나, 업로드한 객체를 참조하는 데이터베이스 등에 저장하는 등의 로직 수행
             return s3Client.getUrl(bucketName, objectKey).toExternalForm();
@@ -188,10 +187,22 @@ public class UserService {
         }
     }
 
-    public void disablePictureAndMinusLove(String uid, List<Long> pictureIdxs) {
+    public void deActiveLove(Long pictureId) {
+        List<Love> loves = loveRepository.findByPictureId(pictureId);
+        for(Love love : loves) {
+            love.setIsActive(false);
+            loveRepository.save(love);
+        }
+    }
+
+    public void disablePictureAndMinusLove(String uid, List<Long> madeOrLoved) {
         try {
-            PICTURE_SERVER_CLIENT.get()
-                    .uri("/picture/disableasdfasddsaasdafasdfsdadfsaas")// 여기 바뀔예정
+            PICTURE_SERVER_CLIENT.post()
+                    .uri("/picture/delete/user")// 여기 바뀔예정
+                    .body(BodyInserters.fromValue(DeleteUserHistoryInPicture.builder()
+                                    .uid(uid)
+                                    .pictureIdxs(madeOrLoved)
+                                    .build()))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -202,10 +213,11 @@ public class UserService {
         }
     }
 
+    // 좋아요 취소할 때 쓴다.
     public void minusLoveCount(Long pictureId) {
         try {
             PICTURE_SERVER_CLIENT.get()
-                    .uri("/picture/minus_count")// 여기 바뀔예정
+                    .uri("/picture/delete/count")// 여기 바뀔예정
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))

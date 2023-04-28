@@ -9,4 +9,5 @@ public interface LoveRepository extends JpaRepository<Love, Long> {
     Optional<Love> findByUserIdAndPictureId(Long userId, Long pictureId);
     List<Love> findByUserId(Long userId);
     List<Love> findByUserUid(String uid);
+    List<Love> findByPictureId(Long pictureId);
 }

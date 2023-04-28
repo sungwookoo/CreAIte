@@ -143,6 +143,13 @@ public class UserController {
         }
     }
 
+    //***************************************여기서부턴 MSA 통신***********************************************//
+    @PostMapping("/like/delete/{picture_id}")
+    public ResponseEntity<Object> deleteLoveByPictureDead(@PathVariable Long picture_id) {
+        userService.deActiveLove(picture_id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/find_id_by_uid/{uid}")
     public Long findIdByUid(@PathVariable String uid) {
         return userService.findIdByUid(uid);
