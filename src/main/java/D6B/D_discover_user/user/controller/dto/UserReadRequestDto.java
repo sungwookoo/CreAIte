@@ -11,15 +11,5 @@ public class UserReadRequestDto {
     private final String uid;
     private final String email;
     private final String name;
-    private final String img_src;
-
-    public static User to(UserReadRequestDto userRequestDto, Long userId) {
-        return User.builder()
-                .uid(userRequestDto.getUid())
-                .email(userRequestDto.getEmail())
-                .name(userRequestDto.getEmail())
-                .imgSrc(userRequestDto.getImg_src())
-                .id(userId)
-                .build();
-    }
+    private final String profileImg;
 }

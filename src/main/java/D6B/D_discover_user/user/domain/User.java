@@ -19,22 +19,23 @@ import java.util.Set;
 @Entity
 @Table(name = "user")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "uid")
+    @Column(name = "uid", nullable = false)
     private String uid;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "img_src", length = 200)
-    private String imgSrc;
+    @Column(name = "profle_img", length = 200)
+    private String profileImg;
 
     @Column(name = "gender")
     private String gender;
@@ -45,16 +46,9 @@ public class User {
     @Column(name = "created_at")
     private Instant createdAt;
 
-    @Column(name = "mobile_number", length = 11)
-    private String mobileNumber;
-
-    @Column(name = "activate")
-    private Boolean activate;
-
-    @OneToMany(mappedBy = "user")
-    @ToString.Exclude
-    @Builder.Default
-    private Set<UserSearch> userSearches = new LinkedHashSet<>();
+    // 탈퇴한 유저면 false가 된다.
+    @Column(name = "is_active")
+    private Boolean isActive;
 
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
@@ -65,8 +59,8 @@ public class User {
         this.uid = decodedToken.getUid();
         this.name = decodedToken.getName();
         this.email = decodedToken.getEmail();
-        this.imgSrc = decodedToken.getPicture();
+        this.profileImg = decodedToken.getPicture();
         this.createdAt = Instant.now().plusSeconds(60 * 60 * 9);
-        this.activate = true;
+        this.isActive = true;
     }
 }

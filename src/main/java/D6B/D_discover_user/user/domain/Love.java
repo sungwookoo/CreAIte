@@ -3,6 +3,7 @@ package D6B.D_discover_user.user.domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.Instant;
 
 @Builder
 @NoArgsConstructor
@@ -19,19 +20,16 @@ public class Love {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "is_loved")
-    private Boolean isLoved;
+    @Column(name = "is_active")
+    private Boolean isActive;
 
-    // 좋아요를 누른 회원이 alive인지 판단한다.
-    @Column(name = "is_alive")
-    private Boolean isAlive;
+    @Column(name = "created_at")
+    private Instant createdAt;
 
-    // 좋아요를 누른 유저 객체
     @ManyToOne
-    @JoinColumn(name = "user_id")   // 매핑은 유저 id랑 해놓기
+    @JoinColumn(name = "user_uid")   // 매핑은 유저 id랑 해놓기
     private User user;
 
-    // 좋아요가 눌러진 그림 -> MSA라 서비스가 따로 있어서 ManyToOne은 되지 않는다.
     @Column(name = "picture_id", nullable = false)
     private Long pictureId;
 }
