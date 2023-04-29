@@ -12,7 +12,6 @@ import java.util.List;
 @Builder
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class DeleteUserHistoryInPicture {
     private String uid;
 
