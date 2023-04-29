@@ -3,6 +3,7 @@ package D6B.D_discover_user.user.service;
 import static D6B.D_discover_user.common.ConstValues.*;
 
 import D6B.D_discover_user.user.controller.dto.LoveToggleRequestDto;
+import D6B.D_discover_user.user.controller.dto.UserImgUpdateRequestDto;
 import D6B.D_discover_user.user.controller.dto.UserUpdateRequestDto;
 import D6B.D_discover_user.user.domain.Love;
 import D6B.D_discover_user.user.domain.LoveRepository;
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
+import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
@@ -79,32 +81,14 @@ public class UserService {
         return null;
     }
 
-    public String updateUserImg(MultipartFile image) {
-        String accessKey = "AWS_ACCESS_KEY"; // AWS Access Key
-        String secretKey = "AWS_SECRET_KEY"; // AWS Secret Key
-        String region = "REGION_NAME"; // 지역 이름 (ex. ap-northeast-2)
-
-        AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(region)
-                .build();
-
-        String bucketName = "BUCKET_NAME"; // S3 버킷 이름
-        String objectKey = "OBJECT_KEY"; // S3 객체 이름 (파일 이름)
-
-        try {
-            // 업로드할 파일을 InputStream으로 변환
-            InputStream stream = image.getInputStream();
-            // S3에 객체 업로드
-            s3Client.putObject(bucketName, objectKey, stream, new ObjectMetadata());
-            // 업로드한 객체의 URL 생성
-            // 업로드한 객체의 URL을 반환하거나, 업로드한 객체를 참조하는 데이터베이스 등에 저장하는 등의 로직 수행
-            return s3Client.getUrl(bucketName, objectKey).toExternalForm();
-        } catch (IOException e) {
-            // 예외 처리
-            return null;
-        }
+    public void updateUserImg(UserImgUpdateRequestDto userImgUpdateRequestDto) {
+        String uid = userImgUpdateRequestDto.getUid();
+        Optional<User> optUser = userRepository.findByUid(uid);
+        if(optUser.isPresent()) {
+            User user = optUser.get();
+            user.setProfileImg(userImgUpdateRequestDto.getProfileImg());
+            userRepository.save(user);
+        } else log.info("해당 uid에 대한 유저가 없습니다.");
     }
 
     public User updateUserInfos(FirebaseToken decodedToken, UserUpdateRequestDto userUpdateRequestDto) {
@@ -162,7 +146,6 @@ public class UserService {
         return loveIdxs;
     }
 
-    // 날짜갱신하자
     public void toggleLove(LoveToggleRequestDto loveToggleRequestDto) {
         String uid = loveToggleRequestDto.getUid();
         Long pictureId = loveToggleRequestDto.getPictureId();

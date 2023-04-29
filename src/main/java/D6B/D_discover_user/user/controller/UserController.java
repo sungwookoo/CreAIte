@@ -65,7 +65,7 @@ public class UserController {
     }
 
     /**
-     * 유저의 정보를 변경하는 Controller(구글에서 안오는 정보 : 나이, 성별)
+     * 회원정보 수정(구글에서 안오는 정보 : 나이, 성별)
      * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
      * @param userUpdateRequestDto : 변경 혹은 추가할 정보
      * @return : 추가된 정보가 추가된 유저 정보 반환
@@ -82,11 +82,23 @@ public class UserController {
         } else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-    // s3에 저장 후, img_url을 반환한다.
+    /**
+     * 회원 이미지 수정
+     * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
+     * @param userImgUpdateRequestDto : 유저 이미지 수정 시 RequestDto
+     */
     @PutMapping("/image")
-    public String uploadImage(@RequestParam("image") MultipartFile image) {
-        // 업데이트
-        return userService.updateUserImg(image);
+    public ResponseEntity<Object> uploadImage(@RequestHeader("Authorization") String idToken,
+                              @RequestBody UserImgUpdateRequestDto userImgUpdateRequestDto) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, userImgUpdateRequestDto.getUid());
+        if(authResponse.getIsUser()) {
+            userService.updateUserImg(userImgUpdateRequestDto);
+            return ResponseEntity.ok().build();
+        }
+        else {
+            log.info("해당 회원에 대한 정보가 없습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        }
     }
 
 
