@@ -8,9 +8,9 @@ import java.util.Optional;
 public interface AlarmRepository extends JpaRepository<Alarm,Long> {
     List<Alarm> findByReceiverUid(Long receiverUid);
 
-    Optional<Alarm> findBySenderUidAndReceiverUidAndPictureUid(Long senderUid,Long receiverUid,Long pictureUid);
+    Optional<Alarm> findBySenderUidAndReceiverUidAndPictureId(Long senderUid,Long receiverUid,Long pictureId);
     List<Alarm> findByReceiverUidOrSenderUid(Long receiverUid, Long senderUid);
 
-
+    List<Alarm> findByPictureId(Long pictureId);
 
 }

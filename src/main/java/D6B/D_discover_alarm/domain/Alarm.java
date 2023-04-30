@@ -34,8 +34,8 @@ public class Alarm {
     private Long receiverUid;    // 좋아요 받은 이미지를 만든사람
 
 
-    @Column(name = "picture_uid")
-    private Long pictureUid;     // 좋아요 받은 이미지 id
+    @Column(name = "picture_id")
+    private Long pictureId;     // 좋아요 받은 이미지 id
 
     @Column(name = "picture_img_src")
     private String pictureImgSrc;
@@ -78,7 +78,7 @@ public class Alarm {
         return Alarm.builder()
                 .receiverUid(dto.getReceiverUid())
                 .senderUid(dto.getSenderUid())
-                .pictureUid(dto.getPictureUid())
+                .pictureId(dto.getPictureId())
                 .senderName(dto.getSenderName())
                 .senderImgSrc(dto.getSenderImgSrc())
                 .pictureImgSrc(dto.getPictureImgSrc())

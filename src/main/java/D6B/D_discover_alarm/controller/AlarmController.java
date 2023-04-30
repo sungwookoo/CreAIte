@@ -63,4 +63,10 @@ public class AlarmController {
         alarmService.remove(user_uid);
         return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
+
+    @PutMapping("/picmove/{picture_id}")
+    public ResponseEntity<String> picmove(@PathVariable Long picture_id){
+        alarmService.picmove(picture_id);
+        return ResponseEntity.status(HttpStatus.OK).body("OK");
+    }
 }

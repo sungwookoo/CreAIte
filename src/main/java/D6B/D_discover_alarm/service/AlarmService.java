@@ -52,10 +52,10 @@ public class AlarmService {
     }
     @Transactional
     public void isAlive(IsAliveDto isalivedto) {
-        Optional<Alarm> alarmOpt = alarmRepository.findBySenderUidAndReceiverUidAndPictureUid(
+        Optional<Alarm> alarmOpt = alarmRepository.findBySenderUidAndReceiverUidAndPictureId(
                 isalivedto.getSenderUid(),
                 isalivedto.getReceiverUid(),
-                isalivedto.getPictureUid()
+                isalivedto.getPictureId()
         );
         if (alarmOpt.isPresent()) {
             Alarm alarm = alarmOpt.get();
@@ -66,10 +66,10 @@ public class AlarmService {
     }
 
     public void marked(IsAliveDto isalivedto) {
-        Optional<Alarm> alarmOpt = alarmRepository.findBySenderUidAndReceiverUidAndPictureUid(
+        Optional<Alarm> alarmOpt = alarmRepository.findBySenderUidAndReceiverUidAndPictureId(
                 isalivedto.getSenderUid(),
                 isalivedto.getReceiverUid(),
-                isalivedto.getPictureUid()
+                isalivedto.getPictureId()
         );
         if (alarmOpt.isPresent()) {
             Alarm alarm = alarmOpt.get();
@@ -82,7 +82,15 @@ public class AlarmService {
 
     public void remove(Long userUid) {
         List<Alarm> alarms = alarmRepository.findByReceiverUidOrSenderUid(userUid,userUid);
-        alarms.forEach(alarm -> alarm.setIsAlive(false));
+        alarms.forEach(alarm -> {alarm.setIsAlive(false);
+                                alarm.setContent("삭제된 알람입니다");});
+        alarmRepository.saveAll(alarms);
+    }
+
+    public void picmove(Long picture_id) {
+        List<Alarm> alarms = alarmRepository.findByPictureId(picture_id);
+        alarms.forEach(alarm -> {alarm.setIsAlive(false);
+                                alarm.setContent("삭제된 알람입니다");});
         alarmRepository.saveAll(alarms);
     }
 
