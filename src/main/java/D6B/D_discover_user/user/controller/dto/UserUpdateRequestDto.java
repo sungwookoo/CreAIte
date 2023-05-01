@@ -7,9 +7,7 @@ import lombok.Data;
 @Data
 public class UserUpdateRequestDto {
     private final String uid;
+    private final String name;
     private final String gender;
     private final Integer age;
-    private final String mobile_number;  // 번호 인증...?
-    private final String img_src;
-    private final String name;
 }

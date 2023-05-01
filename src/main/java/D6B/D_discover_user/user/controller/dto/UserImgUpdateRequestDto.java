@@ -3,10 +3,9 @@ package D6B.D_discover_user.user.controller.dto;
 import lombok.Builder;
 import lombok.Data;
 
-@Builder
 @Data
-public class LoveToggleRequestDto {
+@Builder
+public class UserImgUpdateRequestDto {
     private String uid;
-    private Long pictureId;
-    private String makerUid;
+    private String profileImg;
 }
