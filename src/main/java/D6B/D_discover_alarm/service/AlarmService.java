@@ -86,6 +86,18 @@ public class AlarmService {
         alarmRepository.saveAll(alarms);
     }
 
+    @Transactional
+    public void deleteAlarm(Long alarmId) {
+        Optional<Alarm> alarmOptional =  alarmRepository.findById(alarmId);
+        if (alarmOptional.isPresent()) {
+            Alarm alarm = alarmOptional.get();
+            alarm.setIsAlive(false);
+            alarmRepository.save(alarm);
+        }
+
+
+    }
+
     /**
      * user 이름 가져오기
      * @param userId
