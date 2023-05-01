@@ -34,7 +34,7 @@ public class User {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "profle_img", length = 200)
+    @Column(name = "profle_img")
     private String profileImg;
 
     @Column(name = "gender")
