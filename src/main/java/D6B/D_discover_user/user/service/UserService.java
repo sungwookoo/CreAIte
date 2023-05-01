@@ -13,23 +13,13 @@ import D6B.D_discover_user.user.service.dto.ActivateAlarmRequestDto;
 import D6B.D_discover_user.user.service.dto.DeleteUserHistoryInPicture;
 import D6B.D_discover_user.user.service.dto.DisableAlarmRequestDto;
 import D6B.D_discover_user.user.service.dto.PostAlarmRequestDto;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
-import javax.swing.text.html.Option;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -351,4 +341,8 @@ public class UserService {
             log.error("{}", e.getMessage());
         }
     }
+
+//    public UserLovePicsDto findUserLovePics(String uid)
+
+
 }

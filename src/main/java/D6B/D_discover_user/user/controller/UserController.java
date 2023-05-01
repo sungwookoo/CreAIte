@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -154,6 +153,18 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+//    @GetMapping("/{uid}/like_picture")
+//    public ResponseEntity<UserLovePicsResponseDto> readUserLovePics(@RequestHeader("Authorization") String idToken,
+//                                                                    @PathVariable String uid) throws IOException, FirebaseAuthException {
+//        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+//        if(authResponse.getIsUser()) {
+//            return ResponseEntity.ok(UserLovePicsResponseDto.from(userService.findUserLovePics(uid)));
+//        } else {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+//    }
+
 
     //***************************************여기서부턴 MSA 통신***********************************************//
     @PostMapping("/like/delete/{picture_id}")
