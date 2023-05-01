@@ -4,17 +4,16 @@ import static D6B.D_discover_user.common.ConstValues.*;
 
 import D6B.D_discover_user.user.controller.dto.LoveToggleRequestDto;
 import D6B.D_discover_user.user.controller.dto.UserImgUpdateRequestDto;
+import D6B.D_discover_user.user.controller.dto.UserPicsResponseDto;
 import D6B.D_discover_user.user.controller.dto.UserUpdateRequestDto;
 import D6B.D_discover_user.user.domain.Love;
 import D6B.D_discover_user.user.domain.LoveRepository;
 import D6B.D_discover_user.user.domain.User;
 import D6B.D_discover_user.user.domain.UserRepository;
-import D6B.D_discover_user.user.service.dto.ActivateAlarmRequestDto;
-import D6B.D_discover_user.user.service.dto.DeleteUserHistoryInPicture;
-import D6B.D_discover_user.user.service.dto.DisableAlarmRequestDto;
-import D6B.D_discover_user.user.service.dto.PostAlarmRequestDto;
+import D6B.D_discover_user.user.service.dto.*;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -24,6 +23,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -342,7 +342,48 @@ public class UserService {
         }
     }
 
-//    public UserLovePicsDto findUserLovePics(String uid)
+    /**
+     * 유저가 좋아요를 누른 그림들
+     * @param uid : 좋아요 누른 사람의 uid
+     * @return : 유저가 좋아요를 누른 그림의 id, url, createdAt 리스트
+     */
+    public List<UserPicsResponseDto> findUserLovePics(String uid) {
+        List<Long> pictureIds = loveRepository.findByUserUidOrderByCreatedAtDesc(uid)
+                .stream()
+                .map(Love::getPictureId)
+                .collect(Collectors.toList());
+        try {
+            return PICTURE_SERVER_CLIENT.post()
+                    .uri("/picture/asdfasdfdcdcddd")
+                    .body(BodyInserters.fromValue(new GetPictureUrlRequestDto(pictureIds)))
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+                    .bodyToMono(new ParameterizedTypeReference<List<UserPicsResponseDto>>() {})
+                    .block();
+        } catch (Exception e) {
+            log.error("{}", e.getMessage());
+        }
+        return null;
+    }
 
-
+    /**
+     * 유저가 만든 그림 or 사진
+     * @param uid : 좋아요 누른 사람의 uid
+     * @return : 유저가 만든 그림의 id, url, createdAt 리스트
+     */
+    public List<UserPicsResponseDto> findUserMadePics(String uid) {
+        try {
+            return PICTURE_SERVER_CLIENT.get()
+                    .uri("/picture/asdfasasdfsdfafdssddsd/" + uid)
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+                    .bodyToMono(new ParameterizedTypeReference<List<UserPicsResponseDto>>() {})
+                    .block();
+        } catch (Exception e) {
+            log.error("{}", e.getMessage());
+        }
+        return null;
+    }
 }

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -154,16 +155,34 @@ public class UserController {
         }
     }
 
-//    @GetMapping("/{uid}/like_picture")
-//    public ResponseEntity<UserLovePicsResponseDto> readUserLovePics(@RequestHeader("Authorization") String idToken,
-//                                                                    @PathVariable String uid) throws IOException, FirebaseAuthException {
-//        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
-//        if(authResponse.getIsUser()) {
-//            return ResponseEntity.ok(UserLovePicsResponseDto.from(userService.findUserLovePics(uid)));
-//        } else {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        }
-//    }
+    /**
+     * 유저가 좋아요를 누른 사진 가져오기
+     * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
+     * @param uid : Firebase 통해 얻은 uid
+     * @return : 유저가 좋아요를 누른 그림의 id와 url
+     * @throws IOException : 예외
+     * @throws FirebaseAuthException : 예외
+     */
+    @GetMapping("/{uid}/like_picture")
+    public ResponseEntity<List<UserPicsResponseDto>> readUserLovePics(@RequestHeader("Authorization") String idToken,
+                                                                      @PathVariable String uid) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+        if(authResponse.getIsUser()) {
+            return ResponseEntity.ok(userService.findUserLovePics(uid));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    public ResponseEntity<List<UserPicsResponseDto>> readUserMadePics(@RequestHeader("Authorization") String idToken,
+                                                                @PathVariable String uid) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+        if(authResponse.getIsUser()) {
+            return ResponseEntity.ok(userService.findUserMadePics(uid));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
 
 
     //***************************************여기서부턴 MSA 통신***********************************************//

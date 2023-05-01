@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface LoveRepository extends JpaRepository<Love, Long> {
     Optional<Love> findByUserUidAndPictureId(String userUid, Long pictureId);
     List<Love> findByUserId(Long userId);
-    List<Love> findByUserUid(String uid);
+    List<Love> findByUserUidOrderByCreatedAtDesc(String userUid);
     List<Love> findByPictureId(Long pictureId);
 }
