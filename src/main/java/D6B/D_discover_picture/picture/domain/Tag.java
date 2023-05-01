@@ -27,4 +27,5 @@ public class Tag {
     @ToString.Exclude
     @Builder.Default
     private Set<PictureTag> pictureTags = new LinkedHashSet<>();
+
 }

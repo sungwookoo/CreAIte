@@ -2,12 +2,10 @@ package D6B.D_discover_picture.picture.controller;
 
 import D6B.D_discover_picture.common.dto.AuthResponse;
 import D6B.D_discover_picture.common.service.AuthorizeService;
+import D6B.D_discover_picture.picture.controller.dto.DeleteUserRequest;
 import D6B.D_discover_picture.picture.controller.dto.PictureDetailResponse;
 import D6B.D_discover_picture.picture.controller.dto.PictureSaveRequest;
-import D6B.D_discover_picture.picture.domain.Picture;
-import D6B.D_discover_picture.picture.domain.PictureRepository;
-import D6B.D_discover_picture.picture.domain.PictureTagRepository;
-import D6B.D_discover_picture.picture.domain.TagRepository;
+import D6B.D_discover_picture.picture.domain.*;
 import D6B.D_discover_picture.picture.service.PictureService;
 import D6B.D_discover_picture.picture.service.exceptions.DeletePictureFailException;
 import D6B.D_discover_picture.picture.service.exceptions.PictureNotSavedException;
@@ -20,8 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.*;
-
-import static D6B.D_discover_picture.common.ConstValues.*;
 
 @Slf4j
 @RestController
@@ -87,13 +83,95 @@ public class PictureController {
     }
 
     // 이미지 detail
-//    @GetMapping("/{pictureId}")
-//    public ResponseEntity<PictureDetailResponse> readPictureDetail(
-//            @PathVariable Long pictureId) {
-//        try {
-//            Picture picture = pictureService.findPictureById(pictureId);
-//            if (picture.getIsAlive())
-//        }
-//    }
+    @GetMapping("/noUser/{pictureId}")
+    public ResponseEntity<PictureDetailResponse> readPictureDetail(
+            @PathVariable Long pictureId) {
+        try {
+            Picture picture = pictureService.findPictureById(pictureId);
+            if (picture.getIsAlive() == Boolean.TRUE && picture.getIsPublic() == Boolean.TRUE) {
+                Set<PictureTag> tags = picture.getPictureTags();
+                List<String> tagWords = new ArrayList<>();
+                for (PictureTag pTag : tags) {
+                    tagWords.add(pTag.getTag().getWord());
+                }
+                Collections.sort(tagWords);
+                return ResponseEntity.ok(PictureDetailResponse.from(picture, tagWords));
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 
+    @GetMapping("/loginUser/{pictureId}/{uid}")
+    public ResponseEntity<PictureDetailResponse> readPictureDetailWithLogin(
+            @RequestHeader("Authorization") String idToken,
+            @PathVariable Long pictureId, @PathVariable String uid)
+            throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+        if (authResponse.getIsUser()) {
+            try {
+                Picture picture = pictureService.findPictureById(pictureId);
+                if (picture.getIsAlive() == Boolean.TRUE) {
+                    if (picture.getIsPublic() == Boolean.FALSE && !picture.getMakerUid().equals(uid)) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                    } else {
+                        Set<PictureTag> tags = picture.getPictureTags();
+                        List<String> tagWords = new ArrayList<>();
+                        for (PictureTag pTag : tags) {
+                            tagWords.add(pTag.getTag().getWord());
+                        }
+                        Collections.sort(tagWords);
+                        return ResponseEntity.ok(PictureDetailResponse.from(picture, tagWords));
+                    }
+                }
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+
+    // 이미지 좋아요 카운트 올리기
+    @PostMapping("/create/count/{pictureId}")
+    public ResponseEntity<String> plusLoveCount(
+            @PathVariable Long pictureId) {
+        try {
+            String imgUrl = pictureService.plusCount(pictureId);
+            return ResponseEntity.ok(imgUrl);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    // 좋아요 취소, 카운트 내리기
+    @PostMapping("/delete/count/{pictureId}")
+    public ResponseEntity<Object> minusLoveCount(
+            @PathVariable Long pictureId) {
+        try {
+            pictureService.minusCount(pictureId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @PostMapping("/delete/user")
+    public ResponseEntity<Object> deleteUser(
+            @RequestBody DeleteUserRequest deleteUserRequest) {
+        try {
+            pictureService.deleteUser(deleteUserRequest);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
 }

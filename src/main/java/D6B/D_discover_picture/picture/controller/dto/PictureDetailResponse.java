@@ -28,7 +28,6 @@ public class PictureDetailResponse {
                 .imgUrl(picture.getImgUrl())
                 .makerUid(picture.getMakerUid())
                 .loveCount(picture.getLoveCount())
-                .isCreated(picture.getIsCreated())
                 .createdAt(picture.getCreatedAt())
                 .imageTags(tags)
                 .build();

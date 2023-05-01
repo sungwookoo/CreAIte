@@ -56,7 +56,7 @@ public class Picture {
                 .makerUid(pictureSaveRequest.getUid())
                 .isPublic(pictureSaveRequest.getIsPublic())
                 .loveCount(0L)
-                .isAlive(true)
+                .isAlive(Boolean.TRUE)
                 .isCreated(pictureSaveRequest.getIsCreated())
                 .createdAt(Instant.now().plusSeconds(60*60*9))
                 .build();
