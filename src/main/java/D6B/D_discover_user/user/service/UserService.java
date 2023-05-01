@@ -210,7 +210,7 @@ public class UserService {
     public void minusLoveCount(Long pictureId) {
         try {
             PICTURE_SERVER_CLIENT.post()
-                    .uri("/picture/delete/count/" + pictureId)// 여기 바뀔예정
+                    .uri("/picture/delete/count/" + pictureId)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -228,7 +228,7 @@ public class UserService {
     public void plusLoveCount(Long pictureId) {
         try {
             PICTURE_SERVER_CLIENT.get()
-                    .uri("/picture/create/count/" + pictureId)// 여기 바뀔예정
+                    .uri("/picture/create/count/" + pictureId)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -264,12 +264,12 @@ public class UserService {
     public String getPictureUrlAndPlusLove(Long pictureId) {
         try {
             return PICTURE_SERVER_CLIENT.post()
-                    .uri("/picture/like/" + pictureId)// 여기 바뀔예정
+                    .uri("/picture/create/count/" + pictureId)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
-                    .block().toString();
+                    .bodyToMono(String.class)
+                    .block();
         } catch (Exception e) {
             log.error("{}", e.getMessage());
         }
@@ -354,6 +354,7 @@ public class UserService {
                 .collect(Collectors.toList());
         try {
             return PICTURE_SERVER_CLIENT.post()
+                    //****************여기 수정하기******************//
                     .uri("/picture/asdfasdfdcdcddd")
                     .body(BodyInserters.fromValue(new GetPictureUrlRequestDto(pictureIds)))
                     .retrieve()
@@ -375,6 +376,7 @@ public class UserService {
     public List<UserPicsResponseDto> findUserMadePics(String uid) {
         try {
             return PICTURE_SERVER_CLIENT.get()
+                    //*****************여기 수정하기*******************//
                     .uri("/picture/asdfasasdfsdfafdssddsd/" + uid)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
