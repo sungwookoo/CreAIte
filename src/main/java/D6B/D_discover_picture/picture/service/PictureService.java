@@ -3,12 +3,20 @@ package D6B.D_discover_picture.picture.service;
 import D6B.D_discover_picture.picture.controller.dto.DeleteUserRequest;
 import D6B.D_discover_picture.picture.controller.dto.PictureSaveRequest;
 import D6B.D_discover_picture.picture.domain.*;
+import D6B.D_discover_picture.picture.service.dto.PictureIdUrlResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static D6B.D_discover_picture.common.ConstValues.*;
+
+@Slf4j
 @Service
 public class PictureService {
     private final PictureRepository pictureRepository;
@@ -59,6 +67,8 @@ public class PictureService {
                 picture.setIsAlive(Boolean.FALSE);
                 pictureRepository.save(picture);
                 // 해당 이미지의 좋아요 삭제 요청, 알림 삭제 요청 보내야함
+                deleteLikeRequest(pictureId);
+                deleteLikeAlarmRequest(pictureId);
                 return;
             } else {
                 throw new IllegalStateException("이미지를 올린 사람이 아닙니다.");
@@ -109,6 +119,9 @@ public class PictureService {
         for (Picture picture : userPicture) {
             picture.setIsAlive(Boolean.FALSE);
             pictureRepository.save(picture);
+            // 해당 이미지에 대한 좋아요와 알림 삭제 요청
+            deleteLikeAlarmRequest(picture.getId());
+            deleteLikeRequest(picture.getId());
         }
 
         // 이미지 좋아요 낮추기
@@ -133,5 +146,52 @@ public class PictureService {
         } else {
             throw new IllegalStateException("해당 이미지 없음");
         }
+    }
+
+    // 해당 그림의 좋아요 삭제 요청, 추후 유저 서버와 협의 필요
+    public void deleteLikeRequest(Long pictureId) {
+        try {
+            USER_SERVER_CLIENT.post()
+                    .uri("/user")
+                    .bodyValue(pictureId)
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+                    .bodyToMono(Void.class)
+                    .block();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    // 해당 그림의 좋아요 알림을 삭제하는 요청, 추후 알림 서버와 협의 필요
+    public void deleteLikeAlarmRequest(Long pictureId) {
+        try {
+            ALARM_SERVER_CLIENT.post()
+                    .uri("/alarm")    /// uri 협의 필요
+                    .bodyValue(pictureId)
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+                    .bodyToMono(Void.class)
+                    .block();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    // 그림 id들 받아서 url과 매칭시키고 반환하는거
+    // user와 협의 필요
+    public List<PictureIdUrlResponse> matchIdAndUrl(List<Long> ids) {
+        List<PictureIdUrlResponse> list = new ArrayList<>();
+        for (Long id: ids) {
+            Picture picture = findPictureById(id);
+            PictureIdUrlResponse pictureIdUrlResponse = new PictureIdUrlResponse();
+            pictureIdUrlResponse.setPictureId(picture.getId());
+            pictureIdUrlResponse.setImgUrl(picture.getImgUrl());
+            list.add(pictureIdUrlResponse);
+        }
+
+        return list;
     }
 }

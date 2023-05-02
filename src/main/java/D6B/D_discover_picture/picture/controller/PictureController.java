@@ -7,6 +7,7 @@ import D6B.D_discover_picture.picture.controller.dto.PictureDetailResponse;
 import D6B.D_discover_picture.picture.controller.dto.PictureSaveRequest;
 import D6B.D_discover_picture.picture.domain.*;
 import D6B.D_discover_picture.picture.service.PictureService;
+import D6B.D_discover_picture.picture.service.dto.PictureIdUrlResponse;
 import D6B.D_discover_picture.picture.service.exceptions.DeletePictureFailException;
 import D6B.D_discover_picture.picture.service.exceptions.PictureNotSavedException;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -163,6 +164,7 @@ public class PictureController {
         }
     }
 
+    // 유저 탈퇴 시
     @PostMapping("/delete/user")
     public ResponseEntity<Object> deleteUser(
             @RequestBody DeleteUserRequest deleteUserRequest) {
@@ -173,5 +175,13 @@ public class PictureController {
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+    }
+
+    // 그림 id와 url 매칭 요청
+    @PostMapping("/")
+    public ResponseEntity<List<PictureIdUrlResponse>> matchIdAndUrl(
+            @RequestBody List<Long> idxs) {
+        List<PictureIdUrlResponse> list = pictureService.matchIdAndUrl(idxs);
+        return ResponseEntity.ok(list);
     }
 }
