@@ -27,7 +27,7 @@ public class AlarmController {
         this.notificationService = notificationService;
     }
     @GetMapping("/list/{user_uid}")
-    public ResponseEntity<List<AlarmDto>> getAlarmList(@PathVariable Long user_uid){
+    public ResponseEntity<List<AlarmDto>> getAlarmList(@PathVariable String user_uid){
 
             List<AlarmDto> dtos = alarmService.getAlarmList(user_uid);
         return ResponseEntity.status(HttpStatus.OK).body(dtos);
@@ -41,7 +41,7 @@ public class AlarmController {
     }
 
     @PutMapping("/{user_uid}/check")
-    public ResponseEntity<String> Checked(@PathVariable Long user_uid){
+    public ResponseEntity<String> Checked(@PathVariable String user_uid){
         alarmService.checked(user_uid);
         return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
@@ -59,14 +59,22 @@ public class AlarmController {
     }
 
     @PutMapping("/remove/{user_uid}")
-    public ResponseEntity<String> remove(@PathVariable Long user_uid){
+    public ResponseEntity<String> remove(@PathVariable String user_uid){
         alarmService.remove(user_uid);
         return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
 
+
     @DeleteMapping("/alarm/delete/{alarm_id}")
-    public ResponseEntity<String> deleteAlarm(@PathVariable Long alarm_id){
+    public ResponseEntity<String> deleteAlarm(@PathVariable Long alarm_id) {
         alarmService.deleteAlarm(alarm_id);
         return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
+    @PutMapping("/picmove/{picture_id}")
+    public ResponseEntity<String> picmove(@PathVariable Long picture_id){
+        alarmService.picmove(picture_id);
+        return ResponseEntity.status(HttpStatus.OK).body("OK");
+    }
+
+
 }

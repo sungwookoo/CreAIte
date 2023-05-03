@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AlarmRepository extends JpaRepository<Alarm,Long> {
-    List<Alarm> findByReceiverUid(Long receiverUid);
+    List<Alarm> findByReceiverUid(String receiverUid);
 
-    Optional<Alarm> findBySenderUidAndReceiverUidAndPictureUid(Long senderUid,Long receiverUid,Long pictureUid);
-    List<Alarm> findByReceiverUidOrSenderUid(Long receiverUid, Long senderUid);
+    Optional<Alarm> findBySenderUidAndReceiverUidAndPictureId(String senderUid,String receiverUid,Long pictureId);
+    List<Alarm> findByReceiverUidOrSenderUid(String receiverUid, String senderUid);
 
-
+    List<Alarm> findByPictureId(Long pictureId);
 
 }

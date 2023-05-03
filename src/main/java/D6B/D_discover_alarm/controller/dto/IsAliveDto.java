@@ -11,8 +11,8 @@ import java.time.Instant;
 @ToString
 public class IsAliveDto {
 
-    public Long senderUid;      // 좋아요를 누른사람
-    public Long receiverUid;    // 좋아요 받은 이미지를 만든사람
-    public Long pictureUid;     // 좋아요 받은 이미지 id
+    public String senderUid;      // 좋아요를 누른사람
+    public String receiverUid;    // 좋아요 받은 이미지를 만든사람
+    public Long pictureId;     // 좋아요 받은 이미지 id
 
 }

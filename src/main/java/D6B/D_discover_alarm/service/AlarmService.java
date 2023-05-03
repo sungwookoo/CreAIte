@@ -32,7 +32,7 @@ public class AlarmService {
      * @param userUid ( 조회 하려는 유저)
      * @return
      */
-    public List<AlarmDto> getAlarmList(Long userUid) {
+    public List<AlarmDto> getAlarmList(String userUid) {
         List<Alarm> alarms = alarmRepository.findByReceiverUid(userUid);
         log.info(alarms.toString());
         return alarms.stream()
@@ -45,17 +45,17 @@ public class AlarmService {
      * 알림창 들어가면 알림 전부 읽음으로 표시되게
      * @param userUid
      */
-    public void checked(Long userUid) {
+    public void checked(String userUid) {
         List<Alarm> alarms = alarmRepository.findByReceiverUid(userUid);
         alarms.forEach(alarm -> alarm.setIsRead(true));
         alarmRepository.saveAll(alarms);
     }
     @Transactional
     public void isAlive(IsAliveDto isalivedto) {
-        Optional<Alarm> alarmOpt = alarmRepository.findBySenderUidAndReceiverUidAndPictureUid(
+        Optional<Alarm> alarmOpt = alarmRepository.findBySenderUidAndReceiverUidAndPictureId(
                 isalivedto.getSenderUid(),
                 isalivedto.getReceiverUid(),
-                isalivedto.getPictureUid()
+                isalivedto.getPictureId()
         );
         if (alarmOpt.isPresent()) {
             Alarm alarm = alarmOpt.get();
@@ -66,10 +66,10 @@ public class AlarmService {
     }
 
     public void marked(IsAliveDto isalivedto) {
-        Optional<Alarm> alarmOpt = alarmRepository.findBySenderUidAndReceiverUidAndPictureUid(
+        Optional<Alarm> alarmOpt = alarmRepository.findBySenderUidAndReceiverUidAndPictureId(
                 isalivedto.getSenderUid(),
                 isalivedto.getReceiverUid(),
-                isalivedto.getPictureUid()
+                isalivedto.getPictureId()
         );
         if (alarmOpt.isPresent()) {
             Alarm alarm = alarmOpt.get();
@@ -80,9 +80,17 @@ public class AlarmService {
         }
     }
 
-    public void remove(Long userUid) {
+    public void remove(String userUid) {
         List<Alarm> alarms = alarmRepository.findByReceiverUidOrSenderUid(userUid,userUid);
-        alarms.forEach(alarm -> alarm.setIsAlive(false));
+        alarms.forEach(alarm -> {alarm.setIsAlive(false);
+                                alarm.setContent("삭제된 알람입니다");});
+        alarmRepository.saveAll(alarms);
+    }
+
+    public void picmove(Long picture_id) {
+        List<Alarm> alarms = alarmRepository.findByPictureId(picture_id);
+        alarms.forEach(alarm -> {alarm.setIsAlive(false);
+                                alarm.setContent("삭제된 알람입니다");});
         alarmRepository.saveAll(alarms);
     }
 

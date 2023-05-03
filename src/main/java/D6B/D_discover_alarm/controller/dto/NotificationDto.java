@@ -10,15 +10,15 @@ public class NotificationDto {
     private final String senderName;
     private final String senderImgSrc;
     private final String pictureImgSrc;
-    private final Long senderUid;
-    private final Long receiverUid;
-    private final Long pictureUid;
+    private final String senderUid;
+    private final String receiverUid;
+    private final Long pictureId;
 
     public static NotificationDto createNotificationDto(Alarm alarm){
         return  NotificationDto.builder()
                 .senderUid(alarm.getSenderUid())
                 .receiverUid(alarm.getReceiverUid())
-                .pictureUid(alarm.getPictureUid())
+                .pictureId(alarm.getPictureId())
                 .senderName(alarm.getSenderName())
                 .senderImgSrc(alarm.getSenderImgSrc())
                 .pictureImgSrc(alarm.getPictureImgSrc())
