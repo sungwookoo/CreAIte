@@ -1,0 +1,47 @@
+{
+    "project_info": {
+      "project_number": "84733456634",
+      "project_id": "creaite-app",
+      "storage_bucket": "creaite-app.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:84733456634:android:6350daceb41c941fe2d943",
+          "android_client_info": {
+            "package_name": "com.kgh.imageedit"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "84733456634-f9rp9jsrfib18ffddv72be029darie3k.apps.googleusercontent.com",
+            "client_type": 1,
+            "android_info": {
+              "package_name": "com.kgh.imageedit",
+              "certificate_hash": "e2aa45ec85dffa8eee6379dffa5639b17b1da91e"
+            }
+          },
+          {
+            "client_id": "84733456634-5ncub7gf4c7kaql9vgnfj4tbqb7bugoq.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyCtGrjwyulztQgMYGFQE1JCkqKt3rL0ms0"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": [
+              {
+                "client_id": "84733456634-5ncub7gf4c7kaql9vgnfj4tbqb7bugoq.apps.googleusercontent.com",
+                "client_type": 3
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }
