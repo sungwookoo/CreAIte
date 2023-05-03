@@ -2,10 +2,7 @@ package D6B.D_discover_user.user.service;
 
 import static D6B.D_discover_user.common.ConstValues.*;
 
-import D6B.D_discover_user.user.controller.dto.LoveToggleRequestDto;
-import D6B.D_discover_user.user.controller.dto.UserImgUpdateRequestDto;
-import D6B.D_discover_user.user.controller.dto.UserPicsResponseDto;
-import D6B.D_discover_user.user.controller.dto.UserUpdateRequestDto;
+import D6B.D_discover_user.user.controller.dto.*;
 import D6B.D_discover_user.user.domain.Love;
 import D6B.D_discover_user.user.domain.LoveRepository;
 import D6B.D_discover_user.user.domain.User;
@@ -181,6 +178,30 @@ public class UserService {
             love.setIsActive(false);
             loveRepository.save(love);
         }
+    }
+
+    public List<LoveCheckAndMakerResponseDto> findLoveChecksAndMakers(List<LoveCheckAndMakerRequestDto> loveCheckAndMakerRequestDtos) {
+        List<LoveCheckAndMakerResponseDto> responseDtos = new ArrayList<>();
+        for(LoveCheckAndMakerRequestDto loveCheckAndMakerRequestDto : loveCheckAndMakerRequestDtos) {
+            String uid = loveCheckAndMakerRequestDto.getUid();
+            String makerUid = loveCheckAndMakerRequestDto.getMakerUid();
+            Long pictureId = loveCheckAndMakerRequestDto.getPictureId();
+            Optional<User> optMaker = userRepository.findByUid(makerUid);
+            optMaker.ifPresent(user -> responseDtos.add(LoveCheckAndMakerResponseDto.builder()
+                    .loveCheck(loveRepository.findByUserUidAndPictureIdAndIsActive(uid, pictureId, Boolean.TRUE).isPresent())
+                    .makerName(user.getName())
+                    .build()));
+        }
+        return responseDtos;
+    }
+
+    public List<String> findMakers(List<String> makerUids) {
+        List<String> responseDtos = new ArrayList<>();
+        for(String makerUid : makerUids) {
+            Optional<User> optUser = userRepository.findByUid(makerUid);
+            optUser.ifPresent(user -> responseDtos.add(user.getName()));
+        }
+        return responseDtos;
     }
 
     /**

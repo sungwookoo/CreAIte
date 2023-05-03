@@ -189,4 +189,14 @@ public class UserController {
     public Long findIdByUid(@PathVariable String uid) {
         return userService.findIdByUid(uid);
     }
+
+    @GetMapping("/find_love_check_maker_name")
+    public List<LoveCheckAndMakerResponseDto> findLoveChecksAndMakers(@RequestBody List<LoveCheckAndMakerRequestDto> loveCheckAndMakerRequestDtos) {
+        return userService.findLoveChecksAndMakers(loveCheckAndMakerRequestDtos);
+    }
+
+    @GetMapping("/find_maker_name")
+    public List<String> findMakers(@RequestBody List<String> makerUids) {
+        return userService.findMakers(makerUids);
+    }
 }

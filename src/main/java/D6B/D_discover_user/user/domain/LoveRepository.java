@@ -10,4 +10,6 @@ public interface LoveRepository extends JpaRepository<Love, Long> {
     List<Love> findByUserId(Long userId);
     List<Love> findByUserUidAndIsActiveOrderByCreatedAtDesc(String userUid, Boolean isActive);
     List<Love> findByPictureId(Long pictureId);
+
+    Optional<Love> findByUserUidAndPictureIdAndIsActive(String id, Long pictureId, Boolean isActive);
 }
