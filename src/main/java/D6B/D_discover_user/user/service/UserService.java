@@ -2,10 +2,7 @@ package D6B.D_discover_user.user.service;
 
 import static D6B.D_discover_user.common.ConstValues.*;
 
-import D6B.D_discover_user.user.controller.dto.LoveToggleRequestDto;
-import D6B.D_discover_user.user.controller.dto.UserImgUpdateRequestDto;
-import D6B.D_discover_user.user.controller.dto.UserPicsResponseDto;
-import D6B.D_discover_user.user.controller.dto.UserUpdateRequestDto;
+import D6B.D_discover_user.user.controller.dto.*;
 import D6B.D_discover_user.user.domain.Love;
 import D6B.D_discover_user.user.domain.LoveRepository;
 import D6B.D_discover_user.user.domain.User;
@@ -183,6 +180,30 @@ public class UserService {
         }
     }
 
+    public List<LoveCheckAndMakerResponseDto> findLoveChecksAndMakers(List<LoveCheckAndMakerRequestDto> loveCheckAndMakerRequestDtos) {
+        List<LoveCheckAndMakerResponseDto> responseDtos = new ArrayList<>();
+        for(LoveCheckAndMakerRequestDto loveCheckAndMakerRequestDto : loveCheckAndMakerRequestDtos) {
+            String uid = loveCheckAndMakerRequestDto.getUid();
+            String makerUid = loveCheckAndMakerRequestDto.getMakerUid();
+            Long pictureId = loveCheckAndMakerRequestDto.getPictureId();
+            Optional<User> optMaker = userRepository.findByUid(makerUid);
+            optMaker.ifPresent(user -> responseDtos.add(LoveCheckAndMakerResponseDto.builder()
+                    .loveCheck(loveRepository.findByUserUidAndPictureIdAndIsActive(uid, pictureId, Boolean.TRUE).isPresent())
+                    .makerName(user.getName())
+                    .build()));
+        }
+        return responseDtos;
+    }
+
+    public List<String> findMakers(List<String> makerUids) {
+        List<String> responseDtos = new ArrayList<>();
+        for(String makerUid : makerUids) {
+            Optional<User> optUser = userRepository.findByUid(makerUid);
+            optUser.ifPresent(user -> responseDtos.add(user.getName()));
+        }
+        return responseDtos;
+    }
+
     /**
      * 유저 탈퇴(비활성화) 시, 값을 해당 유저의 그림을 비활성화하고 좋아요 수를 하나 줄인다.
      * @param uid : 탈퇴한 유저의 uid
@@ -348,7 +369,7 @@ public class UserService {
      * @return : 유저가 좋아요를 누른 그림의 id, url, createdAt 리스트
      */
     public List<UserPicsResponseDto> findUserLovePics(String uid) {
-        List<Long> pictureIds = loveRepository.findByUserUidOrderByCreatedAtDesc(uid)
+        List<Long> pictureIds = loveRepository.findByUserUidAndIsActiveOrderByCreatedAtDesc(uid, Boolean.TRUE)
                 .stream()
                 .map(Love::getPictureId)
                 .collect(Collectors.toList());
@@ -388,4 +409,20 @@ public class UserService {
         }
         return null;
     }
+
+//    public void MsaCallPicture(String url, ) {
+//        try {
+//            PICTURE_SERVER_CLIENT.post()
+//                    .uri("/picture/delete/user")// 여기 바뀔예정
+//                    .body(BodyInserters.fromValue(new DeleteUserHistoryInPicture(uid, pictureIdxs)))
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .bodyToMono(void.class)
+//                    .block();
+//        } catch (Exception e) {
+//            log.error("{}", e.getMessage());
+//        }
+//    }
+
 }
