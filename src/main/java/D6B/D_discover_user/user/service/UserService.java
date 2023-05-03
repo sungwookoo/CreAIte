@@ -348,7 +348,7 @@ public class UserService {
      * @return : 유저가 좋아요를 누른 그림의 id, url, createdAt 리스트
      */
     public List<UserPicsResponseDto> findUserLovePics(String uid) {
-        List<Long> pictureIds = loveRepository.findByUserUidOrderByCreatedAtDesc(uid)
+        List<Long> pictureIds = loveRepository.findByUserUidAndIsActiveOrderByCreatedAtDesc(uid, Boolean.TRUE)
                 .stream()
                 .map(Love::getPictureId)
                 .collect(Collectors.toList());
@@ -388,4 +388,20 @@ public class UserService {
         }
         return null;
     }
+
+//    public void MsaCallPicture(String url, ) {
+//        try {
+//            PICTURE_SERVER_CLIENT.post()
+//                    .uri("/picture/delete/user")// 여기 바뀔예정
+//                    .body(BodyInserters.fromValue(new DeleteUserHistoryInPicture(uid, pictureIdxs)))
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .bodyToMono(void.class)
+//                    .block();
+//        } catch (Exception e) {
+//            log.error("{}", e.getMessage());
+//        }
+//    }
+
 }
