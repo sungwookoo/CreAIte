@@ -1,6 +1,7 @@
 package D6B.D_discover_picture.picture.service;
 
 import D6B.D_discover_picture.picture.controller.dto.DeleteUserRequest;
+import D6B.D_discover_picture.picture.controller.dto.PictureDetailResponse;
 import D6B.D_discover_picture.picture.controller.dto.PictureSaveRequest;
 import D6B.D_discover_picture.picture.domain.*;
 import D6B.D_discover_picture.picture.service.dto.PictureIdUrlResponse;
@@ -10,9 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static D6B.D_discover_picture.common.ConstValues.*;
 
@@ -139,6 +138,53 @@ public class PictureService {
         }
     }
 
+    public List<PictureDetailResponse> getTodayPickWithLogin() {
+        List<PictureDetailResponse> list = new ArrayList<>();
+        return list;
+    }
+
+
+    // 본인이 좋아요한 리스트
+    public List<PictureDetailResponse> getLikeAllList(List<Long> pictureIds) {
+        List<PictureDetailResponse> list = new ArrayList<>();
+        for (Long id : pictureIds) {
+            Picture picture = findPictureById(id);
+            if (picture.getIsAlive() == Boolean.TRUE) {
+                Set<PictureTag> tags = picture.getPictureTags();
+                List<String> tagWords = new ArrayList<>();
+                for (PictureTag pTag : tags) {
+                    tagWords.add(pTag.getTag().getWord());
+                }
+                Collections.sort(tagWords);
+                PictureDetailResponse pictureDetailResponse = PictureDetailResponse.from(picture, tagWords, true);
+                list.add(pictureDetailResponse);
+            }
+        }
+        return list;
+    }
+
+    public List<PictureDetailResponse> getLikePublicList(List<Long> pictureIds) {
+        List<PictureDetailResponse> list = new ArrayList<>();
+        for (Long id : pictureIds) {
+            Picture picture = findPictureById(id);
+            if (picture.getIsPublic() == Boolean.TRUE && picture.getIsAlive() == Boolean.TRUE) {
+                Set<PictureTag> tags = picture.getPictureTags();
+                List<String> tagWords = new ArrayList<>();
+                for (PictureTag pTag : tags) {
+                    tagWords.add(pTag.getTag().getWord());
+                }
+                Collections.sort(tagWords);
+                PictureDetailResponse pictureDetailResponse = PictureDetailResponse.from(picture, tagWords, false);
+                list.add(pictureDetailResponse);
+            }
+        }
+        return list;
+    }
+
+    public List<PictureDetailResponse> getPicMadeByMe() {
+
+    }
+
     public Picture findPictureById(Long pictureId) {
         Optional<Picture> opPicture = pictureRepository.findById(pictureId);
         if (opPicture.isPresent()) {
@@ -152,8 +198,7 @@ public class PictureService {
     public void deleteLikeRequest(Long pictureId) {
         try {
             USER_SERVER_CLIENT.post()
-                    .uri("/user")
-                    .bodyValue(pictureId)
+                    .uri("/user/like/delete/" + pictureId)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -167,9 +212,8 @@ public class PictureService {
     // 해당 그림의 좋아요 알림을 삭제하는 요청, 추후 알림 서버와 협의 필요
     public void deleteLikeAlarmRequest(Long pictureId) {
         try {
-            ALARM_SERVER_CLIENT.post()
-                    .uri("/alarm")    /// uri 협의 필요
-                    .bodyValue(pictureId)
+            ALARM_SERVER_CLIENT.put()
+                    .uri("/alarm/picmove/" + pictureId)    /// uri 협의 필요
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -180,18 +224,5 @@ public class PictureService {
         }
     }
 
-    // 그림 id들 받아서 url과 매칭시키고 반환하는거
-    // user와 협의 필요
-    public List<PictureIdUrlResponse> matchIdAndUrl(List<Long> ids) {
-        List<PictureIdUrlResponse> list = new ArrayList<>();
-        for (Long id: ids) {
-            Picture picture = findPictureById(id);
-            PictureIdUrlResponse pictureIdUrlResponse = new PictureIdUrlResponse();
-            pictureIdUrlResponse.setPictureId(picture.getId());
-            pictureIdUrlResponse.setImgUrl(picture.getImgUrl());
-            list.add(pictureIdUrlResponse);
-        }
 
-        return list;
-    }
 }

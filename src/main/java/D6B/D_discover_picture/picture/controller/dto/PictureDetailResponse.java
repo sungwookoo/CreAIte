@@ -18,11 +18,11 @@ public class PictureDetailResponse {
     public String imgUrl;
     public String makerUid;
     public Long loveCount;
-    public Boolean isCreated;
     public Instant createdAt;
     public List<String> imageTags;
+    public Boolean loveCheck;
 
-    public static PictureDetailResponse from(Picture picture, List<String> tags) {
+    public static PictureDetailResponse from(Picture picture, List<String> tags, Boolean isLoved) {
         return PictureDetailResponse.builder()
                 .id(picture.getId())
                 .imgUrl(picture.getImgUrl())
@@ -30,6 +30,7 @@ public class PictureDetailResponse {
                 .loveCount(picture.getLoveCount())
                 .createdAt(picture.getCreatedAt())
                 .imageTags(tags)
+                .loveCheck(isLoved)
                 .build();
     }
 }

@@ -83,51 +83,16 @@ public class PictureController {
         }
     }
 
-    // 이미지 detail
-    @GetMapping("/noUser/{pictureId}")
-    public ResponseEntity<PictureDetailResponse> readPictureDetail(
-            @PathVariable Long pictureId) {
-        try {
-            Picture picture = pictureService.findPictureById(pictureId);
-            if (picture.getIsAlive() == Boolean.TRUE && picture.getIsPublic() == Boolean.TRUE) {
-                Set<PictureTag> tags = picture.getPictureTags();
-                List<String> tagWords = new ArrayList<>();
-                for (PictureTag pTag : tags) {
-                    tagWords.add(pTag.getTag().getWord());
-                }
-                Collections.sort(tagWords);
-                return ResponseEntity.ok(PictureDetailResponse.from(picture, tagWords));
-            }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    @GetMapping("/loginUser/{pictureId}/{uid}")
-    public ResponseEntity<PictureDetailResponse> readPictureDetailWithLogin(
+    // Today's pick (로그인 유저 버전)
+    @GetMapping("/todaylist/{uid}")
+    public ResponseEntity<List<PictureDetailResponse>> readPictureDetail(
             @RequestHeader("Authorization") String idToken,
-            @PathVariable Long pictureId, @PathVariable String uid)
-            throws IOException, FirebaseAuthException {
+            @PathVariable String uid) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
         if (authResponse.getIsUser()) {
             try {
-                Picture picture = pictureService.findPictureById(pictureId);
-                if (picture.getIsAlive() == Boolean.TRUE) {
-                    if (picture.getIsPublic() == Boolean.FALSE && !picture.getMakerUid().equals(uid)) {
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-                    } else {
-                        Set<PictureTag> tags = picture.getPictureTags();
-                        List<String> tagWords = new ArrayList<>();
-                        for (PictureTag pTag : tags) {
-                            tagWords.add(pTag.getTag().getWord());
-                        }
-                        Collections.sort(tagWords);
-                        return ResponseEntity.ok(PictureDetailResponse.from(picture, tagWords));
-                    }
-                }
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                List<PictureDetailResponse> list = pictureService.getTodayPickWithLogin();
+                return ResponseEntity.ok(list);
             } catch (Exception e) {
                 log.error(e.getMessage());
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -135,8 +100,92 @@ public class PictureController {
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
+//        try {
+//            Picture picture = pictureService.findPictureById(pictureId);
+//            if (picture.getIsAlive() == Boolean.TRUE && picture.getIsPublic() == Boolean.TRUE) {
+//                Set<PictureTag> tags = picture.getPictureTags();
+//                List<String> tagWords = new ArrayList<>();
+//                for (PictureTag pTag : tags) {
+//                    tagWords.add(pTag.getTag().getWord());
+//                }
+//                Collections.sort(tagWords);
+//                return ResponseEntity.ok(PictureDetailResponse.from(picture, tagWords));
+//            }
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//        } catch (Exception e) {
+//            log.error(e.getMessage());
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//        }
     }
 
+//    @GetMapping("/loginUser/{pictureId}/{uid}")
+//    public ResponseEntity<PictureDetailResponse> readPictureDetailWithLogin(
+//            @RequestHeader("Authorization") String idToken,
+//            @PathVariable Long pictureId, @PathVariable String uid)
+//            throws IOException, FirebaseAuthException {
+//        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+//        if (authResponse.getIsUser()) {
+//            try {
+//                Picture picture = pictureService.findPictureById(pictureId);
+//                if (picture.getIsAlive() == Boolean.TRUE) {
+//                    if (picture.getIsPublic() == Boolean.FALSE && !picture.getMakerUid().equals(uid)) {
+//                        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//                    } else {
+//                        Set<PictureTag> tags = picture.getPictureTags();
+//                        List<String> tagWords = new ArrayList<>();
+//                        for (PictureTag pTag : tags) {
+//                            tagWords.add(pTag.getTag().getWord());
+//                        }
+//                        Collections.sort(tagWords);
+//                        return ResponseEntity.ok(PictureDetailResponse.from(picture, tagWords));
+//                    }
+//                }
+//                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//            } catch (Exception e) {
+//                log.error(e.getMessage());
+//                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//            }
+//        } else {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+//    }
+
+    // 본인이 좋아요 한 리스트 보내주기
+    @PostMapping("/like_all_list")
+    public ResponseEntity<List<PictureDetailResponse>> getLikeAllList(
+            @RequestBody List<Long> pictureIds) {
+        try {
+            List<PictureDetailResponse> list = pictureService.getLikeAllList(pictureIds);
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 에러
+        }
+    }
+
+    // 다른 사람의 좋아요 리스트 보내주기
+    @PostMapping("/like_public_list")
+    public ResponseEntity<List<PictureDetailResponse>> getLikePublicList(
+            @RequestBody List<Long> pictureIds) {
+        try {
+            List<PictureDetailResponse> list = pictureService.getLikePublicList(pictureIds);
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // 유저가 만든 이미지들 조회 (로그인 했을때)
+    @GetMapping("/made/user/{uid}/{isMe}")
+    public ResponseEntity<List> getPicMadeByMe(
+            @PathVariable String uid,
+            @PathVariable String isMe) {
+        try {
+            List<PictureDetailResponse> list = pictureService.getPicMadeByMe(uid)
+        }
+    }
 
     // 이미지 좋아요 카운트 올리기
     @PostMapping("/create/count/{pictureId}")
@@ -175,13 +224,5 @@ public class PictureController {
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-    }
-
-    // 그림 id와 url 매칭 요청
-    @PostMapping("/")
-    public ResponseEntity<List<PictureIdUrlResponse>> matchIdAndUrl(
-            @RequestBody List<Long> idxs) {
-        List<PictureIdUrlResponse> list = pictureService.matchIdAndUrl(idxs);
-        return ResponseEntity.ok(list);
     }
 }
