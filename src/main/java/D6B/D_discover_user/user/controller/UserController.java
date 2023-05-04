@@ -5,6 +5,7 @@ import D6B.D_discover_user.common.service.AuthorizeService;
 import D6B.D_discover_user.user.controller.dto.*;
 import D6B.D_discover_user.user.service.UserService;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -156,12 +158,34 @@ public class UserController {
     }
 
     /**
-     * 유저가 좋아요를 누른 사진 가져오기
+     * 로그인 한 유저가 본인 또는 다른 유저의 좋아요를 누른 사진 가져오기
+     * 본인일 경우와 아닐 경우를 분기해야 한다.
      * @param uid : Firebase 통해 얻은 uid
      * @return : 유저가 좋아요를 누른 그림의 id와 url
      */
+    @GetMapping("/{uid}/like_picture/certified")
+    public ResponseEntity<List<UserPicsResponseDto>> readUserLovePicsCertified(@RequestHeader("Authorization") String idToken,
+                                                                               @PathVariable String uid,
+                                                                               @RequestBody UserLikePictureRequestDto userLikePictureRequestDto) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, userLikePictureRequestDto.getUid());
+        if(authResponse.getIsUser()) {
+            FirebaseToken decodedToken = authResponse.getDecodedToken();
+            // 본인이 본인의 좋아요 누른 사진을 보는 경우
+            if(Objects.equals(authResponse.getDecodedToken().getUid(), uid)) {
+                return ResponseEntity.ok(userService.findMyLovePics(decodedToken));
+            // 타인의 좋아요 누른 사진을 보는 경우
+            } else {
+                return ResponseEntity.ok(userService.findUserLovePicsCertified(decodedToken, uid));
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+    }
+
+
     @GetMapping("/{uid}/like_picture")
-    public ResponseEntity<List<UserPicsResponseDto>> readUserLovePics(@PathVariable String uid){
+    public ResponseEntity<List<UserPicsResponseDto>> readUserLovePicsNotCert(@PathVariable String uid) {
         return ResponseEntity.ok(userService.findUserLovePics(uid));
     }
 
@@ -175,19 +199,20 @@ public class UserController {
         return ResponseEntity.ok(userService.findUserMadePics(uid));
     }
 
-    // 다른 유저가 만든 사진, 다른 유저가 좋아요한 그림은 어떻게 할까?
 
+
+    //*******************************************************************************************************
+
+    @GetMapping("/find_id_by_uid/{uid}")
+    public Long findIdByUid(@PathVariable String uid) {
+        return userService.findIdByUid(uid);
+    }
 
     //***************************************여기서부턴 MSA 통신***********************************************//
     @PostMapping("/like/delete/{picture_id}")
     public ResponseEntity<Object> deleteLoveByPictureDead(@PathVariable Long picture_id) {
         userService.deActiveLove(picture_id);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/find_id_by_uid/{uid}")
-    public Long findIdByUid(@PathVariable String uid) {
-        return userService.findIdByUid(uid);
     }
 
     @GetMapping("/find_love_check_maker_name")

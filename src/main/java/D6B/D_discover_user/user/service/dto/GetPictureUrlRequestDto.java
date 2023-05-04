@@ -10,6 +10,6 @@ import java.util.List;
 public class GetPictureUrlRequestDto {
     private List<Long> pictureIds;
     public GetPictureUrlRequestDto(List<Long> pictureIds) {
-        this.pictureIds = pictureIds;
+        this.pictureIds = pictureIds ;
     }
 }

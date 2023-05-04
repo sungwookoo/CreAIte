@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -188,7 +189,7 @@ public class UserService {
             Long pictureId = loveCheckAndMakerRequestDto.getPictureId();
             Optional<User> optMaker = userRepository.findByUid(makerUid);
             optMaker.ifPresent(user -> responseDtos.add(LoveCheckAndMakerResponseDto.builder()
-                    .loveCheck(loveRepository.findByUserUidAndPictureIdAndIsActive(uid, pictureId, Boolean.TRUE).isPresent())
+                    .loveCheck(loveRepository.findByUserUidAndPictureIdAndIsActiveTrue(uid, pictureId).isPresent())
                     .makerName(user.getName())
                     .build()));
         }
@@ -364,25 +365,92 @@ public class UserService {
     }
 
     /**
-     * 유저가 좋아요를 누른 그림들
-     * @param uid : 좋아요 누른 사람의 uid
-     * @return : 유저가 좋아요를 누른 그림의 id, url, createdAt 리스트
+     * 본인이 누른 좋아요 리스트를 찾는 함수
+     * @param decodedToken : 로그인 유저의 토큰값
+     * @return : 좋아요 리스트에 올라갈 그림의 디테일
      */
-    public List<UserPicsResponseDto> findUserLovePics(String uid) {
-        List<Long> pictureIds = loveRepository.findByUserUidAndIsActiveOrderByCreatedAtDesc(uid, Boolean.TRUE)
+    public List<UserPicsResponseDto> findMyLovePics(FirebaseToken decodedToken) {
+        List<Long> pictureIds = loveRepository.findByUserUidAndIsActiveTrueOrderByCreatedAtDesc(decodedToken.getUid())
                 .stream()
                 .map(Love::getPictureId)
                 .collect(Collectors.toList());
         try {
             return PICTURE_SERVER_CLIENT.post()
-                    //****************여기 수정하기******************//
-                    .uri("/picture/asdfasdfdcdcddd")
-                    .body(BodyInserters.fromValue(new GetPictureUrlRequestDto(pictureIds)))
+                    .uri("/picture/like_all_list")
+                    .body(BodyInserters.fromValue(pictureIds))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
                     .bodyToMono(new ParameterizedTypeReference<List<UserPicsResponseDto>>() {})
                     .block();
+        } catch (Exception e) {
+            log.error("{}", e.getMessage());
+        }
+        return null;
+    }
+
+
+    /**
+     * 다른 유저의 좋아요 리스트를 찾는 함수(로그인 유저)
+     * @param decodedToken : 로그인 유저의 토큰값
+     * @param uid : 찾고있는 대상의 uid
+     * @return : 좋아요 리스트에 올라갈 그림의 디테일
+     */
+    public List<UserPicsResponseDto> findUserLovePicsCertified(FirebaseToken decodedToken, String uid) {
+        // 관심 대상 uid를 통해서 그 사람이 좋아한 그림들을 찾는다.(id)
+        List<Long> pictureIds = loveRepository.findByUserUidAndIsActiveTrueOrderByCreatedAtDesc(uid)
+                .stream()
+                .map(Love::getPictureId)
+                .collect(Collectors.toList());
+        // 해당 그림에 대한 정보를 모두 가져온다.
+        try {
+            List<UserPicsResponseDto> responseDtos = PICTURE_SERVER_CLIENT.post()
+                    .uri("/picture/like_public_list")
+                    .body(BodyInserters.fromValue(pictureIds))
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+                    .bodyToMono(new ParameterizedTypeReference<List<UserPicsResponseDto>>() {})
+                    .block();
+            String loginUid = decodedToken.getUid();
+            // 해당 그림을 지금 접속한 사람도 좋아요를 눌렀는지 여부를 판단한다.
+            // responseDtos를 순회하면서 pictrueId와 decodedToken으로 좋아요가 있고, 있다면 활성화되어 있는지를 찾는다.
+            for(UserPicsResponseDto responseDto : Objects.requireNonNull(responseDtos)) {
+                Long pictureId = responseDto.getPictureId();
+                Optional<Love> optLove = loveRepository.findByUserUidAndPictureIdAndIsActiveTrue(loginUid, pictureId);
+                if(optLove.isPresent()) {
+                    responseDto.setLoveCheck(Boolean.TRUE);
+                }
+            }
+            return responseDtos;
+        } catch (Exception e) {
+            log.error("{}", e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * 비로그인 상태로 특정 uid 사람의 좋아요 리스트를 찾는 함수
+     * @param uid : 관심 대상의 uid
+     * @return : 좋아요 리스트에 올라갈 그림의 디테일
+     */
+    public List<UserPicsResponseDto> findUserLovePics(String uid) {
+        // 관심 대상 uid를 통해서 그 사람이 좋아한 그림들을 찾는다.(id)
+        List<Long> pictureIds = loveRepository.findByUserUidAndIsActiveTrueOrderByCreatedAtDesc(uid)
+                .stream()
+                .map(Love::getPictureId)
+                .collect(Collectors.toList());
+        // 해당 그림에 대한 정보를 모두 가져온다.
+        try {
+            List<UserPicsResponseDto> responseDtos = PICTURE_SERVER_CLIENT.post()
+                    .uri("/picture/like_public_list")
+                    .body(BodyInserters.fromValue(pictureIds))
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+                    .bodyToMono(new ParameterizedTypeReference<List<UserPicsResponseDto>>() {})
+                    .block();
+            return responseDtos;
         } catch (Exception e) {
             log.error("{}", e.getMessage());
         }

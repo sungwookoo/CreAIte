@@ -7,9 +7,13 @@ import java.util.Optional;
 
 public interface LoveRepository extends JpaRepository<Love, Long> {
     Optional<Love> findByUserUidAndPictureId(String userUid, Long pictureId);
+
+    List<Love> findByUserUidAndIsActiveTrueOrderByCreatedAtDesc(String userUid);
+
     List<Love> findByUserId(Long userId);
-    List<Love> findByUserUidAndIsActiveOrderByCreatedAtDesc(String userUid, Boolean isActive);
+
+
     List<Love> findByPictureId(Long pictureId);
 
-    Optional<Love> findByUserUidAndPictureIdAndIsActive(String id, Long pictureId, Boolean isActive);
+    Optional<Love> findByUserUidAndPictureIdAndIsActiveTrue(String uid, Long pictureId);
 }
