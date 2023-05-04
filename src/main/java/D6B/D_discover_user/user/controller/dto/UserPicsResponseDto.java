@@ -11,7 +11,7 @@ import java.util.List;
 public class UserPicsResponseDto {
     private String pictureUrl;
     private Long pictureId;
-    private String makerUId;
+    private String makerUid;
     private String makerName;
     private Long loveCount;
     private Instant createdAt;
