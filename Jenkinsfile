@@ -2,14 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: '*/develop',
-                    credentialsId: 'github',
-                    url: 'https://github.com/3D6B/gateway.git'
-            }
-        }
-
         stage('Build') {
             steps {
                 script {
