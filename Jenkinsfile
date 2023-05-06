@@ -5,6 +5,9 @@ pipeline {
         stage('Build') {
             steps {
                 script {
+					// 실행 권한 추가
+					sh 'chmod +x ./gradlew'
+					
                     // Gradle을 사용해 빌드
                     sh './gradlew clean build'
                 }
