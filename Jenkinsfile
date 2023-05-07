@@ -88,7 +88,8 @@ spec:
                     script {
                         withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                             // kubectl을 사용해 쿠버네티스에 배포
-                            sh 'kubectl apply -f kubernetes-configs/dev/gateway/gateway-deployment-dev.yaml -n dev --kubeconfig=$KUBECONFIG'
+                            sh 'kubectl apply -f /home/kubernetes-configs/dev/gateway/gateway-deployment-dev.yaml -n dev --kubeconfig=$KUBECONFIG'
+							sh 'kubectl apply -f /home/kubernetes-configs/dev/gateway/gateway-service-dev.yaml -n dev --kubeconfig=$KUBECONFIG'
                         }
                     }
                 }
