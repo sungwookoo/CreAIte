@@ -18,13 +18,13 @@ spec:
       - mountPath: /var/jenkins_home
         name: workspace-volume
   - name: java
-    image: openjdk:8-jdk
+    image: openjdk:11-jdk
     command:
     - cat
     tty: true
     env:
     - name: JAVA_HOME
-      value: "/usr/lib/jvm/java-8-openjdk-amd64"
+      value: "/docker-java-home"
     volumeMounts:
       - mountPath: /var/jenkins_home
         name: workspace-volume
