@@ -38,10 +38,6 @@ spec:
         mountPath: /var/run/docker.sock
   - name: kubectl
     image: bitnami/kubectl:latest
-    command:
-    - /bin/sh
-    - -c
-    - 'while true; do sleep 10000; done'
     tty: true
     workingDir: '/home/jenkins/agent'
   volumes:
