@@ -38,6 +38,8 @@ spec:
         mountPath: /var/run/docker.sock
   - name: kubectl
     image: bitnami/kubectl:latest
+    command:
+    - cat
     tty: true
     workingDir: '/home/jenkins/agent'
   volumes:
