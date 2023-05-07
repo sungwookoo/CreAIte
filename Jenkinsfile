@@ -39,8 +39,7 @@ spec:
   - name: kubectl
     image: bitnami/kubectl:latest
     command:
-    - bash
-	- '-c'
+    - cat
     tty: true
     workingDir: '/home/jenkins/agent'
   volumes:
