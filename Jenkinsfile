@@ -24,7 +24,7 @@ spec:
     tty: true
     env:
     - name: JAVA_HOME
-      value: "/docker-java-home"
+      value: "/usr/local/openjdk-11"
     volumeMounts:
       - mountPath: /var/jenkins_home
         name: workspace-volume
