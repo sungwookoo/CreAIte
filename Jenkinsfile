@@ -17,6 +17,17 @@ spec:
     volumeMounts:
       - mountPath: /var/jenkins_home
         name: workspace-volume
+  - name: java
+    image: openjdk:8-jdk
+    command:
+    - cat
+    tty: true
+    env:
+    - name: JAVA_HOME
+      value: "/usr/lib/jvm/java-8-openjdk-amd64"
+    volumeMounts:
+      - mountPath: /var/jenkins_home
+        name: workspace-volume
   - name: docker
     image: docker:latest
     command:
@@ -43,7 +54,7 @@ spec:
     stages {
         stage('Build') {
             steps {
-                container('docker') {
+                container('java') {
                     script {
                         // 실행 권한 추가
                         sh 'chmod +x ./gradlew'
