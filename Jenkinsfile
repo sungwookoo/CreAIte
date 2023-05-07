@@ -42,6 +42,8 @@ spec:
     - cat
     tty: true
     workingDir: '/home/jenkins/agent'
+    securityContext:
+      runAsUser: 0
   volumes:
   - name: docker-socket
     hostPath:
