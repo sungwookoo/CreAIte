@@ -181,8 +181,40 @@ public class PictureService {
         return list;
     }
 
-    public List<PictureDetailResponse> getPicMadeByMe() {
+    public List<PictureDetailResponse> getPicMadeByMe(String uid) {
+        List<Picture> pictureList = pictureRepository.findAllByMakerUid(uid);
+        List<PictureDetailResponse> list = new ArrayList<>();
+        for (Picture picture : pictureList) {
+            if (picture.getIsAlive() == Boolean.TRUE) {
+                Set<PictureTag> tags = picture.getPictureTags();
+                List<String> tagWords = new ArrayList<>();
+                for (PictureTag pTag : tags) {
+                    tagWords.add(pTag.getTag().getWord());
+                }
+                Collections.sort(tagWords);
+                PictureDetailResponse pictureDetailResponse = PictureDetailResponse.from(picture, tagWords, false);
+                list.add(pictureDetailResponse);
+            }
+        }
+        return list;
+    }
 
+    public List<PictureDetailResponse> getPicMadeByOther(String uid) {
+        List<Picture> pictureList = pictureRepository.findAllByMakerUidAndIsPublic(uid, true);
+        List<PictureDetailResponse> list = new ArrayList<>();
+        for (Picture picture : pictureList) {
+            if (picture.getIsAlive() == Boolean.TRUE) {
+                Set<PictureTag> tags = picture.getPictureTags();
+                List<String> tagWords = new ArrayList<>();
+                for (PictureTag pTag : tags) {
+                    tagWords.add(pTag.getTag().getWord());
+                }
+                Collections.sort(tagWords);
+                PictureDetailResponse pictureDetailResponse = PictureDetailResponse.from(picture, tagWords, false);
+                list.add(pictureDetailResponse);
+            }
+        }
+        return list;
     }
 
     public Picture findPictureById(Long pictureId) {

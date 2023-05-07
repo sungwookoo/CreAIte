@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface PictureRepository extends JpaRepository<Picture, Long> {
     List<Picture> findAllByMakerUid(String makerUid);
+    List<Picture> findAllByMakerUidAndIsPublic(String makerUid, Boolean isPublic);
 }

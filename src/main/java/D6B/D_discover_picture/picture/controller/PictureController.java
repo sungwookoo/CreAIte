@@ -179,11 +179,33 @@ public class PictureController {
 
     // 유저가 만든 이미지들 조회 (로그인 했을때)
     @GetMapping("/made/user/{uid}/{isMe}")
-    public ResponseEntity<List> getPicMadeByMe(
+    public ResponseEntity<List<PictureDetailResponse>> getMadePicWithLogin(
             @PathVariable String uid,
             @PathVariable String isMe) {
         try {
-            List<PictureDetailResponse> list = pictureService.getPicMadeByMe(uid)
+            List<PictureDetailResponse> list;
+            if (isMe.equals("1")) {
+                list = pictureService.getPicMadeByMe(uid);
+            } else {
+                list = pictureService.getPicMadeByOther(uid);
+            }
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    // 다른 유저가 만든 이미지들 조회 (로그인 안했을때)
+    @GetMapping("/made/no_user/{uid}")
+    public ResponseEntity<List<PictureDetailResponse>> getMadePicWithoutLogin(
+            @PathVariable String uid) {
+        try {
+            List<PictureDetailResponse> list = pictureService.getPicMadeByOther(uid);
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
@@ -225,4 +247,13 @@ public class PictureController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+
+    // 유저가 검색한 검색어를 태그로 가지고 있는 이미지들 반환 (유저 검색 시)
+    // 로그인 한 사용자
+//    @GetMapping("/search/user/{keyword}/{uid}")
+//    public ResponseEntity<List<PictureDetailResponse>> getSearchList(
+//            @PathVariable String keyword) {
+//
+//    }
+
 }
