@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -22,9 +23,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AlarmService {
     private final AlarmRepository alarmRepository;
+    private final FirebaseCloudMessageService firebaseCloudMessageService;
 
-    public AlarmService(AlarmRepository alarmRepository, ObjectMapper objectMapper) {
+    public AlarmService(AlarmRepository alarmRepository, ObjectMapper objectMapper, FirebaseCloudMessageService firebaseCloudMessageService) {
         this.alarmRepository = alarmRepository;
+        this.firebaseCloudMessageService = firebaseCloudMessageService;
     }
 
     /**
@@ -77,6 +80,21 @@ public class AlarmService {
             alarm.setIsRead(false);
             alarm.setCreatedAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toInstant());
             alarmRepository.save(alarm);
+            String fcmToken = "fEvCxJFWSjWZyfsqiqMFJl:APA91bGr7IPRVsNnTgNTm9IE4UEUbIdGApDci77uTPYRrQpAfMGD6QyDeqQRf0aPHfenMYvd9dJOQwQiaHfmSDyO-05aqUOTPxxXSe1LSBy8f1cpdjVVE_ZfUPqrvFmyWBc8N5UqvT49";
+//          String fcmToken = firebaseCloudMessageService.getFCMTokenByUserId(alarm.getReceiverUid());
+
+            String SenderName = alarm.getSenderName();
+            // contentType 설정
+            String msg = SenderName + "님이 좋아요를 누르셨습니다.";
+            // overloading 함수 재사용
+            //sendMessageTo(fcmToken, "Creaite", msg, https://i.imgur.com/WUtsRM9.png);
+            //firebaseCloudMessageService.sendMessageTo(fcmToken, "Creaite", msg, alarm.getSenderImgSrc());
+            try {
+                firebaseCloudMessageService.sendMessageTo(fcmToken, "Creaite", msg, alarm.getSenderImgSrc());
+            } catch (IOException e) {
+                e.printStackTrace();
+                // 여기에서 예외 처리를 수행하거나 필요에 따라 반환 타입을 변경하여 실패 응답을 처리할 수 있습니다.
+            }
         }
     }
 
@@ -102,8 +120,6 @@ public class AlarmService {
             alarm.setIsAlive(false);
             alarmRepository.save(alarm);
         }
-
-
     }
 
     /**

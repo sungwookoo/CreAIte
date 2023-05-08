@@ -5,6 +5,7 @@ import D6B.D_discover_alarm.controller.dto.IsAliveDto;
 
 import D6B.D_discover_alarm.controller.dto.NotificationDto;
 import D6B.D_discover_alarm.service.AlarmService;
+import D6B.D_discover_alarm.service.FirebaseCloudMessageService;
 import D6B.D_discover_alarm.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+import javax.persistence.criteria.CriteriaBuilder;
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -21,10 +25,15 @@ public class AlarmController {
 
     private final AlarmService alarmService;
     private final NotificationService notificationService;
+    private final FirebaseCloudMessageService firebaseCloudMessageService;
     @Autowired
-    public AlarmController(AlarmService alarmService,NotificationService notificationService) {
+    public AlarmController(AlarmService alarmService,
+                           NotificationService notificationService,
+                           FirebaseCloudMessageService firebaseCloudMessageService) {
+
         this.alarmService = alarmService;
         this.notificationService = notificationService;
+        this.firebaseCloudMessageService = firebaseCloudMessageService;
     }
     @GetMapping("/list/{user_uid}")
     public ResponseEntity<List<AlarmDto>> getAlarmList(@PathVariable String user_uid){
@@ -33,10 +42,15 @@ public class AlarmController {
         return ResponseEntity.status(HttpStatus.OK).body(dtos);
     }
 
-
     @PostMapping("/create")
     public  ResponseEntity<NotificationDto> createNotification(@RequestBody NotificationDto notificationdto){
         NotificationDto createDto = notificationService.createNotification(notificationdto);
+        try {
+        firebaseCloudMessageService.sendMessageTo(notificationdto);
+// 원래 코드
+        } catch (IOException e) {
+            System.out.println("IOException occurred: " + e.toString());
+        }
         return ResponseEntity.status(HttpStatus.OK).body(createDto);
     }
 
@@ -63,8 +77,6 @@ public class AlarmController {
         alarmService.remove(user_uid);
         return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
-
-
     @DeleteMapping("/alarm/delete/{alarm_id}")
     public ResponseEntity<String> deleteAlarm(@PathVariable Long alarm_id) {
         alarmService.deleteAlarm(alarm_id);
@@ -75,6 +87,4 @@ public class AlarmController {
         alarmService.picmove(picture_id);
         return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
-
-
 }
