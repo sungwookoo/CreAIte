@@ -79,12 +79,16 @@ spec:
             steps {
                 container('docker') {
                     script {
+                        // Git commit 해시 가져오기
+                        def gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+
                         // Docker 이미지 빌드 및 푸시
-                        sh 'docker build -t sungwookoo/gateway:develop .'
+                        sh "docker build -t sungwookoo/gateway:develop-${gitCommitHash} ."
                         withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
                             sh 'docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD'
-                            sh 'docker push sungwookoo/gateway:develop'
+                            sh "docker push sungwookoo/gateway:develop-${gitCommitHash}"
                         }
+                        env.DOCKER_IMAGE_TAG = "sungwookoo/gateway:develop-${gitCommitHash}"
                     }
                 }
             }
@@ -97,7 +101,7 @@ spec:
                         withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                             sh 'apt-get update' // 패키지 목록 업데이트
                             sh 'apt-get install -y gettext' // gettext 설치
-                            sh 'envsubst < gateway-deployment-dev.yaml > temp-deployment.yaml'
+                            sh "export DOCKER_IMAGE_TAG=${env.DOCKER_IMAGE_TAG} && envsubst < gateway-deployment-dev.yaml > temp-deployment.yaml"
                             sh 'kubectl apply -f temp-deployment.yaml -n dev --kubeconfig=$KUBECONFIG'
                             sh 'kubectl apply -f gateway-service-dev.yaml -n dev --kubeconfig=$KUBECONFIG'
                             sh 'rm temp-deployment.yaml' // 임시 파일 삭제
