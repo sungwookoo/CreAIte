@@ -95,7 +95,8 @@ spec:
                 container('kubectl') {
                     script {
                         withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                            sh 'apk add --no-cache gettext' // gettext 설치
+                            sh 'apt-get update' // 패키지 목록 업데이트
+                            sh 'apt-get install -y gettext' // gettext 설치
                             sh 'envsubst < gateway-deployment-dev.yaml > temp-deployment.yaml'
                             sh 'kubectl apply -f temp-deployment.yaml -n dev --kubeconfig=$KUBECONFIG'
                             sh 'kubectl apply -f gateway-service-dev.yaml -n dev --kubeconfig=$KUBECONFIG'
