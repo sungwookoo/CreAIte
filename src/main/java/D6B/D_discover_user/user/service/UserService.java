@@ -465,4 +465,9 @@ public class UserService {
         }
         return responseDtos;
     }
+
+    public String getFCMTokenByUserUid(String uid) {
+        Optional<User> user = userRepository.findByUid(uid);
+        return user.map(User::getFcmToken).orElse(null);
+    }
 }
