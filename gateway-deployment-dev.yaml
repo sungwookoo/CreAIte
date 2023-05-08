@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: sungwookoo/gateway:develop
+          image: sungwookoo/gateway:${BUILD_NUMBER}
           ports:
             - containerPort: 8080
           env:
