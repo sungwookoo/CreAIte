@@ -94,7 +94,7 @@ spec:
                         withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
 							def buildNumber = env.BUILD_NUMBER
 							def deploymentTemplate = readFile("gateway-deployment-dev.yaml")
-							def deployment = deploymentTemplate.replaceAll("\\$\\{BUILD_NUMBER\\}", buildNumber)
+              def deployment = deploymentTemplate.replaceAll("\\\\$\\\\{BUILD_NUMBER\\\\}", buildNumber)
 							
 							writeFile(file: "temp-deployment.yaml", text: deployment)
 							sh "kubectl apply -f temp-deployment.yaml -n dev --kubeconfig=$KUBECONFIG"
