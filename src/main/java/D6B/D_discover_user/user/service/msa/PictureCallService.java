@@ -37,7 +37,7 @@ public class PictureCallService {
     // List<UserPicsResponseDto>, get
     public static List<UserPicsResponseDto> getMadePictureInfo(String uri) {
         try {
-            return PICTURE_SERVER_CLIENT.get()
+            return PICTURE_SERVER_CLIENT.post()
                     .uri(uri)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
