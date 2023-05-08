@@ -11,11 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PictureSaveRequest {
+public class DeleteUserRequest {
     public String uid;
-    public String imgUrl;
-    public Boolean isPublic;
-    public Boolean isCreated;
-    public List<String> imageTags;
-    // 이미지에 달린 태그들
+    public List<Long> pictureIdxs;
 }

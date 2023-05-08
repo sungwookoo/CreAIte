@@ -1,40 +1,41 @@
 package D6B.D_discover_picture.common.service;
 
-
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import D6B.D_discover_picture.common.dto.AuthResponse;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
-import static D6B.D_discover_picture.common.ConstValues.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Objects;
 
-@Slf4j
 @Service
 public class AuthorizeService {
+    public AuthResponse isAuthorized(String idToken, String uid) throws IOException, FirebaseAuthException {
+        if(FirebaseApp.getApps().isEmpty()) {
+            FileInputStream serviceAccount = new FileInputStream("creaite-app-firebase-adminsdk.json");
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
+            FirebaseApp.initializeApp(options);
+        }
 
-//    public Long getAuthorization(String token) {
-//        Long userId = NON_MEMBER;
-//        try {
-//            userId = AUTH_SERVER_CLIENT.get()
-//                    .uri(AUTH_URI)
-//                    .header("Authorization", token)
-//                    .retrieve()
-//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .bodyToMono(Long.class)
-//                    .block();
-//        } catch (Exception e) {
-//            log.error(e.getMessage());
-//            userId = UNAUTHORIZED_USER;
-//        }
-//        return userId;
-//    }
-//
-//    public boolean isAuthorization(Long status) {
-//        if (status.equals(UNAUTHORIZED_USER) || status.equals(NON_MEMBER))
-//            return false;
-//        else
-//            return true;
-//    }
-
+        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+        String decodedTokenUid = decodedToken.getUid();
+        if (Objects.equals(decodedTokenUid, uid)) {
+            return AuthResponse.builder()
+                    .isUser(true)
+                    .decodedToken(decodedToken)
+                    .build();
+        } else {
+            return AuthResponse.builder()
+                    .isUser(false)
+                    .decodedToken(null)
+                    .build();
+        }
+    }
 }
