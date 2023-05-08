@@ -12,4 +12,5 @@ public class UserReadRequestDto {
     private final String email;
     private final String name;
     private final String profileImg;
+    private final String fcmToken;
 }

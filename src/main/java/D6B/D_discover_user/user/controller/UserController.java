@@ -245,4 +245,10 @@ public class UserController {
     public List<String> findMakers(@RequestBody List<String> makerUids) {
         return userService.findMakers(makerUids);
     }
+
+    // 알람 서비스에서 받은 uid에 대해서 fcm토큰을 내놓는 api
+    @GetMapping("/fcm/{uid}")
+    public String getFCMTokenByUserUid(@PathVariable String uid) {
+        return userService.getFCMTokenByUserUid(uid);
+    }
 }

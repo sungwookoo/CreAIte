@@ -28,6 +28,9 @@ public class User {
     @Column(name = "uid", nullable = false)
     private String uid;
 
+    @Column(name= "fcm_token", nullable = false)
+    private String fcmToken;
+
     @Column(name = "email", nullable = false)
     private String email;
 
