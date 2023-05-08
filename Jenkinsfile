@@ -55,7 +55,9 @@ spec:
     }
 
     stages {
-        stage('Build') {
+        
+		/*
+		stage('Build') {
             steps {
                 container('java') {
                     script {
@@ -68,6 +70,7 @@ spec:
                 }
             }
         }
+		*/
 
         stage('Docker build and push') {
             steps {
