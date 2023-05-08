@@ -92,10 +92,14 @@ spec:
                 container('kubectl') {
                     script {
                         withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                            // kubectl을 사용해 쿠버네티스에 배포
-							// sh 'kubectl version'
-                            sh 'kubectl apply -f gateway-deployment-dev.yaml -n dev --kubeconfig=$KUBECONFIG'
-							sh 'kubectl apply -f gateway-service-dev.yaml -n dev --kubeconfig=$KUBECONFIG'
+							def buildNumber = env.BUILD_NUMBER
+							def deploymentTemplate = readFile("gateway-deployment-dev.yaml")
+							def deployment = deploymentTemplate.replaceAll("\\$\\{BUILD_NUMBER\\}", buildNumber)
+							
+							writeFile(file: "temp-deployment.yaml", text: deployment)
+							sh "kubectl apply -f temp-deployment.yaml -n dev --kubeconfig=$KUBECONFIG"
+							sh "kubectl apply -f gateway-service-dev.yaml -n dev --kubeconfig=$KUBECONFIG"
+							sh "rm temp-deployment.yaml" // 임시 파일 삭제
                         }
                     }
                 }
