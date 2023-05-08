@@ -17,17 +17,6 @@ spec:
     volumeMounts:
       - mountPath: /var/jenkins_home
         name: workspace-volume
-  // - name: java
-  //   image: openjdk:11-jdk
-  //   command:
-  //   - cat
-  //   tty: true
-  //   env:
-  //   - name: JAVA_HOME
-  //     value: "/usr/local/openjdk-11"
-  //   volumeMounts:
-  //     - mountPath: /var/jenkins_home
-  //       name: workspace-volume
   - name: docker
     image: docker:latest
     command:
