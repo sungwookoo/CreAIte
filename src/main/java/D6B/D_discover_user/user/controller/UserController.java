@@ -226,9 +226,6 @@ public class UserController {
         return ResponseEntity.ok(userService.findUserMadePics(uid));
     }
 
-
-
-
     //***************************************여기서부턴 MSA 통신***********************************************//
     @PostMapping("/like/delete/{picture_id}")
     public ResponseEntity<Object> deleteLoveByPictureDead(@PathVariable Long picture_id) {

@@ -20,11 +20,11 @@ import java.util.Set;
 @Table(name = "user")
 public class User {
 
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Id
     @Column(name = "uid", nullable = false)
     private String uid;
 
