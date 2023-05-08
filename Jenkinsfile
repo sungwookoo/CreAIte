@@ -44,6 +44,9 @@ spec:
     workingDir: '/home/jenkins/agent'
     securityContext:
       runAsUser: 0
+    env:
+    - name: BUILD_NUMBER
+      value: "${env.BUILD_NUMBER}"
   volumes:
   - name: docker-socket
     hostPath:
@@ -92,15 +95,11 @@ spec:
                 container('kubectl') {
                     script {
                         withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-							def buildNumber = env.BUILD_NUMBER
-							def deploymentTemplate = readFile("gateway-deployment-dev.yaml")
-              def deployment = deploymentTemplate.replaceAll('\\${BUILD_NUMBER}', buildNumber)
-
-							
-							writeFile(file: "temp-deployment.yaml", text: deployment)
-							sh "kubectl apply -f temp-deployment.yaml -n dev --kubeconfig=$KUBECONFIG"
-							sh "kubectl apply -f gateway-service-dev.yaml -n dev --kubeconfig=$KUBECONFIG"
-							sh "rm temp-deployment.yaml" // 임시 파일 삭제
+                            sh 'apk add --no-cache gettext' // gettext 설치
+                            sh 'envsubst < gateway-deployment-dev.yaml > temp-deployment.yaml'
+                            sh 'kubectl apply -f temp-deployment.yaml -n dev --kubeconfig=$KUBECONFIG'
+                            sh 'kubectl apply -f gateway-service-dev.yaml -n dev --kubeconfig=$KUBECONFIG'
+                            sh 'rm temp-deployment.yaml' // 임시 파일 삭제
                         }
                     }
                 }
