@@ -71,6 +71,8 @@ spec:
                         // Git 설치
                         sh 'apk add --no-cache git'
 
+                        sh 'git config --global --add safe.directory /home/jenkins/agent/workspace/gateway'
+
                         // Git commit 해시 가져오기
                         def gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
 
