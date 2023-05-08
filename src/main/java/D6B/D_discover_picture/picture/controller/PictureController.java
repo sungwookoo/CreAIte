@@ -250,10 +250,18 @@ public class PictureController {
 
     // 유저가 검색한 검색어를 태그로 가지고 있는 이미지들 반환 (유저 검색 시)
     // 로그인 한 사용자
-//    @GetMapping("/search/user/{keyword}/{uid}")
-//    public ResponseEntity<List<PictureDetailResponse>> getSearchList(
-//            @PathVariable String keyword) {
-//
-//    }
+    @GetMapping("/search/user/{keyword}/{uid}")
+    public ResponseEntity<List<PictureDetailResponse>> getSearchList(
+            @RequestHeader("Authorization") String idToken,
+            @PathVariable String keyword,
+            @PathVariable String uid) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+        if (authResponse.getIsUser()) {
+            List<PictureDetailResponse> list = new ArrayList<>();
+            return ResponseEntity.ok(list);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
 
 }
