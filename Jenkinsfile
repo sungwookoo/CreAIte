@@ -22,6 +22,8 @@ spec:
     command:
     - cat
     tty: true
+    securityContext:
+      runAsUser: 0
     volumeMounts:
       - name: docker-socket
         mountPath: /var/run/docker.sock
