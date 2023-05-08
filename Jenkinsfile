@@ -17,17 +17,17 @@ spec:
     volumeMounts:
       - mountPath: /var/jenkins_home
         name: workspace-volume
-  - name: java
-    image: openjdk:11-jdk
-    command:
-    - cat
-    tty: true
-    env:
-    - name: JAVA_HOME
-      value: "/usr/local/openjdk-11"
-    volumeMounts:
-      - mountPath: /var/jenkins_home
-        name: workspace-volume
+  // - name: java
+  //   image: openjdk:11-jdk
+  //   command:
+  //   - cat
+  //   tty: true
+  //   env:
+  //   - name: JAVA_HOME
+  //     value: "/usr/local/openjdk-11"
+  //   volumeMounts:
+  //     - mountPath: /var/jenkins_home
+  //       name: workspace-volume
   - name: docker
     image: docker:latest
     command:
@@ -79,6 +79,10 @@ spec:
             steps {
                 container('docker') {
                     script {
+                        // Git 설치
+                        sh 'apt-get update'
+                        sh 'apt-get install -y git'
+
                         // Git commit 해시 가져오기
                         def gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
 
