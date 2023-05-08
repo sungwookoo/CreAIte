@@ -22,8 +22,6 @@ spec:
     command:
     - cat
     tty: true
-    securityContext:
-      runAsUser: 0
     volumeMounts:
       - name: docker-socket
         mountPath: /var/run/docker.sock
@@ -71,8 +69,7 @@ spec:
                 container('docker') {
                     script {
                         // Git 설치
-                        sh 'apt-get update'
-                        sh 'apt-get install -y git'
+                        sh 'apk add --no-cache git'
 
                         // Git commit 해시 가져오기
                         def gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
