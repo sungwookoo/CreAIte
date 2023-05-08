@@ -227,23 +227,43 @@ public class UserController {
     }
 
     //***************************************여기서부턴 MSA 통신***********************************************//
+
+    /**
+     * 삭제한 그림의 좋아요 기록을 disable 하기 위함
+     * @param picture_id : 삭제한 그림의 id
+     * @return :
+     */
     @PostMapping("/like/delete/{picture_id}")
     public ResponseEntity<Object> deleteLoveByPictureDead(@PathVariable Long picture_id) {
         userService.deActiveLove(picture_id);
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * 로그인 유저가 그림 리스트를 조회할 때, 그림의 생성자와 좋아요 여부를 picture 서버에 알려주는 API
+     * @param loveCheckAndMakerRequestDtos : 현재로그인한 유저의 uid, 레이아웃될 그림의 id 목록, 그림 생성자 uid
+     * @return : 이미지의 생성자 이름 목록, 해당 이미지에 대한 유저의 좋아요 여부
+     */
     @PostMapping("/find_love_check_maker_name")
     public List<LoveCheckAndMakerResponseDto> findLoveChecksAndMakers(@RequestBody List<LoveCheckAndMakerRequestDto> loveCheckAndMakerRequestDtos) {
         return userService.findLoveChecksAndMakers(loveCheckAndMakerRequestDtos);
     }
 
+    /**
+     * 비회원 유저가 그림 리스트를 조회할 때, 그림의 생성자를 picture 서버에 알려주는 API
+     * @param makerUids : 이미지의 생성자 uid 목록
+     * @return : 이미지의 생성자 이름 목록을 반환한다.
+     */
     @GetMapping("/find_maker_name")
     public List<String> findMakers(@RequestBody List<String> makerUids) {
         return userService.findMakers(makerUids);
     }
 
-    // 알람 서비스에서 받은 uid에 대해서 fcm토큰을 내놓는 api
+    /**
+     * 알람 서버에서 uid 통해서 fcmToken 값을 얻을 때 보내는 API
+     * @param uid : 토큰값을 알고자하는 유저의 uid
+     * @return : fcmToken(String)
+     */
     @GetMapping("/fcm/{uid}")
     public String getFCMTokenByUserUid(@PathVariable String uid) {
         return userService.getFCMTokenByUserUid(uid);
