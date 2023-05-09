@@ -419,6 +419,8 @@ public class PictureService {
     @Scheduled(cron = "10 0 0 * * 2", zone = "Asia/Seoul")
     public void updateWeeklyTop() {
         weeklyTopPictureRepository.deleteAllInBatch();
+//        List<Picture> picList = pictureRepository.findTop50ByIsPublicAndIsAliveAndCreatedAtBetweenOrderByLoveCountDesc(true, true,
+//                Instant.now().minusSeconds(), Instant.now().minusSeconds());
     }
 
     // Monthly Top 업데이트
