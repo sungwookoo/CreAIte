@@ -11,8 +11,8 @@ spring:
     gateway:
       routes:
         # dev
-        - id: user-service-dev
-          uri: http://user-service.dev.svc.cluster.local # 쿠버네티스 서비스의 FQDN
+        - id: user-dev
+          uri: http://user-dev.dev.svc.cluster.local # 쿠버네티스 서비스의 FQDN
           predicates:
             - Path=/user/**
   profiles:
