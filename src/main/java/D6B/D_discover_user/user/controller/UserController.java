@@ -268,4 +268,10 @@ public class UserController {
     public String getFCMTokenByUserUid(@PathVariable String uid) {
         return userService.getFCMTokenByUserUid(uid);
     }
+
+    @GetMapping("/test")
+    public String test() {
+        return "test";
+    }
+
 }
