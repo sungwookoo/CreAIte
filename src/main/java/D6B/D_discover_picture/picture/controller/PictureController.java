@@ -3,11 +3,11 @@ package D6B.D_discover_picture.picture.controller;
 import D6B.D_discover_picture.common.dto.AuthResponse;
 import D6B.D_discover_picture.common.service.AuthorizeService;
 import D6B.D_discover_picture.picture.controller.dto.DeleteUserRequest;
+import D6B.D_discover_picture.picture.controller.dto.PictureAllDetailResponse;
 import D6B.D_discover_picture.picture.controller.dto.PictureDetailResponse;
 import D6B.D_discover_picture.picture.controller.dto.PictureSaveRequest;
 import D6B.D_discover_picture.picture.domain.*;
 import D6B.D_discover_picture.picture.service.PictureService;
-import D6B.D_discover_picture.picture.service.dto.PictureIdUrlResponse;
 import D6B.D_discover_picture.picture.service.exceptions.DeletePictureFailException;
 import D6B.D_discover_picture.picture.service.exceptions.PictureNotSavedException;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -84,14 +84,14 @@ public class PictureController {
     }
 
     // Today's pick (로그인 유저 버전)
-    @GetMapping("/todaylist/{uid}")
-    public ResponseEntity<List<PictureDetailResponse>> readPictureDetail(
+    @GetMapping("/today_list/user/{uid}")
+    public ResponseEntity<List<PictureAllDetailResponse>> getTodayPickWithLogin(
             @RequestHeader("Authorization") String idToken,
             @PathVariable String uid) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
         if (authResponse.getIsUser()) {
             try {
-                List<PictureDetailResponse> list = pictureService.getTodayPickWithLogin();
+                List<PictureAllDetailResponse> list = pictureService.getTodayPickWithLogin(uid);
                 return ResponseEntity.ok(list);
             } catch (Exception e) {
                 log.error(e.getMessage());
@@ -100,56 +100,19 @@ public class PictureController {
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-//        try {
-//            Picture picture = pictureService.findPictureById(pictureId);
-//            if (picture.getIsAlive() == Boolean.TRUE && picture.getIsPublic() == Boolean.TRUE) {
-//                Set<PictureTag> tags = picture.getPictureTags();
-//                List<String> tagWords = new ArrayList<>();
-//                for (PictureTag pTag : tags) {
-//                    tagWords.add(pTag.getTag().getWord());
-//                }
-//                Collections.sort(tagWords);
-//                return ResponseEntity.ok(PictureDetailResponse.from(picture, tagWords));
-//            }
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        } catch (Exception e) {
-//            log.error(e.getMessage());
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }
     }
 
-//    @GetMapping("/loginUser/{pictureId}/{uid}")
-//    public ResponseEntity<PictureDetailResponse> readPictureDetailWithLogin(
-//            @RequestHeader("Authorization") String idToken,
-//            @PathVariable Long pictureId, @PathVariable String uid)
-//            throws IOException, FirebaseAuthException {
-//        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
-//        if (authResponse.getIsUser()) {
-//            try {
-//                Picture picture = pictureService.findPictureById(pictureId);
-//                if (picture.getIsAlive() == Boolean.TRUE) {
-//                    if (picture.getIsPublic() == Boolean.FALSE && !picture.getMakerUid().equals(uid)) {
-//                        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//                    } else {
-//                        Set<PictureTag> tags = picture.getPictureTags();
-//                        List<String> tagWords = new ArrayList<>();
-//                        for (PictureTag pTag : tags) {
-//                            tagWords.add(pTag.getTag().getWord());
-//                        }
-//                        Collections.sort(tagWords);
-//                        return ResponseEntity.ok(PictureDetailResponse.from(picture, tagWords));
-//                    }
-//                }
-//                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//            } catch (Exception e) {
-//                log.error(e.getMessage());
-//                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//            }
-//        } else {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        }
-//    }
+    @GetMapping("/today_list/no_user")
+    public ResponseEntity<List<PictureAllDetailResponse>> getTodayPickWithoutLogin() {
+        try {
+            List<PictureAllDetailResponse> list = pictureService.getTodayPickWithoutLogin();
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
 
     // 본인이 좋아요 한 리스트 보내주기
     @PostMapping("/like_all_list")
@@ -251,16 +214,33 @@ public class PictureController {
     // 유저가 검색한 검색어를 태그로 가지고 있는 이미지들 반환 (유저 검색 시)
     // 로그인 한 사용자
     @GetMapping("/search/user/{keyword}/{uid}")
-    public ResponseEntity<List<PictureDetailResponse>> getSearchList(
+    public ResponseEntity<List<PictureAllDetailResponse>> getSearchListWithLogin(
             @RequestHeader("Authorization") String idToken,
             @PathVariable String keyword,
             @PathVariable String uid) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
         if (authResponse.getIsUser()) {
-            List<PictureDetailResponse> list = new ArrayList<>();
-            return ResponseEntity.ok(list);
+            try {
+                List<PictureAllDetailResponse> list = pictureService.getSearchListWithLogin(uid, keyword);
+                return ResponseEntity.ok(list);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @GetMapping("/search/no_user/{keyword}")
+    public ResponseEntity<List<PictureAllDetailResponse>> getSearchListWithoutLogin(
+            @PathVariable String keyword) {
+        try {
+            List<PictureAllDetailResponse> list = pictureService.getSearchListWithoutLogin(keyword);
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 

@@ -1,16 +1,22 @@
 package D6B.D_discover_picture.picture.service;
 
 import D6B.D_discover_picture.picture.controller.dto.DeleteUserRequest;
+import D6B.D_discover_picture.picture.controller.dto.PictureAllDetailResponse;
 import D6B.D_discover_picture.picture.controller.dto.PictureDetailResponse;
 import D6B.D_discover_picture.picture.controller.dto.PictureSaveRequest;
 import D6B.D_discover_picture.picture.domain.*;
-import D6B.D_discover_picture.picture.service.dto.PictureIdUrlResponse;
+import D6B.D_discover_picture.picture.service.dto.LoveCheckAndMakerResponse;
+import D6B.D_discover_picture.picture.service.dto.PictureLoveCheckRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.*;
 
 import static D6B.D_discover_picture.common.ConstValues.*;
@@ -21,14 +27,20 @@ public class PictureService {
     private final PictureRepository pictureRepository;
     private final PictureTagRepository pictureTagRepository;
     private final TagRepository tagRepository;
+    private final WeeklyTopPictureRepository weeklyTopPictureRepository;
+    private final MonthlyTopPictureRepository monthlyTopPictureRepository;
 
     @Autowired
     public PictureService(PictureRepository pictureRepository,
                           PictureTagRepository pictureTagRepository,
-                          TagRepository tagRepository) {
+                          TagRepository tagRepository,
+                          WeeklyTopPictureRepository weeklyTopPictureRepository,
+                          MonthlyTopPictureRepository monthlyTopPictureRepository) {
         this.pictureRepository = pictureRepository;
         this.pictureTagRepository = pictureTagRepository;
         this.tagRepository = tagRepository;
+        this.weeklyTopPictureRepository = weeklyTopPictureRepository;
+        this.monthlyTopPictureRepository = monthlyTopPictureRepository;
     }
 
     public void savePicture(PictureSaveRequest pictureSaveRequest) {
@@ -138,8 +150,49 @@ public class PictureService {
         }
     }
 
-    public List<PictureDetailResponse> getTodayPickWithLogin() {
-        List<PictureDetailResponse> list = new ArrayList<>();
+    public List<PictureAllDetailResponse> getTodayPickWithLogin(String uid) {
+        List<PictureAllDetailResponse> list = new ArrayList<>();
+        List<Picture> picList = pictureRepository.findByIsPublicAndIsAliveAndCreatedAtAfter(true, true, Instant.now().minusSeconds(15*60*60));
+        List<PictureLoveCheckRequest> checkList = new ArrayList<>();
+        for (Picture picture : picList) {
+            PictureLoveCheckRequest pictureLoveCheckRequest = PictureLoveCheckRequest.from(picture, uid);
+            checkList.add(pictureLoveCheckRequest);
+        }
+        List<LoveCheckAndMakerResponse> checkedList = checkLoveAndGetName(checkList);
+        for (int i = 0; i < picList.size(); i++) {
+            Picture picture = picList.get(i);
+            LoveCheckAndMakerResponse checking = checkedList.get(i);
+            Set<PictureTag> tags = picture.getPictureTags();
+            List<String> tagWords = new ArrayList<>();
+            for (PictureTag pTag : tags) {
+                tagWords.add(pTag.getTag().getWord());
+            }
+            Collections.sort(tagWords);
+            PictureAllDetailResponse pictureAllDetailResponse = PictureAllDetailResponse.from(picture, tagWords, checking.getLoveCheck(), checking.getMakerName());
+            list.add(pictureAllDetailResponse);
+        }
+        return list;
+    }
+
+    public List<PictureAllDetailResponse> getTodayPickWithoutLogin() {
+        List<PictureAllDetailResponse> list = new ArrayList<>();
+        List<Picture> picList = pictureRepository.findByIsPublicAndIsAliveAndCreatedAtAfter(true, true, Instant.now().minusSeconds(15*60*60));
+        List<String> checkList = new ArrayList<>();
+        for (Picture picture : picList) {
+            checkList.add(picture.getMakerUid());
+        }
+        List<String> checkedList = checkMakerName(checkList);
+        for (int i = 0; i < picList.size(); i++) {
+            Picture picture = picList.get(i);
+            Set<PictureTag> tags = picture.getPictureTags();
+            List<String> tagWords = new ArrayList<>();
+            for (PictureTag pTag : tags) {
+                tagWords.add(pTag.getTag().getWord());
+            }
+            Collections.sort(tagWords);
+            PictureAllDetailResponse pictureAllDetailResponse = PictureAllDetailResponse.from(picture, tagWords, false, checkedList.get(i));
+            list.add(pictureAllDetailResponse);
+        }
         return list;
     }
 
@@ -256,5 +309,121 @@ public class PictureService {
         }
     }
 
+    // 그림에 좋아요 했는지랑 만든 사람 이름 받아오는거
+    public List<LoveCheckAndMakerResponse> checkLoveAndGetName(List<PictureLoveCheckRequest> list) {
+        try {
+            return USER_SERVER_CLIENT.post()
+                    .uri("/user/find_love_check_maker_name")
+                    .body(BodyInserters.fromValue(list))
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+                    .bodyToMono(new ParameterizedTypeReference<List<LoveCheckAndMakerResponse>>() {})
+                    .block();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return null;
+    }
 
+    // 검색한 이미지들 찾기(로그인 한 사용자)
+    public List<PictureAllDetailResponse> getSearchListWithLogin(String uid, String keyword) {
+        Optional<Tag> opTag = tagRepository.findByWord(keyword);
+        if (opTag.isPresent()) {
+            Tag tag = opTag.get();
+            Set<PictureTag> pictureTags = tag.getPictureTags();
+            List<PictureLoveCheckRequest> checkList = new ArrayList<>();
+            for (PictureTag pTag: pictureTags) {
+                Picture picture = pTag.getPicture();
+                if (picture.getIsAlive() == Boolean.TRUE) {
+                    if (picture.getIsPublic() == Boolean.TRUE) {
+                        PictureLoveCheckRequest pictureLoveCheckRequest = PictureLoveCheckRequest.from(picture, uid);
+                        checkList.add(pictureLoveCheckRequest);
+                    } else {
+                        if (picture.getMakerUid().equals(uid)) {
+                            PictureLoveCheckRequest pictureLoveCheckRequest = PictureLoveCheckRequest.from(picture, uid);
+                            checkList.add(pictureLoveCheckRequest);
+                        }
+                    }
+                }
+            }
+            List<LoveCheckAndMakerResponse> checkedList = checkLoveAndGetName(checkList);
+            List<PictureAllDetailResponse> detailList = new ArrayList<>();
+            for (int i = 0; i < checkList.size(); i++) {
+                Picture picture = findPictureById(checkList.get(i).getPictureId());
+                Set<PictureTag> tags = picture.getPictureTags();
+                List<String> tagWords = new ArrayList<>();
+                for (PictureTag pTag : tags) {
+                    tagWords.add(pTag.getTag().getWord());
+                }
+                Collections.sort(tagWords);
+                PictureAllDetailResponse pictureAllDetailResponse = PictureAllDetailResponse.from(picture, tagWords, checkedList.get(i).getLoveCheck(), checkedList.get(i).getMakerName());
+                detailList.add(pictureAllDetailResponse);
+            }
+            return detailList;
+        } else {
+            throw new IllegalStateException("검색 결과 없음");
+        }
+    }
+
+    public List<String> checkMakerName(List<String> list) {
+        try {
+            return USER_SERVER_CLIENT.post()
+                    .uri("/user/find_maker_name")
+                    .body(BodyInserters.fromValue(list))
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+                    .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
+                    .block();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return null;
+    }
+
+    public List<PictureAllDetailResponse> getSearchListWithoutLogin(String keyword) {
+       Optional<Tag> opTag = tagRepository.findByWord(keyword);
+       if (opTag.isPresent()) {
+           Tag tag = opTag.get();
+           Set<PictureTag> pictureTags = tag.getPictureTags();
+           List<String> checkList = new ArrayList<>();
+           List<Picture> picList = new ArrayList<>();
+           for (PictureTag pTag : pictureTags) {
+               Picture picture = pTag.getPicture();
+               if (picture.getIsAlive() == Boolean.TRUE && picture.getIsPublic() == Boolean.TRUE) {
+                   checkList.add(picture.getMakerUid());
+                   picList.add(picture);
+               }
+           }
+           List<String> checkedList = checkMakerName(checkList);
+           List<PictureAllDetailResponse> detailList = new ArrayList<>();
+           for (int i = 0; i < picList.size(); i++) {
+               Picture picture = picList.get(i);
+               Set<PictureTag> tags = picture.getPictureTags();
+               List<String> tagWords = new ArrayList<>();
+               for (PictureTag pTag : tags) {
+                   tagWords.add(pTag.getTag().getWord());
+               }
+               Collections.sort(tagWords);
+               PictureAllDetailResponse pictureAllDetailResponse = PictureAllDetailResponse.from(picture, tagWords, false, checkedList.get(i));
+               detailList.add(pictureAllDetailResponse);
+           }
+           return detailList;
+       } else {
+           throw new IllegalStateException("검색 결과 없음");
+       }
+    }
+
+    // Weekly Top 업데이트
+    @Scheduled(cron = "10 0 0 * * 2", zone = "Asia/Seoul")
+    public void updateWeeklyTop() {
+        weeklyTopPictureRepository.deleteAllInBatch();
+    }
+
+    // Monthly Top 업데이트
+    @Scheduled(cron = "0 0 0 1 * *", zone = "Asia/Seoul")
+    public void updateMonthlyTop() {
+        monthlyTopPictureRepository.deleteAllInBatch();
+    }
 }

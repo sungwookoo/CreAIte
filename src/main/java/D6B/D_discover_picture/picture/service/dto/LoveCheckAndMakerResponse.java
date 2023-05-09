@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PictureIdUrlResponse {
-    public Long pictureId;
-    public String imgUrl;
+public class LoveCheckAndMakerResponse {
+    public Boolean loveCheck;
+    public String makerName;
 }
