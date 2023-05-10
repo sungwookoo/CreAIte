@@ -197,7 +197,7 @@ public class UserController {
      * @param uid : Firebase 통해 얻은 uid
      * @return : 유저가 만든 이미지 정보
      */
-    @GetMapping("{uid}/made_picture/certified")
+    @PostMapping("/{uid}/made_picture/certified")
     public ResponseEntity<List<UserPicsResponseDto>> readUserMadePics(@RequestHeader("Authorization") String idToken,
                                                                       @PathVariable String uid,
                                                                       @RequestBody UserMadeOrLoveRequestDto userMadeOrLoveRequestDto) throws IOException, FirebaseAuthException {
@@ -221,7 +221,7 @@ public class UserController {
      * @param uid : Firebase 통해 얻은 uid
      * @return : 유저가 만든 이미지 정보
      */
-    @GetMapping("{uid}/made_picture")
+    @GetMapping("/{uid}/made_picture")
     public ResponseEntity<List<UserPicsResponseDto>> readUserMadePics(@PathVariable String uid){
         return ResponseEntity.ok(userService.findUserMadePics(uid));
     }
