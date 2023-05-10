@@ -383,8 +383,7 @@ public class PictureService {
     public List<String> checkMakerName(List<String> list) {
         try {
             return USER_SERVER_CLIENT.post()
-                    .uri("/user/find_maker_name")
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .uri("/find_maker_name")
                     .body(BodyInserters.fromValue(list))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
