@@ -14,6 +14,7 @@ import javax.persistence.*;
 @Table(name = "monthly_top_picture")
 public class MonthlyTopPicture {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 

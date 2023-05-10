@@ -13,4 +13,6 @@ public interface PictureRepository extends JpaRepository<Picture, Long> {
 
     @Query(value = "SELECT * FROM picture order by RAND() limit 50", nativeQuery = true)
     List<Picture> findByIsPublicAndIsAliveAndCreatedAtAfter(Boolean isPublic, Boolean isAlive, Instant createdAt);
+
+    List<Picture> findTop50ByIsPublicAndIsAliveAndCreatedAtBetweenOrderByLoveCountDesc(Boolean isPublic, Boolean isAlive, Instant start, Instant end);
 }
