@@ -11,8 +11,9 @@ import D6B.D_discover_user.user.service.dto.*;
 import D6B.D_discover_user.user.service.msa.PictureCallService;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
@@ -139,12 +140,13 @@ public class UserService {
     }
 
     public void toggleLove(LoveToggleRequestDto loveToggleRequestDto) {
+//        log.info(loveToggleRequestDto+"여기는 러브 토글 리퀘");
         String uid = loveToggleRequestDto.getUid();
         Long pictureId = loveToggleRequestDto.getPictureId();
         String receiverUid = loveToggleRequestDto.getMakerUid();
         String senderUid = loveToggleRequestDto.getUid();
         String senderName = userRepository.findByUid(senderUid).get().getName();
-        String receiverName = userRepository.findByUid(receiverUid).get().getName();
+//        String receiverName = userRepository.findByUid(receiverUid).get().getName();
         Optional<Love> optLove = loveRepository.findByUserUidAndPictureId(senderUid, pictureId);
         // 1. 기존의 좋아요 객체가 있는 경우
         if(optLove.isPresent()) {
@@ -171,9 +173,12 @@ public class UserService {
                             .pictureId(pictureId)
                             .build());
             // 2-2. 좋아요가 눌러진 사진의 url 구해온다.
-            String pictureUrl = getPictureUrlAndPlusLove(pictureId);
+            String senderImgSrc = userRepository.findByUid(senderUid).get().getProfileImg();
+//            String senderImgSrc = "https://lh3.googleusercontent.com/a/AGNmyxb1uSVMfTV6SNQ7qfaChFf6bMdHwPsi9Dz8ql1S=s96";
+            String pictureImgSrc = getPictureUrlAndPlusLove(pictureId);
             // 2-3. 해당 정보들을 알람서버에 보내 알림을 생성
-            PostAlarm(senderUid, receiverUid, pictureId, senderName, receiverName, pictureUrl);
+//            log.info("senderName= {}, 사진 :{}, 프로필이미지 : {}", senderName, pictureImgSrc, senderImgSrc);
+            PostAlarm(senderUid, receiverUid, pictureId, senderName, senderImgSrc, pictureImgSrc);
         }
     }
 
@@ -253,12 +258,13 @@ public class UserService {
      */
     public void plusLoveCount(Long pictureId) {
         try {
+
             PICTURE_SERVER_CLIENT.get()
                     .uri("/picture/create/count/" + pictureId)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
+                    .bodyToMono(String.class)
                     .block();
         } catch (Exception e) {
             log.error("{}", e.getMessage());
@@ -291,11 +297,13 @@ public class UserService {
         try {
             return PICTURE_SERVER_CLIENT.post()
                     .uri("/picture/create/count/" + pictureId)
+
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
                     .bodyToMono(String.class)
                     .block();
+
         } catch (Exception e) {
             log.error("{}", e.getMessage());
         }
@@ -308,18 +316,18 @@ public class UserService {
      * @param receiverUid : 좋아요 받은 그림의 주인 uid
      * @param pictureId : 그림의 id
      * @param senderName : 좋아요 누른 사람의 이름
-     * @param receiverName : 좋아요 받은 그림의 주인 이름
-     * @param pictureUrl : 그림의 url
+     * @param senderImgSrc : 좋아요 누른 사람의 프로필 이미지
+     * @param pictureImgSrc: 그림의 url
      */
-    public void PostAlarm(String senderUid, String receiverUid, Long pictureId, String senderName, String receiverName, String pictureUrl) {
+    public void PostAlarm(String senderUid, String receiverUid, Long pictureId, String senderName, String senderImgSrc, String pictureImgSrc) {
         try {
             ALARM_SERVER_CLIENT.post()
                     .uri("/alarm/create")
-                    .body(BodyInserters.fromValue(new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderName, receiverName, pictureUrl)))
+                    .body(BodyInserters.fromValue(new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc)))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
+                    .bodyToMono(String.class)
                     .block();
         } catch (Exception e) {
             log.error("{}", e.getMessage());
@@ -336,11 +344,12 @@ public class UserService {
         try {
             ALARM_SERVER_CLIENT.put()
                     .uri("/alarm/marked")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .body(BodyInserters.fromValue(new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId)))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
+                    .bodyToMono(Void.class)
                     .block();
         } catch (Exception e) {
             log.error("{}", e.getMessage());
@@ -361,7 +370,7 @@ public class UserService {
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
+                    .bodyToMono(Void.class)
                     .block();
         } catch (Exception e) {
             log.error("{}", e.getMessage());
