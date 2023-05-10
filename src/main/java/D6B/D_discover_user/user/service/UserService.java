@@ -41,7 +41,7 @@ public class UserService {
         this.pictureCallService = pictureCallService;
     }
 
-    public void enrollUser(FirebaseToken decodedToken) {
+    public void enrollUser(String idToken, FirebaseToken decodedToken) {
         Optional<User> optUser = userRepository.findByUid(decodedToken.getUid());
         // 기존에 회원 정보가 있는 경우(회원 or 탈퇴했던 회원) -> 그냥 회원은 상관없음
         if(optUser.isPresent()) {
@@ -50,7 +50,7 @@ public class UserService {
             if(!user.getIsActive()) userRepository.save(activateUser(user, decodedToken));
         // 신규 회원
         } else {
-            User user = new User(decodedToken);
+            User user = new User(idToken, decodedToken);
             userRepository.save(user);
         }
     }
