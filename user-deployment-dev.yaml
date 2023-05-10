@@ -36,12 +36,25 @@ spec:
               cpu: 250m
               memory: 256Mi
           volumeMounts:
-            - name: user-secret
+            - name: user-secret-application
               mountPath: '/etc/secrets'
+              readOnly: true
+            - name: user-secret-firebase
+              mountPath: '/creaite-app-firebase-adminsdk.json'
+              subPath: 'creaite-app-firebase-adminsdk.json'
               readOnly: true
       imagePullSecrets:
         - name: dockerhub-secret
       volumes:
-        - name: user-secret
+        - name: user-secret-application
           secret:
             secretName: user-secret
+            items:
+              - key: application.yaml
+                path: application.yaml
+        - name: user-secret-firebase
+          secret:
+            secretName: user-secret
+            items:
+              - key: creaite-app-firebase-adminsdk.json
+                path: creaite-app-firebase-adminsdk.json
