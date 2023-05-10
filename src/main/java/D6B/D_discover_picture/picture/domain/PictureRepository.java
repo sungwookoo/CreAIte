@@ -11,6 +11,6 @@ public interface PictureRepository extends JpaRepository<Picture, Long> {
     List<Picture> findAllByMakerUid(String makerUid);
     List<Picture> findAllByMakerUidAndIsPublic(String makerUid, Boolean isPublic);
 
-    @Query(value = "SELECT * FROM Picture order by RAND() limit 50", nativeQuery = true)
+    @Query(value = "SELECT * FROM picture order by RAND() limit 50", nativeQuery = true)
     List<Picture> findByIsPublicAndIsAliveAndCreatedAtAfter(Boolean isPublic, Boolean isAlive, Instant createdAt);
 }
