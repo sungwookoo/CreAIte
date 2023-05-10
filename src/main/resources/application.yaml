@@ -20,6 +20,11 @@ spring:
           uri: http://pirture-dev.dev.svc.cluster.local:8080 # 쿠버네티스 서비스의 FQDN
           predicates:
             - Path=/picture/**
+
+        - id: alarm-dev
+          uri: http://alarm-dev.dev.svc.cluster.local:8080 # 쿠버네티스 서비스의 FQDN
+          predicates:
+            - Path=/alarm/**
   profiles:
     active: dev
 
