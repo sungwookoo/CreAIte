@@ -297,7 +297,7 @@ public class PictureService {
     public void deleteLikeRequest(Long pictureId) {
         try {
             USER_SERVER_CLIENT.post()
-                    .uri("/user/like/delete/" + pictureId)
+                    .uri("/like/delete/" + pictureId)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -312,7 +312,7 @@ public class PictureService {
     public void deleteLikeAlarmRequest(Long pictureId) {
         try {
             ALARM_SERVER_CLIENT.put()
-                    .uri("/alarm/picmove/" + pictureId)    /// uri 협의 필요
+                    .uri("/picmove/" + pictureId)    /// uri 협의 필요
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -327,7 +327,7 @@ public class PictureService {
     public List<LoveCheckAndMakerResponse> checkLoveAndGetName(List<PictureLoveCheckRequest> list) {
         try {
             return USER_SERVER_CLIENT.post()
-                    .uri("/user/find_love_check_maker_name")
+                    .uri("/find_love_check_maker_name")
                     .body(BodyInserters.fromValue(list))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
