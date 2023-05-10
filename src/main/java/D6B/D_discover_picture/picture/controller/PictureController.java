@@ -2,16 +2,14 @@ package D6B.D_discover_picture.picture.controller;
 
 import D6B.D_discover_picture.common.dto.AuthResponse;
 import D6B.D_discover_picture.common.service.AuthorizeService;
-import D6B.D_discover_picture.picture.controller.dto.DeleteUserRequest;
-import D6B.D_discover_picture.picture.controller.dto.PictureAllDetailResponse;
-import D6B.D_discover_picture.picture.controller.dto.PictureDetailResponse;
-import D6B.D_discover_picture.picture.controller.dto.PictureSaveRequest;
+import D6B.D_discover_picture.picture.controller.dto.*;
 import D6B.D_discover_picture.picture.domain.*;
 import D6B.D_discover_picture.picture.service.PictureService;
 import D6B.D_discover_picture.picture.service.exceptions.DeletePictureFailException;
 import D6B.D_discover_picture.picture.service.exceptions.PictureNotSavedException;
 import com.google.firebase.auth.FirebaseAuthException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +54,7 @@ public class PictureController {
                 return ResponseEntity.status(HttpStatus.CREATED).build();
             } catch (PictureNotSavedException e) {
                 log.error(e.getMessage());
-                return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -95,7 +93,7 @@ public class PictureController {
                 return ResponseEntity.ok(list);
             } catch (Exception e) {
                 log.error(e.getMessage());
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -109,7 +107,7 @@ public class PictureController {
             return ResponseEntity.ok(list);
         } catch (Exception e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -155,7 +153,7 @@ public class PictureController {
             return ResponseEntity.ok(list);
         } catch (Exception e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -168,7 +166,7 @@ public class PictureController {
             return ResponseEntity.ok(list);
         } catch (Exception e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -181,7 +179,7 @@ public class PictureController {
             return ResponseEntity.ok(imgUrl);
         } catch (Exception e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -194,7 +192,7 @@ public class PictureController {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -225,7 +223,7 @@ public class PictureController {
                 return ResponseEntity.ok(list);
             } catch (Exception e) {
                 log.error(e.getMessage());
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -240,8 +238,128 @@ public class PictureController {
             return ResponseEntity.ok(list);
         } catch (Exception e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    // weeklyTop 목록 보내주기(로그인한 유저)
+    @GetMapping("/weekly_top_list/user/{uid}")
+    public ResponseEntity<List<PictureAllDetailResponse>> getWeeklyTopListWithLogin(
+            @RequestHeader("Authorization") String idToken,
+            @PathVariable String uid) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+        if (authResponse.getIsUser()) {
+            try {
+                List<PictureAllDetailResponse> list = pictureService.getWeeklyTopListWithLogin(uid);
+                return ResponseEntity.ok(list);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @GetMapping("/weekly_top_list/no_user")
+    public ResponseEntity<List<PictureAllDetailResponse>> getWeeklyTopListWithoutLogin() {
+        try {
+            List<PictureAllDetailResponse> list = pictureService.getWeeklyTopListWithoutLogin();
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+    // monthly top list 보내주기 (로그인 한 유저)
+    @GetMapping("/monthly_top_list/user/{uid}")
+    public ResponseEntity<List<PictureAllDetailResponse>> getMonthlyTopListWithLogin(
+            @RequestHeader("Authorization") String idToken,
+            @PathVariable String uid) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+        if (authResponse.getIsUser()) {
+            try {
+                List<PictureAllDetailResponse> list = pictureService.getMonthlyTopListWithLogin(uid);
+                return ResponseEntity.ok(list);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @GetMapping("/monthly_top_list/no_user")
+    public ResponseEntity<List<PictureAllDetailResponse>> getMonthlyTopListWithoutLogin() {
+        try {
+            List<PictureAllDetailResponse> list = pictureService.getMonthlyTopListWithoutLogin();
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/get_tags")
+    public ResponseEntity<List<String>> getTags() {
+        try {
+            List<String> tags = pictureService.getRandomTags();
+            return ResponseEntity.ok(tags);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/toggle/isPublic")
+    public ResponseEntity<Object> toggleIsPublic(
+            @RequestHeader("Authorization") String idToken,
+            @RequestBody PictureIsPublicRequest pictureIsPublicRequest) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, pictureIsPublicRequest.getUid());
+        if (authResponse.getIsUser()) {
+            try {
+                pictureService.toggleIsPublic(pictureIsPublicRequest.getUid(), pictureIsPublicRequest.getPictureId());
+                return ResponseEntity.ok().build();
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @GetMapping("/tag_image_list/user/{tag}/{uid}")
+    public ResponseEntity<List<PictureAllDetailResponse>> getTagImageListWithLogin(
+            @RequestHeader("Authorization") String idToken,
+            @PathVariable String tag,
+            @PathVariable String uid) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+        if (authResponse.getIsUser()) {
+            try {
+                List<PictureAllDetailResponse> list = pictureService.getSearchListWithLogin(uid, tag);
+                return ResponseEntity.ok(list);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @GetMapping("/tag_image_list/no_user/{tag}")
+    public ResponseEntity<List<PictureAllDetailResponse>> getTagImageListWithoutLogin(
+            @PathVariable String tag) {
+        try {
+            List<PictureAllDetailResponse> list = pictureService.getSearchListWithoutLogin(tag);
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
