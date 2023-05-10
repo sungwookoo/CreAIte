@@ -40,7 +40,7 @@ public class UserController {
                                                         @RequestBody UserReadRequestDto userReadRequestDto) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, userReadRequestDto.getUid());
         if(authResponse.getIsUser()) {
-            userService.enrollUser(authResponse.getDecodedToken());
+            userService.enrollUser(idToken, authResponse.getDecodedToken());
         } else {
             log.info("없는 회원입니다.");
         }

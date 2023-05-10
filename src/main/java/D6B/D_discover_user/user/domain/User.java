@@ -2,6 +2,7 @@ package D6B.D_discover_user.user.domain;
 
 import com.google.firebase.auth.FirebaseToken;
 import lombok.*;
+import org.checkerframework.common.aliasing.qual.Unique;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -20,11 +21,12 @@ import java.util.Set;
 @Table(name = "user")
 public class User {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Id
+    @Unique
     @Column(name = "uid", nullable = false)
     private String uid;
 
@@ -58,10 +60,10 @@ public class User {
     @Builder.Default
     private Set<Love> loves = new LinkedHashSet<>();
 
-    public User(FirebaseToken decodedToken) {
+    public User(String idToken, FirebaseToken decodedToken) {
         this.uid = decodedToken.getUid();
         this.name = decodedToken.getName();
-        this.fcmToken = decodedToken.toString();
+        this.fcmToken = idToken;
         this.email = decodedToken.getEmail();
         this.profileImg = decodedToken.getPicture();
         this.createdAt = Instant.now().plusSeconds(60 * 60 * 9);
