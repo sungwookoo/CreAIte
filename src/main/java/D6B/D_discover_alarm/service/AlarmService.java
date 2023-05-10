@@ -36,12 +36,17 @@ public class AlarmService {
      * @return
      */
     public List<AlarmDto> getAlarmList(String userUid) {
-        List<Alarm> alarms = alarmRepository.findByReceiverUid(userUid);
-        log.info(alarms.toString());
-        return alarms.stream()
-                .filter(alarm -> !alarm.getIsRead() && alarm.getIsAlive())
-                .map(alarm -> AlarmDto.from(alarm))
-                .collect(Collectors.toList());
+        try {
+            List<Alarm> alarms = alarmRepository.findByReceiverUid(userUid);
+            log.info(alarms.toString());
+            return alarms.stream()
+                    .filter(alarm -> !alarm.getIsRead() && alarm.getIsAlive())
+                    .map(alarm -> AlarmDto.from(alarm))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to get the alarm list");
+        }
     }
 
     /**
@@ -49,22 +54,32 @@ public class AlarmService {
      * @param userUid
      */
     public void checked(String userUid) {
-        List<Alarm> alarms = alarmRepository.findByReceiverUid(userUid);
-        alarms.forEach(alarm -> alarm.setIsRead(true));
-        alarmRepository.saveAll(alarms);
+        try {
+            List<Alarm> alarms = alarmRepository.findByReceiverUid(userUid);
+            alarms.forEach(alarm -> alarm.setIsRead(true));
+            alarmRepository.saveAll(alarms);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to check the alarms");
+        }
     }
     @Transactional
     public void isAlive(IsAliveDto isalivedto) {
-        Optional<Alarm> alarmOpt = alarmRepository.findBySenderUidAndReceiverUidAndPictureId(
-                isalivedto.getSenderUid(),
-                isalivedto.getReceiverUid(),
-                isalivedto.getPictureId()
-        );
-        if (alarmOpt.isPresent()) {
-            Alarm alarm = alarmOpt.get();
-            alarm.setIsAlive(false);
-            alarm.setIsRead(false);
-            alarmRepository.save(alarm);
+        try {
+            Optional<Alarm> alarmOpt = alarmRepository.findBySenderUidAndReceiverUidAndPictureId(
+                    isalivedto.getSenderUid(),
+                    isalivedto.getReceiverUid(),
+                    isalivedto.getPictureId()
+            );
+            if (alarmOpt.isPresent()) {
+                Alarm alarm = alarmOpt.get();
+                alarm.setIsAlive(false);
+                alarm.setIsRead(false);
+                alarmRepository.save(alarm);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to update the alarm status");
         }
     }
 
@@ -80,8 +95,8 @@ public class AlarmService {
             alarm.setIsRead(false);
             alarm.setCreatedAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toInstant());
             alarmRepository.save(alarm);
-            String fcmToken = "fEvCxJFWSjWZyfsqiqMFJl:APA91bGr7IPRVsNnTgNTm9IE4UEUbIdGApDci77uTPYRrQpAfMGD6QyDeqQRf0aPHfenMYvd9dJOQwQiaHfmSDyO-05aqUOTPxxXSe1LSBy8f1cpdjVVE_ZfUPqrvFmyWBc8N5UqvT49";
-//          String fcmToken = firebaseCloudMessageService.getFCMTokenByUserId(alarm.getReceiverUid());
+//            String fcmToken = "fEvCxJFWSjWZyfsqiqMFJl:APA91bGr7IPRVsNnTgNTm9IE4UEUbIdGApDci77uTPYRrQpAfMGD6QyDeqQRf0aPHfenMYvd9dJOQwQiaHfmSDyO-05aqUOTPxxXSe1LSBy8f1cpdjVVE_ZfUPqrvFmyWBc8N5UqvT49";
+            String fcmToken = firebaseCloudMessageService.getFCMTokenByUserId(alarm.getReceiverUid());
 
             String SenderName = alarm.getSenderName();
             // contentType 설정

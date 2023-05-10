@@ -51,8 +51,9 @@ public class FirebaseCloudMessageService {
     }
     public void sendMessageTo(NotificationDto dto) throws IOException {
         // 해당 유저의 토큰값 가져오기.
-        String fcmToken = "fEvCxJFWSjWZyfsqiqMFJl:APA91bGr7IPRVsNnTgNTm9IE4UEUbIdGApDci77uTPYRrQpAfMGD6QyDeqQRf0aPHfenMYvd9dJOQwQiaHfmSDyO-05aqUOTPxxXSe1LSBy8f1cpdjVVE_ZfUPqrvFmyWBc8N5UqvT49";
-//        String fcmToken = getFCMTokenByUserId(dto.getReceiverUid());
+
+//        String fcmToken = "fEvCxJFWSjWZyfsqiqMFJl:APA91bGr7IPRVsNnTgNTm9IE4UEUbIdGApDci77uTPYRrQpAfMGD6QyDeqQRf0aPHfenMYvd9dJOQwQiaHfmSDyO-05aqUOTPxxXSe1LSBy8f1cpdjVVE_ZfUPqrvFmyWBc8N5UqvT49";
+        String fcmToken = getFCMTokenByUserId(dto.getReceiverUid());
         String SenderName = dto.getSenderName();
         // contentType 설정
         String msg = SenderName + "님이 좋아요를 누르셨습니다.";
@@ -71,7 +72,7 @@ public class FirebaseCloudMessageService {
                     .bodyToMono(String.class)
                     .block();
         } catch (Exception e) {
-            return "";
+            return "Token 값 없음 ";
         }
     }
 

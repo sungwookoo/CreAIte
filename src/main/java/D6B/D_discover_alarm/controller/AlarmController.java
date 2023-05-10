@@ -36,11 +36,15 @@ public class AlarmController {
         this.firebaseCloudMessageService = firebaseCloudMessageService;
     }
     @GetMapping("/list/{user_uid}")
-    public ResponseEntity<List<AlarmDto>> getAlarmList(@PathVariable String user_uid){
-
+    public ResponseEntity<?> getAlarmList(@PathVariable String user_uid) {
+        try {
             List<AlarmDto> dtos = alarmService.getAlarmList(user_uid);
-        return ResponseEntity.status(HttpStatus.OK).body(dtos);
+            return ResponseEntity.status(HttpStatus.OK).body(dtos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+        }
     }
+
 
     @PostMapping("/create")
     public  ResponseEntity<NotificationDto> createNotification(@RequestBody NotificationDto notificationdto){
@@ -55,21 +59,32 @@ public class AlarmController {
     }
 
     @PutMapping("/{user_uid}/check")
-    public ResponseEntity<String> Checked(@PathVariable String user_uid){
-        alarmService.checked(user_uid);
-        return ResponseEntity.status(HttpStatus.OK).body("OK");
+    public ResponseEntity<String> Checked(@PathVariable String user_uid) {
+        try {
+            alarmService.checked(user_uid);
+            return ResponseEntity.status(HttpStatus.OK).body("OK");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+        }
     }
-
     @PutMapping("/isalive")
-    public ResponseEntity<String> isAlive(@RequestBody IsAliveDto isalivedto){
-        alarmService.isAlive(isalivedto);
-        return ResponseEntity.status(HttpStatus.OK).body("OK");
+    public ResponseEntity<String> isAlive(@RequestBody IsAliveDto isalivedto) {
+        try {
+            alarmService.isAlive(isalivedto);
+            return ResponseEntity.status(HttpStatus.OK).body("OK");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+        }
     }
 
     @PutMapping("/marked")
     public ResponseEntity<String> marked(@RequestBody IsAliveDto isalivedto){
-        alarmService.marked(isalivedto);
-        return ResponseEntity.status(HttpStatus.OK).body("OK");
+        try {
+            alarmService.marked(isalivedto);
+            return ResponseEntity.status(HttpStatus.OK).body("OK");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+        }
     }
 
     @PutMapping("/remove/{user_uid}")
