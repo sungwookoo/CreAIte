@@ -5,14 +5,16 @@ import D6B.D_discover_user.common.service.AuthorizeService;
 import D6B.D_discover_user.user.controller.dto.*;
 import D6B.D_discover_user.user.service.UserService;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -155,15 +157,121 @@ public class UserController {
         }
     }
 
+    /**
+     * 로그인 한 유저가 본인 또는 다른 유저의 좋아요 리스트 가져오기
+     * 본인일 경우와 아닐 경우를 분기해야 한다.
+     * @param uid : Firebase 통해 얻은 uid
+     * @return : 찾는 유저의 좋아요 리스트
+     */
+    @GetMapping("/{uid}/like_picture/certified")
+    public ResponseEntity<List<UserPicsResponseDto>> readUserLovePicsCertified(@RequestHeader("Authorization") String idToken,
+                                                                               @PathVariable String uid,
+                                                                               @RequestBody UserMadeOrLoveRequestDto userMadeOrLoveRequestDto) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, userMadeOrLoveRequestDto.getUid());
+        if(authResponse.getIsUser()) {
+            FirebaseToken decodedToken = authResponse.getDecodedToken();
+            // 본인이 본인의 좋아요 누른 사진을 보는 경우
+            if(Objects.equals(authResponse.getDecodedToken().getUid(), uid)) {
+                return ResponseEntity.ok(userService.findMyLovePics(decodedToken));
+            // 타인의 좋아요 누른 사진을 보는 경우
+            } else {
+                return ResponseEntity.ok(userService.findUserLovePicsCertified(decodedToken, uid));
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    /**
+     * 비회원 유저가 다른 유저의 좋아요 리스트 가져오기
+     * @param uid : Firebase 통해 얻은 uid
+     * @return : 찾는 유저의 좋아요 리스트
+     */
+    @GetMapping("/{uid}/like_picture")
+    public ResponseEntity<List<UserPicsResponseDto>> readUserLovePicsNotCert(@PathVariable String uid) {
+        return ResponseEntity.ok(userService.findUserLovePics(uid));
+    }
+
+    /**
+     * 로그인 한 유저가 본인 또는 다른 유저가 제작한 이미지 가져오기
+     * @param uid : Firebase 통해 얻은 uid
+     * @return : 유저가 만든 이미지 정보
+     */
+    @GetMapping("{uid}/made_picture/certified")
+    public ResponseEntity<List<UserPicsResponseDto>> readUserMadePics(@RequestHeader("Authorization") String idToken,
+                                                                      @PathVariable String uid,
+                                                                      @RequestBody UserMadeOrLoveRequestDto userMadeOrLoveRequestDto) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, userMadeOrLoveRequestDto.getUid());
+        if(authResponse.getIsUser()) {
+            FirebaseToken decodedToken = authResponse.getDecodedToken();
+            // 본인이 본인이 제작한 이미지를 보는 경우
+            if(Objects.equals(authResponse.getDecodedToken().getUid(), uid)) {
+                return ResponseEntity.ok(userService.findMyMadePics(decodedToken));
+            // 타인이 제작한 이미지를 보는 경우
+            } else {
+                return ResponseEntity.ok(userService.findUserMadePicsCertified(decodedToken, uid));
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    /**
+     * 비회원 유저가 본인 또는 다른 유저가 제작한 이미지 가져오기
+     * @param uid : Firebase 통해 얻은 uid
+     * @return : 유저가 만든 이미지 정보
+     */
+    @GetMapping("{uid}/made_picture")
+    public ResponseEntity<List<UserPicsResponseDto>> readUserMadePics(@PathVariable String uid){
+        return ResponseEntity.ok(userService.findUserMadePics(uid));
+    }
+
     //***************************************여기서부턴 MSA 통신***********************************************//
+
+    /**
+     * 삭제한 그림의 좋아요 기록을 disable 하기 위함
+     * @param picture_id : 삭제한 그림의 id
+     * @return :
+     */
     @PostMapping("/like/delete/{picture_id}")
     public ResponseEntity<Object> deleteLoveByPictureDead(@PathVariable Long picture_id) {
         userService.deActiveLove(picture_id);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/find_id_by_uid/{uid}")
-    public Long findIdByUid(@PathVariable String uid) {
-        return userService.findIdByUid(uid);
+    /**
+     * 로그인 유저가 그림 리스트를 조회할 때, 그림의 생성자와 좋아요 여부를 picture 서버에 알려주는 API
+     * @param loveCheckAndMakerRequestDtos : 현재로그인한 유저의 uid, 레이아웃될 그림의 id 목록, 그림 생성자 uid
+     * @return : 이미지의 생성자 이름 목록, 해당 이미지에 대한 유저의 좋아요 여부
+     */
+    @PostMapping("/find_love_check_maker_name")
+    public List<LoveCheckAndMakerResponseDto> findLoveChecksAndMakers(@RequestBody List<LoveCheckAndMakerRequestDto> loveCheckAndMakerRequestDtos) {
+        return userService.findLoveChecksAndMakers(loveCheckAndMakerRequestDtos);
     }
+
+    /**
+     * 비회원 유저가 그림 리스트를 조회할 때, 그림의 생성자를 picture 서버에 알려주는 API
+     * @param makerUids : 이미지의 생성자 uid 목록
+     * @return : 이미지의 생성자 이름 목록을 반환한다.
+     */
+    @GetMapping("/find_maker_name")
+    public List<String> findMakers(@RequestBody List<String> makerUids) {
+        return userService.findMakers(makerUids);
+    }
+
+    /**
+     * 알람 서버에서 uid 통해서 fcmToken 값을 얻을 때 보내는 API
+     * @param uid : 토큰값을 알고자하는 유저의 uid
+     * @return : fcmToken(String)
+     */
+    @GetMapping("/fcm/{uid}")
+    public String getFCMTokenByUserUid(@PathVariable String uid) {
+        return userService.getFCMTokenByUserUid(uid);
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return "test";
+    }
+
 }

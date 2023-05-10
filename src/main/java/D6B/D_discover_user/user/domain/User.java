@@ -20,13 +20,16 @@ import java.util.Set;
 @Table(name = "user")
 public class User {
 
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Id
     @Column(name = "uid", nullable = false)
     private String uid;
+
+    @Column(name= "fcm_token", nullable = false)
+    private String fcmToken;
 
     @Column(name = "email", nullable = false)
     private String email;
@@ -34,7 +37,7 @@ public class User {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "profle_img", length = 200)
+    @Column(name = "profle_img")
     private String profileImg;
 
     @Column(name = "gender")

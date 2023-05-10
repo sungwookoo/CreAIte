@@ -2,40 +2,28 @@ package D6B.D_discover_user.user.service;
 
 import static D6B.D_discover_user.common.ConstValues.*;
 
-import D6B.D_discover_user.user.controller.dto.LoveToggleRequestDto;
-import D6B.D_discover_user.user.controller.dto.UserImgUpdateRequestDto;
-import D6B.D_discover_user.user.controller.dto.UserUpdateRequestDto;
+import D6B.D_discover_user.user.controller.dto.*;
 import D6B.D_discover_user.user.domain.Love;
 import D6B.D_discover_user.user.domain.LoveRepository;
 import D6B.D_discover_user.user.domain.User;
 import D6B.D_discover_user.user.domain.UserRepository;
-import D6B.D_discover_user.user.service.dto.ActivateAlarmRequestDto;
-import D6B.D_discover_user.user.service.dto.DeleteUserHistoryInPicture;
-import D6B.D_discover_user.user.service.dto.DisableAlarmRequestDto;
-import D6B.D_discover_user.user.service.dto.PostAlarmRequestDto;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.ObjectMetadata;
+import D6B.D_discover_user.user.service.dto.*;
+import D6B.D_discover_user.user.service.msa.PictureCallService;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
-import javax.swing.text.html.Option;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -43,11 +31,14 @@ import java.util.Optional;
 public class UserService {
     private final LoveRepository loveRepository;
     private final UserRepository userRepository;
+    private final PictureCallService pictureCallService;
 
     public UserService(LoveRepository loveRepository,
-                       UserRepository userRepository) {
+                       UserRepository userRepository,
+                       PictureCallService pictureCallService) {
         this.loveRepository = loveRepository;
         this.userRepository = userRepository;
+        this.pictureCallService = pictureCallService;
     }
 
     public void enrollUser(FirebaseToken decodedToken) {
@@ -199,6 +190,30 @@ public class UserService {
         }
     }
 
+    public List<LoveCheckAndMakerResponseDto> findLoveChecksAndMakers(List<LoveCheckAndMakerRequestDto> loveCheckAndMakerRequestDtos) {
+        List<LoveCheckAndMakerResponseDto> responseDtos = new ArrayList<>();
+        for(LoveCheckAndMakerRequestDto loveCheckAndMakerRequestDto : loveCheckAndMakerRequestDtos) {
+            String uid = loveCheckAndMakerRequestDto.getUid();
+            String makerUid = loveCheckAndMakerRequestDto.getMakerUid();
+            Long pictureId = loveCheckAndMakerRequestDto.getPictureId();
+            Optional<User> optMaker = userRepository.findByUid(makerUid);
+            optMaker.ifPresent(user -> responseDtos.add(LoveCheckAndMakerResponseDto.builder()
+                    .loveCheck(loveRepository.findByUserUidAndPictureIdAndIsActiveTrue(uid, pictureId).isPresent())
+                    .makerName(user.getName())
+                    .build()));
+        }
+        return responseDtos;
+    }
+
+    public List<String> findMakers(List<String> makerUids) {
+        List<String> responseDtos = new ArrayList<>();
+        for(String makerUid : makerUids) {
+            Optional<User> optUser = userRepository.findByUid(makerUid);
+            optUser.ifPresent(user -> responseDtos.add(user.getName()));
+        }
+        return responseDtos;
+    }
+
     /**
      * 유저 탈퇴(비활성화) 시, 값을 해당 유저의 그림을 비활성화하고 좋아요 수를 하나 줄인다.
      * @param uid : 탈퇴한 유저의 uid
@@ -226,7 +241,7 @@ public class UserService {
     public void minusLoveCount(Long pictureId) {
         try {
             PICTURE_SERVER_CLIENT.post()
-                    .uri("/picture/delete/count/" + pictureId)// 여기 바뀔예정
+                    .uri("/picture/delete/count/" + pictureId)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -243,8 +258,9 @@ public class UserService {
      */
     public void plusLoveCount(Long pictureId) {
         try {
-            PICTURE_SERVER_CLIENT.post()
-                    .uri("/picture/create/count/" + pictureId)// 여기 바뀔예정
+
+            PICTURE_SERVER_CLIENT.get()
+                    .uri("/picture/create/count/" + pictureId)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -280,12 +296,14 @@ public class UserService {
     public String getPictureUrlAndPlusLove(Long pictureId) {
         try {
             return PICTURE_SERVER_CLIENT.post()
-                    .uri("/picture/create/count/" + pictureId)// 여기 바뀔예정
+                    .uri("/picture/create/count/" + pictureId)
+
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
                     .bodyToMono(String.class)
-                    .block().toString();
+                    .block();
+
         } catch (Exception e) {
             log.error("{}", e.getMessage());
         }
@@ -298,8 +316,8 @@ public class UserService {
      * @param receiverUid : 좋아요 받은 그림의 주인 uid
      * @param pictureId : 그림의 id
      * @param senderName : 좋아요 누른 사람의 이름
-     * @param receiverName : 좋아요 받은 그림의 주인 이름
-     * @param pictureUrl : 그림의 url
+     * @param senderImgSrc : 좋아요 누른 사람의 프로필 이미지
+     * @param pictureImgSrc: 그림의 url
      */
     public void PostAlarm(String senderUid, String receiverUid, Long pictureId, String senderName, String senderImgSrc, String pictureImgSrc) {
         try {
@@ -357,5 +375,108 @@ public class UserService {
         } catch (Exception e) {
             log.error("{}", e.getMessage());
         }
+    }
+
+    //*******************************여기서부턴 만든 좋아요 리스트*******************************//
+    /**
+     * 본인이 본인의 좋아요 리스트를 찾는 함수
+     * @param decodedToken : 로그인 유저(본인)의 토큰값
+     * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
+     */
+    public List<UserPicsResponseDto> findMyLovePics(FirebaseToken decodedToken) {
+        List<UserPicsResponseDto> responseDtos = PictureCallService.getLikePictureInfo("/picture/like_all_list", getPictureIds(decodedToken.getUid()));
+        return setMakerNameInResponse(responseDtos);
+    }
+
+    /**
+     * 로그인 사용자가 특정인의 좋아요 리스트를 찾는 함수
+     * @param decodedToken : 로그인 유저의 토큰값
+     * @param targetUid : 타겟 유저의 uid
+     * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
+     */
+    public List<UserPicsResponseDto> findUserLovePicsCertified(FirebaseToken decodedToken, String targetUid) {
+        List<UserPicsResponseDto> responseDtos = PictureCallService.getLikePictureInfo("/picture/like_pubic_list", getPictureIds(targetUid));
+        return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
+    }
+
+    /**
+     * 비로그인 사용자가 특정인의 좋아요 리스트를 찾는 함수
+     * @param targetUid : 타겟 유저의 uid
+     * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
+     */
+    public List<UserPicsResponseDto> findUserLovePics(String targetUid) {
+        List<UserPicsResponseDto> responseDtos = PictureCallService.getLikePictureInfo("/picture/like_pubic_list", getPictureIds(targetUid));
+        return setMakerNameInResponse(responseDtos);    // 접속자가 아니라서 좋아요 눌렀는지 여부 판단 필요X
+    }
+
+
+    //*******************************여기서부턴 만든 그림 리스트*******************************//
+    /**
+     * 본인이 제작한 이미지 리스트를 찾는 함수
+     * @param decodedToken : 로그인 유저(본인)의 토큰값
+     * @return : 타겟 유저(본인)가 제작한 이미지 리스트(디테일 정보도 담김)
+     */
+    public List<UserPicsResponseDto> findMyMadePics(FirebaseToken decodedToken) {
+        List<UserPicsResponseDto> responseDtos = PictureCallService.getMadePictureInfo("/picture/made/user/" + decodedToken.getUid() + "/1");
+        return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
+    }
+
+    /**
+     * 로그인 사용자가 특정인이 제작한 이미지 리스트를 찾는 함수
+     * @param decodedToken : 로그인 유저의 토큰값
+     * @param targetUid : 타겟 유저의 uid
+     * @return : 타겟 유저가 제작한 이미지 리스트(디테일 정보도 담김)
+     */
+    public List<UserPicsResponseDto> findUserMadePicsCertified(FirebaseToken decodedToken, String targetUid) {
+        List<UserPicsResponseDto> responseDtos = PictureCallService.getMadePictureInfo("/picture/made/user/" + targetUid + "/0");
+        return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
+    }
+
+    /**
+     * 유저가 만든 그림 or 사진
+     * @param targetUid : 좋아요 누른 사람의 uid
+     * @return : 유저가 만든 그림의 id, url, createdAt 리스트
+     */
+    public List<UserPicsResponseDto> findUserMadePics(String targetUid) {
+        List<UserPicsResponseDto> responseDtos = PictureCallService.getMadePictureInfo("/picture/made/no_user/" + targetUid);
+        return setMakerNameInResponse(responseDtos);    // 접속자가 아니라서 좋아요 눌렀는지 여부 판단 필요X
+    }
+
+    // uid 유저의 좋아요누른 그림 id 목록을 반환한다.
+    public List<Long> getPictureIds(String uid) {
+        return loveRepository.findByUserUidAndIsActiveTrueOrderByCreatedAtDesc(uid)
+                .stream()
+                .map(Love::getPictureId)
+                .collect(Collectors.toList());
+    }
+
+    // responseDtos 받아서 해당 응답들의 makerName 채운다.
+    public List<UserPicsResponseDto> setMakerNameInResponse(List<UserPicsResponseDto> responseDtos) {
+        if(!Objects.requireNonNull(responseDtos).isEmpty()) {
+            for(UserPicsResponseDto responseDto : responseDtos) {
+                Optional<User> optUser = userRepository.findByUid(responseDto.getMakerUid());
+                optUser.ifPresent(user -> responseDto.setMakerName(user.getName()));
+            }
+            return responseDtos;
+        } else {
+            return null;
+        }
+    }
+
+    // responseDtos와 접속한 uid를 받아서 그림에 좋아요를 했는지를 파악한다.
+    public List<UserPicsResponseDto> checkPicsWhetherILoved(String loginUid, List<UserPicsResponseDto> responseDtos) {
+        for(UserPicsResponseDto responseDto : Objects.requireNonNull(responseDtos)) {
+            Long pictureId = responseDto.getPictureId();
+            Optional<Love> optLove = loveRepository.findByUserUidAndPictureIdAndIsActiveTrue(loginUid, pictureId);
+            if(optLove.isPresent()) {
+                responseDto.setLoveCheck(Boolean.TRUE);
+            }
+        }
+        return responseDtos;
+    }
+
+    public String getFCMTokenByUserUid(String uid) {
+        Optional<User> user = userRepository.findByUid(uid);
+        return user.map(User::getFcmToken).orElse(null);
     }
 }
