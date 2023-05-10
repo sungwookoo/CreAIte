@@ -61,6 +61,7 @@ public class User {
     public User(FirebaseToken decodedToken) {
         this.uid = decodedToken.getUid();
         this.name = decodedToken.getName();
+        this.fcmToken = decodedToken.toString();
         this.email = decodedToken.getEmail();
         this.profileImg = decodedToken.getPicture();
         this.createdAt = Instant.now().plusSeconds(60 * 60 * 9);
