@@ -149,12 +149,13 @@ public class UserService {
     }
 
     public void toggleLove(LoveToggleRequestDto loveToggleRequestDto) {
+//        log.info(loveToggleRequestDto+"여기는 러브 토글 리퀘");
         String uid = loveToggleRequestDto.getUid();
         Long pictureId = loveToggleRequestDto.getPictureId();
         String receiverUid = loveToggleRequestDto.getMakerUid();
         String senderUid = loveToggleRequestDto.getUid();
-            String senderName = userRepository.findByUid(senderUid).get().getName();
-        String receiverName = userRepository.findByUid(receiverUid).get().getName();
+        String senderName = userRepository.findByUid(senderUid).get().getName();
+//        String receiverName = userRepository.findByUid(receiverUid).get().getName();
         Optional<Love> optLove = loveRepository.findByUserUidAndPictureId(senderUid, pictureId);
         // 1. 기존의 좋아요 객체가 있는 경우
         if(optLove.isPresent()) {
@@ -181,10 +182,12 @@ public class UserService {
                             .pictureId(pictureId)
                             .build());
             // 2-2. 좋아요가 눌러진 사진의 url 구해온다.
+            String senderImgSrc = userRepository.findByUid(senderUid).get().getProfileImg();
+//            String senderImgSrc = "https://lh3.googleusercontent.com/a/AGNmyxb1uSVMfTV6SNQ7qfaChFf6bMdHwPsi9Dz8ql1S=s96";
             String pictureImgSrc = getPictureUrlAndPlusLove(pictureId);
             // 2-3. 해당 정보들을 알람서버에 보내 알림을 생성
-            log.info("알람 보내기"+"senderUid = "+senderUid ," senderName= "+senderName,"사진 :"+pictureImgSrc);
-            PostAlarm("DHthefEAnPfvAKX7GX6peU182kA3", "86cV1lYlz6UlPeQBuFH2UZuuwU13", 10L , "보내기네임", "https://lh3.googleusercontent.com/a/AGNmyxb1uSVMfTV6SNQ7qfaChFf6bMdHwPsi9Dz8ql1S=s96", "https://lh3.googleusercontent.com/a/AGNmyxb1uSVMfTV6SNQ7qfaChFf6bMdHwPsi9Dz8ql1S=s96");
+//            log.info("senderName= {}, 사진 :{}, 프로필이미지 : {}", senderName, pictureImgSrc, senderImgSrc);
+            PostAlarm(senderUid, receiverUid, pictureId, senderName, senderImgSrc, pictureImgSrc);
         }
     }
 
@@ -245,7 +248,7 @@ public class UserService {
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
+                    .bodyToMono(String.class)
                     .block();
         } catch (Exception e) {
             log.error("{}", e.getMessage());
@@ -277,11 +280,11 @@ public class UserService {
     public String getPictureUrlAndPlusLove(Long pictureId) {
         try {
             return PICTURE_SERVER_CLIENT.post()
-                    .uri("/picture/like/" + pictureId)// 여기 바뀔예정
+                    .uri("/picture/create/count/" + pictureId)// 여기 바뀔예정
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
+                    .bodyToMono(String.class)
                     .block().toString();
         } catch (Exception e) {
             log.error("{}", e.getMessage());
@@ -302,11 +305,11 @@ public class UserService {
         try {
             ALARM_SERVER_CLIENT.post()
                     .uri("/alarm/create")
-                    .body(BodyInserters.fromValue(new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderName, senderImgSrc, pictureImgSrc)))
+                    .body(BodyInserters.fromValue(new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc)))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
+                    .bodyToMono(String.class)
                     .block();
         } catch (Exception e) {
             log.error("{}", e.getMessage());
