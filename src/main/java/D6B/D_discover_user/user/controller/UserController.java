@@ -254,7 +254,7 @@ public class UserController {
      * @param makerUids : 이미지의 생성자 uid 목록
      * @return : 이미지의 생성자 이름 목록을 반환한다.
      */
-    @GetMapping("/find_maker_name")
+    @PostMapping("/find_maker_name")
     public List<String> findMakers(@RequestBody List<String> makerUids) {
         return userService.findMakers(makerUids);
     }
