@@ -23,6 +23,9 @@ public class Tag {
     @Column(name = "word")
     private String word;
 
+    @Column(name = "tag_count")
+    private Long tagCount;
+
     @OneToMany(mappedBy = "tag")
     @ToString.Exclude
     @Builder.Default
