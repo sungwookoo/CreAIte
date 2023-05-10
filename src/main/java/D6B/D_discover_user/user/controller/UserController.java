@@ -163,7 +163,7 @@ public class UserController {
      * @param uid : Firebase 통해 얻은 uid
      * @return : 찾는 유저의 좋아요 리스트
      */
-    @GetMapping("/{uid}/like_picture/certified")
+    @PostMapping("/{uid}/like_picture/certified")
     public ResponseEntity<List<UserPicsResponseDto>> readUserLovePicsCertified(@RequestHeader("Authorization") String idToken,
                                                                                @PathVariable String uid,
                                                                                @RequestBody UserMadeOrLoveRequestDto userMadeOrLoveRequestDto) throws IOException, FirebaseAuthException {
