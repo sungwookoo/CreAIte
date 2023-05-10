@@ -15,6 +15,11 @@ spring:
           uri: http://user-dev.dev.svc.cluster.local:8080 # 쿠버네티스 서비스의 FQDN
           predicates:
             - Path=/user/**
+
+        - id: picture-dev
+          uri: http://pirture-dev.dev.svc.cluster.local:8080 # 쿠버네티스 서비스의 FQDN
+          predicates:
+            - Path=/picture/**
   profiles:
     active: dev
 
