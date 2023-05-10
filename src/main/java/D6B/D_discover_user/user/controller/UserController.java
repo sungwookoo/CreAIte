@@ -38,9 +38,9 @@ public class UserController {
     @PostMapping("")
     public void enrollUserInformation(@RequestHeader("Authorization") String idToken,
                                                         @RequestBody UserReadRequestDto userReadRequestDto) throws IOException, FirebaseAuthException {
-        AuthResponse authResponse = authorizeService.isAuthorized(userReadRequestDto.getFcmToken(), userReadRequestDto.getUid());
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, userReadRequestDto.getUid());
         if(authResponse.getIsUser()) {
-            userService.enrollUser(idToken, authResponse.getDecodedToken());
+            userService.enrollUser(userReadRequestDto.getFcmToken(), authResponse.getDecodedToken());
         } else {
             log.info("없는 회원입니다.");
         }
