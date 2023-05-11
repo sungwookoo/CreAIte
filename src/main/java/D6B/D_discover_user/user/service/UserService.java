@@ -419,6 +419,7 @@ public class UserService {
     public List<UserPicsResponseDto> findMyMadePics(FirebaseToken decodedToken) {
 
         List<UserMadeDto> responseFromPics = PictureCallService.getMadePictureInfo("/made/user/" + decodedToken.getUid() + "/1");
+        log.info("responseFromPics------------> {}", responseFromPics);
         List<UserPicsResponseDto> responseDtos = new ArrayList<>();
         for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
             responseDtos.add(UserPicsResponseDto.builder()
@@ -491,7 +492,9 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    // responseDtos 받아서 해당 응답들의 makerName 채운다.
+    /**
+     * 그림 디테일 리스트를 전달할 때, 그림들의 제작자의 이름을 응답객체에 채워넣는다
+     */
     public List<UserPicsResponseDto> setMakerNameInResponse(List<UserPicsResponseDto> responseDtos) {
         if(!Objects.requireNonNull(responseDtos).isEmpty()) {
             for(UserPicsResponseDto responseDto : responseDtos) {
@@ -502,7 +505,9 @@ public class UserService {
         return responseDtos;
     }
 
-    // responseDtos와 접속한 uid를 받아서 그림에 좋아요를 했는지를 파악한다.
+    /**
+     * 그림 디테일 리스트를 전달할 때, 로그인한 유저가 해당 그림들에 좋아요를 눌렀는지를 판단한다
+     */
     public List<UserPicsResponseDto> checkPicsWhetherILoved(String loginUid, List<UserPicsResponseDto> responseDtos) {
         for(UserPicsResponseDto responseDto : Objects.requireNonNull(responseDtos)) {
             Long pictureId = responseDto.getPictureId();
