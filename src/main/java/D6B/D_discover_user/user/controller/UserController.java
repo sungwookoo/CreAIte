@@ -55,7 +55,7 @@ public class UserController {
      * @throws FirebaseAuthException : 에러
      */
     @GetMapping("/{uid}")
-    public ResponseEntity<UserInfoResponseDto> readUserInfo(@RequestHeader("Authorization") String idToken,
+    public ResponseEntity<UserInfoResponseDto> readMyInfo(@RequestHeader("Authorization") String idToken,
                                                             @PathVariable String uid) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
         if(authResponse.getIsUser()) {
@@ -159,23 +159,26 @@ public class UserController {
 
     /**
      * 로그인 한 유저가 본인 또는 다른 유저의 좋아요 리스트 가져오기
-     * 본인일 경우와 아닐 경우를 분기해야 한다.
-     * @param uid : Firebase 통해 얻은 uid
-     * @return : 찾는 유저의 좋아요 리스트
+     * @param idToken
+     * @param targetUid
+     * @param userMadeOrLoveRequestDto
+     * @return
+     * @throws IOException
+     * @throws FirebaseAuthException
      */
-    @PostMapping("/{uid}/like_picture/certified")
+    @PostMapping("/{target_uid}/like_picture/certified")
     public ResponseEntity<List<UserPicsResponseDto>> readUserLovePicsCertified(@RequestHeader("Authorization") String idToken,
-                                                                               @PathVariable String uid,
+                                                                               @PathVariable("target_uid") String targetUid,
                                                                                @RequestBody UserMadeOrLoveRequestDto userMadeOrLoveRequestDto) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, userMadeOrLoveRequestDto.getUid());
         if(authResponse.getIsUser()) {
             FirebaseToken decodedToken = authResponse.getDecodedToken();
             // 본인이 본인의 좋아요 누른 사진을 보는 경우
-            if(Objects.equals(authResponse.getDecodedToken().getUid(), uid)) {
+            if(Objects.equals(authResponse.getDecodedToken().getUid(), targetUid)) {
                 return ResponseEntity.ok(userService.findMyLovePics(decodedToken));
             // 타인의 좋아요 누른 사진을 보는 경우
             } else {
-                return ResponseEntity.ok(userService.findUserLovePicsCertified(decodedToken, uid));
+                return ResponseEntity.ok(userService.findUserLovePicsCertified(decodedToken, targetUid));
             }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -270,6 +273,7 @@ public class UserController {
     }
 
     @GetMapping("/test")
+
     public String test() {
         return "test2";
     }

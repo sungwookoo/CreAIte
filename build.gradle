@@ -16,19 +16,12 @@ configurations {
 
 repositories {
 	mavenCentral()
-	maven { url "https://repo.spring.io/plugins-release/" }
-	maven { url "https://repository.jboss.org/nexus/content/repositories/releases/" }
-	maven { url "https://repository.jboss.org/nexus/content/groups/public/" }
-	maven { url "https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk" }
 }
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-	// redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 	// Firebase SDK
 	implementation 'com.google.firebase:firebase-admin:9.1.1'
@@ -37,12 +30,10 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
-	// S3
-	implementation 'com.amazonaws:aws-java-sdk-s3:1.11.1015'
-
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
 }
 
 tasks.named('test') {
