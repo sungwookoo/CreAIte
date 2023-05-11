@@ -94,7 +94,6 @@ public class FirebaseCloudMessageService {
 
     private String getAccessToken() throws IOException {
         // firebase로 부터 access token을 가져온다.
-
         GoogleCredentials googleCredentials = GoogleCredentials
                 .fromStream(new ClassPathResource(FIREBASE_CONFIG_PATH).getInputStream())
                 .createScoped(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
