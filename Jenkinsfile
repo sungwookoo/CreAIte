@@ -71,6 +71,8 @@ spec:
                         // Jenkins 작업공간에 파일을 복사
                         sh 'cp $FIREBASE_SERVICE_KEY .'
 
+                        sh 'mkdir -p src/main/resources/'
+
                         // 파일을 src/main/resources로 이동
                         sh 'mv firebase_service_key.json src/main/resources/'
                     }
