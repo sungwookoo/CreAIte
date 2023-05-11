@@ -205,7 +205,7 @@ public class UserController {
      * @throws FirebaseAuthException :
      */
     @PostMapping("/{target_uid}/made_picture/certified")
-    public ResponseEntity<List<UserPicsResponseDto>> readUserMadePics(@RequestHeader("Authorization") String idToken,
+    public ResponseEntity<List<UserPicsResponseDto>> readUserMadePicsCertified(@RequestHeader("Authorization") String idToken,
                                                                       @PathVariable("target_uid") String targetUid,
                                                                       @RequestBody UserMadeOrLoveRequestDto userMadeOrLoveRequestDto) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, userMadeOrLoveRequestDto.getUid());
@@ -229,7 +229,7 @@ public class UserController {
      * @return : 유저가 만든 이미지 정보
      */
     @GetMapping("/{uid}/made_picture")
-    public ResponseEntity<List<UserPicsResponseDto>> readUserMadePics(@PathVariable String uid){
+    public ResponseEntity<List<UserPicsResponseDto>> readUserMadePicsNotCert(@PathVariable String uid){
         return ResponseEntity.ok(userService.findUserMadePics(uid));
     }
 

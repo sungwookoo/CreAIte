@@ -384,42 +384,7 @@ public class UserService {
      * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findMyLovePics(FirebaseToken decodedToken) {
-        List<UserPicsResponseDto> responseDtos = PictureCallService.getLikePictureInfo("/like_all_list", getPictureIds(decodedToken.getUid()));
-        return setMakerNameInResponse(responseDtos);
-    }
-
-    /**
-     * 로그인 사용자가 특정인의 좋아요 리스트를 찾는 함수
-     * @param decodedToken : 로그인 유저의 토큰값
-     * @param targetUid : 타겟 유저의 uid
-     * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
-     */
-    public List<UserPicsResponseDto> findUserLovePicsCertified(FirebaseToken decodedToken, String targetUid) {
-        List<UserPicsResponseDto> responseDtos = PictureCallService.getLikePictureInfo("/like_pubic_list", getPictureIds(targetUid));
-        return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
-    }
-
-    /**
-     * 비로그인 사용자가 특정인의 좋아요 리스트를 찾는 함수
-     * @param targetUid : 타겟 유저의 uid
-     * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
-     */
-    public List<UserPicsResponseDto> findUserLovePics(String targetUid) {
-        List<UserPicsResponseDto> responseDtos = PictureCallService.getLikePictureInfo("/like_pubic_list", getPictureIds(targetUid));
-        return setMakerNameInResponse(responseDtos);    // 접속자가 아니라서 좋아요 눌렀는지 여부 판단 필요X
-    }
-
-
-    //*******************************여기서부턴 만든 그림 리스트*******************************//
-    /**
-     * 본인이 제작한 이미지 리스트를 찾는 함수
-     * @param decodedToken : 로그인 유저(본인)의 토큰값
-     * @return : 타겟 유저(본인)가 제작한 이미지 리스트(디테일 정보도 담김)
-     */
-    public List<UserPicsResponseDto> findMyMadePics(FirebaseToken decodedToken) {
-
-        List<UserMadeDto> responseFromPics = PictureCallService.getMadePictureInfo("/made/user/" + decodedToken.getUid() + "/1");
-        log.info("responseFromPics------------> {}", responseFromPics);
+        List<UserMadeDto> responseFromPics = PictureCallService.getLikePictureInfo("/like_all_list", getPictureIds(decodedToken.getUid()));
         List<UserPicsResponseDto> responseDtos = new ArrayList<>();
         if(!responseFromPics.isEmpty()) {
             for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
@@ -434,6 +399,97 @@ public class UserService {
                         .makerName(null)
                         .build());
             }
+        }
+        else {
+            return responseDtos;
+        }
+        return setMakerNameInResponse(responseDtos);
+    }
+
+    /**
+     * 로그인 사용자가 특정인의 좋아요 리스트를 찾는 함수
+     * @param decodedToken : 로그인 유저의 토큰값
+     * @param targetUid : 타겟 유저의 uid
+     * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
+     */
+    public List<UserPicsResponseDto> findUserLovePicsCertified(FirebaseToken decodedToken, String targetUid) {
+        List<UserMadeDto> responseFromPics = PictureCallService.getLikePictureInfo("/like_pubic_list", getPictureIds(targetUid));
+        List<UserPicsResponseDto> responseDtos = new ArrayList<>();
+        if(!responseFromPics.isEmpty()) {
+            for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
+                responseDtos.add(UserPicsResponseDto.builder()
+                        .pictureId(responseFromPic.getPictureId())
+                        .pictureUrl(responseFromPic.getPictureUrl())
+                        .makerUid(responseFromPic.getMakerUid())
+                        .loveCount(responseFromPic.getLoveCount())
+                        .createdAt(responseFromPic.getCreatedAt())
+                        .pictureTags(responseFromPic.getPictureTags())
+                        .loveCheck(responseFromPic.getLoveCheck())
+                        .makerName(null)
+                        .build());
+            }
+        }
+        else {
+            return responseDtos;
+        }
+        return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
+    }
+
+    /**
+     * 비로그인 사용자가 특정인의 좋아요 리스트를 찾는 함수
+     * @param targetUid : 타겟 유저의 uid
+     * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
+     */
+    public List<UserPicsResponseDto> findUserLovePics(String targetUid) {
+        List<UserMadeDto> responseFromPics = PictureCallService.getLikePictureInfo("/like_pubic_list", getPictureIds(targetUid));
+        List<UserPicsResponseDto> responseDtos = new ArrayList<>();
+        if(!responseFromPics.isEmpty()) {
+            for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
+                responseDtos.add(UserPicsResponseDto.builder()
+                        .pictureId(responseFromPic.getPictureId())
+                        .pictureUrl(responseFromPic.getPictureUrl())
+                        .makerUid(responseFromPic.getMakerUid())
+                        .loveCount(responseFromPic.getLoveCount())
+                        .createdAt(responseFromPic.getCreatedAt())
+                        .pictureTags(responseFromPic.getPictureTags())
+                        .loveCheck(responseFromPic.getLoveCheck())
+                        .makerName(null)
+                        .build());
+            }
+        }
+        else {
+            return responseDtos;
+        }
+        return setMakerNameInResponse(responseDtos);    // 접속자가 아니라서 좋아요 눌렀는지 여부 판단 필요X
+    }
+
+
+    //*******************************여기서부턴 만든 그림 리스트*******************************//
+    /**
+     * 본인이 제작한 이미지 리스트를 찾는 함수
+     * @param decodedToken : 로그인 유저(본인)의 토큰값
+     * @return : 타겟 유저(본인)가 제작한 이미지 리스트(디테일 정보도 담김)
+     */
+    public List<UserPicsResponseDto> findMyMadePics(FirebaseToken decodedToken) {
+
+        List<UserMadeDto> responseFromPics = PictureCallService.getMadePictureInfo("/made/user/" + decodedToken.getUid() + "/1");
+        List<UserPicsResponseDto> responseDtos = new ArrayList<>();
+        if(!responseFromPics.isEmpty()) {
+            for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
+                responseDtos.add(UserPicsResponseDto.builder()
+                        .pictureId(responseFromPic.getPictureId())
+                        .pictureUrl(responseFromPic.getPictureUrl())
+                        .makerUid(responseFromPic.getMakerUid())
+                        .loveCount(responseFromPic.getLoveCount())
+                        .createdAt(responseFromPic.getCreatedAt())
+                        .pictureTags(responseFromPic.getPictureTags())
+                        .loveCheck(responseFromPic.getLoveCheck())
+                        .makerName(null)
+                        .build());
+            }
+        }
+        else {
+            return responseDtos;
         }
         return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
     }

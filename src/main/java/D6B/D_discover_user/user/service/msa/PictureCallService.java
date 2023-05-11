@@ -18,7 +18,7 @@ import static D6B.D_discover_user.common.ConstValues.PICTURE_SERVER_CLIENT;
 public class PictureCallService {
 
     // List<UserPicResponseDto>, post, body
-    public static List<UserPicsResponseDto> getLikePictureInfo(String uri, List<Long> pictureIds) {
+    public static List<UserMadeDto> getLikePictureInfo(String uri, List<Long> pictureIds) {
         try {
             return PICTURE_SERVER_CLIENT.post()
                     .uri(uri)
@@ -26,7 +26,7 @@ public class PictureCallService {
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(new ParameterizedTypeReference<List<UserPicsResponseDto>>() {})
+                    .bodyToMono(new ParameterizedTypeReference<List<UserMadeDto>>() {})
                     .block();
         } catch (Exception e) {
             log.error("{}", e.getMessage());
