@@ -17,7 +17,6 @@ import static D6B.D_discover_user.common.ConstValues.PICTURE_SERVER_CLIENT;
 @Slf4j
 public class PictureCallService {
 
-
     // List<UserPicResponseDto>, post, body
     public static List<UserPicsResponseDto> getLikePictureInfo(String uri, List<Long> pictureIds) {
         try {
