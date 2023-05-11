@@ -64,6 +64,20 @@ spec:
         }
 		*/
 
+		stage('Prepare Firebase Config') {
+            steps {
+                script {
+                    withCredentials([file(credentialsId: 'firebase-service-key', variable: 'FIREBASE_SERVICE_KEY')]) {
+                        // Jenkins 작업공간에 파일을 복사
+                        sh 'cp $FIREBASE_SERVICE_KEY .'
+
+                        // 파일을 src/main/resources로 이동
+                        sh 'mv firebase_service_key.json src/main/resources/'
+                    }
+                }
+            }
+        }
+
         stage('Docker build and push') {
             steps {
                 container('docker') {
@@ -75,9 +89,6 @@ spec:
 
                         // Git commit 해시 가져오기
                         def gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-
-                        // kubernetes secret에서 파일을 가져와 resources 디렉토리에 복사
-                        sh 'cp /etc/secrets/firebase_service_key.json src/main/resources/firebase_service_key.json'
 
                         // Docker 이미지 빌드 및 푸시
                         sh "docker build -t sungwookoo/alarm:develop-${gitCommitHash} ."
