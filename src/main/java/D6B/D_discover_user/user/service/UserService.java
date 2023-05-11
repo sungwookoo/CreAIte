@@ -459,7 +459,7 @@ public class UserService {
             }
             return responseDtos;
         } else {
-            return null;
+            return responseDtos;
         }
     }
 
@@ -471,6 +471,7 @@ public class UserService {
             if(optLove.isPresent()) {
                 responseDto.setLoveCheck(Boolean.TRUE);
             }
+            else responseDto.setLoveCheck(Boolean.FALSE);
         }
         return responseDtos;
     }
