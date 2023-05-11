@@ -37,14 +37,14 @@ spec:
               memory: 256Mi
           volumeMounts:
             - name: alarm-secret-application
-              mountPath: '/etc/secrets'
+              mountPath: '/etc/secrets/app'
               readOnly: true
             - name: alarm-secret-firebase
-              mountPath: '/creaite-app-firebase-adminsdk.json'
+              mountPath: '/etc/secrets/firebase'
               subPath: 'creaite-app-firebase-adminsdk.json'
               readOnly: true
             - name: firebase-service-key
-              mountPath: '/etc/secrets/firebase/firebase_service_key.json'
+              mountPath: '/etc/secrets/servicekey'
               subPath: 'firebase_service_key.json'
               readOnly: true
       imagePullSecrets:
