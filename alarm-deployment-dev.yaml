@@ -28,6 +28,9 @@ spec:
               value: dev
             - name: SPRING_CONFIG_LOCATION
               value: '/etc/secrets/application.yaml'
+            - name: FIREBASE_CONFIG_PATH
+              value: '/etc/secrets/firebase_service_key.json'
+
           resources:
             limits:
               cpu: 500m
