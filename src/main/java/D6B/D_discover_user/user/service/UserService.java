@@ -222,7 +222,7 @@ public class UserService {
     public void disablePictureAndMinusLove(String uid, List<Long> pictureIdxs) {
         try {
             PICTURE_SERVER_CLIENT.post()
-                    .uri("/picture/delete/user")// 여기 바뀔예정
+                    .uri("/delete/user")// 여기 바뀔예정
                     .body(BodyInserters.fromValue(new DeleteUserHistoryInPicture(uid, pictureIdxs)))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
@@ -241,7 +241,7 @@ public class UserService {
     public void minusLoveCount(Long pictureId) {
         try {
             PICTURE_SERVER_CLIENT.post()
-                    .uri("/picture/delete/count/" + pictureId)
+                    .uri("/delete/count/" + pictureId)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -260,7 +260,7 @@ public class UserService {
         try {
 
             PICTURE_SERVER_CLIENT.get()
-                    .uri("/picture/create/count/" + pictureId)
+                    .uri("/create/count/" + pictureId)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -278,7 +278,7 @@ public class UserService {
     public void disableAlarms(String uid) {
         try {
             PICTURE_SERVER_CLIENT.put()
-                    .uri("/alarm/remove/" + uid)
+                    .uri("/remove/" + uid)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -296,7 +296,7 @@ public class UserService {
     public String getPictureUrlAndPlusLove(Long pictureId) {
         try {
             return PICTURE_SERVER_CLIENT.post()
-                    .uri("/picture/create/count/" + pictureId)
+                    .uri("/create/count/" + pictureId)
 
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
@@ -322,7 +322,7 @@ public class UserService {
     public void PostAlarm(String senderUid, String receiverUid, Long pictureId, String senderName, String senderImgSrc, String pictureImgSrc) {
         try {
             ALARM_SERVER_CLIENT.post()
-                    .uri("/alarm/create")
+                    .uri("/create")
                     .body(BodyInserters.fromValue(new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc)))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
@@ -343,7 +343,7 @@ public class UserService {
     public void activateAlarm(String senderUid, String receiverUid, Long pictureId) {
         try {
             ALARM_SERVER_CLIENT.put()
-                    .uri("/alarm/marked")
+                    .uri("/marked")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .body(BodyInserters.fromValue(new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId)))
                     .retrieve()
@@ -365,7 +365,7 @@ public class UserService {
     public void disableAlarm(String senderUid, String receiverUid, Long pictureId) {
         try {
             ALARM_SERVER_CLIENT.put()
-                    .uri("/alarm/isalive")
+                    .uri("/isalive")
                     .body(BodyInserters.fromValue(new DisableAlarmRequestDto(senderUid, receiverUid, pictureId)))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
@@ -384,7 +384,7 @@ public class UserService {
      * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findMyLovePics(FirebaseToken decodedToken) {
-        List<UserPicsResponseDto> responseDtos = PictureCallService.getLikePictureInfo("/picture/like_all_list", getPictureIds(decodedToken.getUid()));
+        List<UserPicsResponseDto> responseDtos = PictureCallService.getLikePictureInfo("/like_all_list", getPictureIds(decodedToken.getUid()));
         return setMakerNameInResponse(responseDtos);
     }
 
@@ -395,7 +395,7 @@ public class UserService {
      * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findUserLovePicsCertified(FirebaseToken decodedToken, String targetUid) {
-        List<UserPicsResponseDto> responseDtos = PictureCallService.getLikePictureInfo("/picture/like_pubic_list", getPictureIds(targetUid));
+        List<UserPicsResponseDto> responseDtos = PictureCallService.getLikePictureInfo("/like_pubic_list", getPictureIds(targetUid));
         return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
     }
 
@@ -405,7 +405,7 @@ public class UserService {
      * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findUserLovePics(String targetUid) {
-        List<UserPicsResponseDto> responseDtos = PictureCallService.getLikePictureInfo("/picture/like_pubic_list", getPictureIds(targetUid));
+        List<UserPicsResponseDto> responseDtos = PictureCallService.getLikePictureInfo("/like_pubic_list", getPictureIds(targetUid));
         return setMakerNameInResponse(responseDtos);    // 접속자가 아니라서 좋아요 눌렀는지 여부 판단 필요X
     }
 
@@ -417,7 +417,7 @@ public class UserService {
      * @return : 타겟 유저(본인)가 제작한 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findMyMadePics(FirebaseToken decodedToken) {
-        List<UserPicsResponseDto> responseDtos = PictureCallService.getMadePictureInfo("/picture/made/user/" + decodedToken.getUid() + "/1");
+        List<UserPicsResponseDto> responseDtos = PictureCallService.getMadePictureInfo("/made/user/" + decodedToken.getUid() + "/1");
         return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
     }
 
@@ -428,7 +428,7 @@ public class UserService {
      * @return : 타겟 유저가 제작한 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findUserMadePicsCertified(FirebaseToken decodedToken, String targetUid) {
-        List<UserPicsResponseDto> responseDtos = PictureCallService.getMadePictureInfo("/picture/made/user/" + targetUid + "/0");
+        List<UserPicsResponseDto> responseDtos = PictureCallService.getMadePictureInfo("/made/user/" + targetUid + "/0");
         return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
     }
 
@@ -438,7 +438,7 @@ public class UserService {
      * @return : 유저가 만든 그림의 id, url, createdAt 리스트
      */
     public List<UserPicsResponseDto> findUserMadePics(String targetUid) {
-        List<UserPicsResponseDto> responseDtos = PictureCallService.getMadePictureInfo("/picture/made/no_user/" + targetUid);
+        List<UserPicsResponseDto> responseDtos = PictureCallService.getMadePictureInfo("/made/no_user/" + targetUid);
         return setMakerNameInResponse(responseDtos);    // 접속자가 아니라서 좋아요 눌렀는지 여부 판단 필요X
     }
 
