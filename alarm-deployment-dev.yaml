@@ -37,16 +37,18 @@ spec:
               memory: 256Mi
           volumeMounts:
             - name: alarm-secret-application
-              mountPath: '/etc/secrets'
+              mountPath: '/etc/secrets/application.yaml'
+              subPath: 'application.yaml'
               readOnly: true
             - name: alarm-secret-firebase
-              mountPath: '/etc/secrets'
+              mountPath: '/etc/secrets/creaite-app-firebase-adminsdk.json'
               subPath: 'creaite-app-firebase-adminsdk.json'
               readOnly: true
             - name: firebase-service-key
-              mountPath: '/etc/secrets'
+              mountPath: '/etc/secrets/firebase_service_key.json'
               subPath: 'firebase_service_key.json'
               readOnly: true
+
       imagePullSecrets:
         - name: dockerhub-secret
       volumes:
