@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import static D6B.D_discover_alarm.common.ConstValues.FCM_API_URL;
@@ -32,7 +33,7 @@ import static D6B.D_discover_alarm.common.ConstValues.USER_SERVER_CLIENT;
 @Slf4j
 public class FirebaseCloudMessageService {
 
-    private static final String FIREBASE_CONFIG_PATH = "/etc/secrets/firebase_service_key.json";
+//    private static final String FIREBASE_CONFIG_PATH = "/etc/secrets/firebase_service_key.json";
     private final ObjectMapper objectMapper;
     OkHttpClient client = new OkHttpClient();
     public void sendMessageTo(String targetToken, String title, String body, String image) throws IOException {
@@ -94,8 +95,10 @@ public class FirebaseCloudMessageService {
 
     private String getAccessToken() throws IOException {
         // firebase로 부터 access token을 가져온다.
+        String firebaseConfigPath = System.getenv("FIREBASE_CONFIG_PATH");
+        InputStream serviceAccount = new FileInputStream(firebaseConfigPath);
         GoogleCredentials googleCredentials = GoogleCredentials
-                .fromStream(new FileInputStream(FIREBASE_CONFIG_PATH))
+                .fromStream(serviceAccount)
                 .createScoped(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
 
         googleCredentials.refreshIfExpired();
