@@ -44,7 +44,7 @@ spec:
               subPath: 'creaite-app-firebase-adminsdk.json'
               readOnly: true
             - name: firebase-service-key
-              mountPath: '/etc/secrets
+              mountPath: '/etc/secrets'
               readOnly: true
       imagePullSecrets:
         - name: dockerhub-secret
