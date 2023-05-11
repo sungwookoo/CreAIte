@@ -58,7 +58,7 @@ spec:
                 path: application.yaml
         - name: alarm-secret-firebase
           secret:
-            secretName: alarm-secret
+            secretName: alarm-secret-firebase
             items:
               - key: creaite-app-firebase-adminsdk.json
                 path: creaite-app-firebase-adminsdk.json
