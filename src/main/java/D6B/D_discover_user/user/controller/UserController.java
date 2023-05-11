@@ -69,7 +69,7 @@ public class UserController {
     /**
      * 다른 회원의 정보를 확인
      */
-    @GetMapping("/{target_uid}")
+    @GetMapping("/other/{target_uid}")
     public ResponseEntity<UserInfoResponseDto> readUserInfo(@PathVariable("target_uid") String targetUid) {
         try {
             return ResponseEntity.ok(UserInfoResponseDto
