@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -94,7 +95,7 @@ public class FirebaseCloudMessageService {
     private String getAccessToken() throws IOException {
         // firebase로 부터 access token을 가져온다.
         GoogleCredentials googleCredentials = GoogleCredentials
-                .fromStream(new ClassPathResource(FIREBASE_CONFIG_PATH).getInputStream())
+                .fromStream(new FileInputStream(FIREBASE_CONFIG_PATH))
                 .createScoped(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
 
         googleCredentials.refreshIfExpired();
