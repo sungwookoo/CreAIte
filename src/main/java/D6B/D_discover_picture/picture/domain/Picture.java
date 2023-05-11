@@ -22,7 +22,7 @@ public class Picture {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "img_url")
+    @Column(name = "picture_url")
     private String imgUrl;
 
     @Column(name = "maker_uid")

@@ -14,24 +14,24 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PictureAllDetailResponse {
-    public Long id;
-    public String imgUrl;
+    public Long pictureId;
+    public String pictureUrl;
     public String makerUid;
     public String makerName;
     public Long loveCount;
     public Instant createdAt;
-    public List<String> imageTags;
+    public List<String> pictureTags;
     public Boolean loveCheck;
 
     public static PictureAllDetailResponse from(Picture picture, List<String> tags, Boolean isLoved, String makerName) {
         return PictureAllDetailResponse.builder()
-                .id(picture.getId())
-                .imgUrl(picture.getImgUrl())
+                .pictureId(picture.getId())
+                .pictureUrl(picture.getImgUrl())
                 .makerUid(picture.getMakerUid())
                 .makerName(makerName)
                 .loveCount(picture.getLoveCount())
                 .createdAt(picture.getCreatedAt())
-                .imageTags(tags)
+                .pictureTags(tags)
                 .loveCheck(isLoved)
                 .build();
     }
