@@ -18,7 +18,7 @@ public class FcmController {
     private final FirebaseCloudMessageService firebaseCloudMessageService;
 
     @PostMapping("/alarm/fcm")
-    public ResponseEntity<RequestDTO> pushMessage(@RequestBody RequestDTO requestDTO) throws IOException {
+    public ResponseEntity<String> pushMessage(@RequestBody RequestDTO requestDTO) {
         System.out.println(requestDTO.getTargetToken() + " "
                 +requestDTO.getTitle() + " " + requestDTO.getBody());
         try {
@@ -30,8 +30,8 @@ public class FcmController {
         } catch (IOException e) {
             e.printStackTrace();
             // 적절한 오류 메시지와 함께 실패 응답 반환
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("sendmessageTo 메서드 오류");
         }
-        return ResponseEntity.ok(requestDTO);
+        return ResponseEntity.ok("메시지 전송 성공");
     }
 }
