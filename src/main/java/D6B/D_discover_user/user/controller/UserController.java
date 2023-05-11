@@ -159,12 +159,12 @@ public class UserController {
 
     /**
      * 로그인 한 유저가 본인 또는 다른 유저의 좋아요 리스트 가져오기
-     * @param idToken
-     * @param targetUid
-     * @param userMadeOrLoveRequestDto
-     * @return
-     * @throws IOException
-     * @throws FirebaseAuthException
+     * @param idToken : 로그인 유저의 idToken
+     * @param targetUid : 타겟 유저의 uid
+     * @param userMadeOrLoveRequestDto : 로그인 유저의 id
+     * @return : 좋아요 리스트에 오른 그림 리스트
+     * @throws IOException : 예외
+     * @throws FirebaseAuthException : 예외
      */
     @PostMapping("/{target_uid}/like_picture/certified")
     public ResponseEntity<List<UserPicsResponseDto>> readUserLovePicsCertified(@RequestHeader("Authorization") String idToken,
@@ -197,22 +197,26 @@ public class UserController {
 
     /**
      * 로그인 한 유저가 본인 또는 다른 유저가 제작한 이미지 가져오기
-     * @param uid : Firebase 통해 얻은 uid
-     * @return : 유저가 만든 이미지 정보
+     * @param idToken :
+     * @param targetUid : 대상의 uid
+     * @param userMadeOrLoveRequestDto :
+     * @return :
+     * @throws IOException :
+     * @throws FirebaseAuthException :
      */
-    @PostMapping("/{uid}/made_picture/certified")
+    @PostMapping("/{target_uid}/made_picture/certified")
     public ResponseEntity<List<UserPicsResponseDto>> readUserMadePics(@RequestHeader("Authorization") String idToken,
-                                                                      @PathVariable String uid,
+                                                                      @PathVariable("target_uid") String targetUid,
                                                                       @RequestBody UserMadeOrLoveRequestDto userMadeOrLoveRequestDto) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, userMadeOrLoveRequestDto.getUid());
         if(authResponse.getIsUser()) {
             FirebaseToken decodedToken = authResponse.getDecodedToken();
             // 본인이 본인이 제작한 이미지를 보는 경우
-            if(Objects.equals(authResponse.getDecodedToken().getUid(), uid)) {
+            if(Objects.equals(authResponse.getDecodedToken().getUid(), targetUid)) {
                 return ResponseEntity.ok(userService.findMyMadePics(decodedToken));
             // 타인이 제작한 이미지를 보는 경우
             } else {
-                return ResponseEntity.ok(userService.findUserMadePicsCertified(decodedToken, uid));
+                return ResponseEntity.ok(userService.findUserMadePicsCertified(decodedToken, targetUid));
             }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
