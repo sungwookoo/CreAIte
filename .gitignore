@@ -38,4 +38,4 @@ out/
 
 creaite-app-firebase-adminsdk.json
 application.yaml
-firebase_service_key.json
+#firebase_service_key.json

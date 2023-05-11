@@ -28,9 +28,6 @@ spec:
               value: dev
             - name: SPRING_CONFIG_LOCATION
               value: '/etc/secrets/application.yaml'
-            - name: FIREBASE_CONFIG_PATH
-              value: '/etc/secrets/firebase_service_key.json'
-
           resources:
             limits:
               cpu: 500m
@@ -40,18 +37,12 @@ spec:
               memory: 256Mi
           volumeMounts:
             - name: alarm-secret-application
-              mountPath: '/etc/secrets/application.yaml'
-              subPath: 'application.yaml'
+              mountPath: '/etc/secrets'
               readOnly: true
             - name: alarm-secret-firebase
-              mountPath: '/etc/secrets/creaite-app-firebase-adminsdk.json'
+              mountPath: '/creaite-app-firebase-adminsdk.json'
               subPath: 'creaite-app-firebase-adminsdk.json'
               readOnly: true
-            - name: firebase-service-key
-              mountPath: '/etc/secrets/firebase_service_key.json'
-              subPath: 'firebase_service_key.json'
-              readOnly: true
-
       imagePullSecrets:
         - name: dockerhub-secret
       volumes:
@@ -67,9 +58,3 @@ spec:
             items:
               - key: creaite-app-firebase-adminsdk.json
                 path: creaite-app-firebase-adminsdk.json
-        - name: firebase-service-key
-          secret:
-            secretName: alarm-secret
-            items:
-              - key: firebase_service_key.json
-                path: firebase_service_key.json
