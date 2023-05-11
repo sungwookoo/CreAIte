@@ -25,7 +25,7 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-
+/src/main/resources/firebase/firebase_service_key.json
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
