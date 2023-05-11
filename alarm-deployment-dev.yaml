@@ -44,7 +44,7 @@ spec:
               subPath: 'creaite-app-firebase-adminsdk.json'
               readOnly: true
             - name: firebase-service-key
-              mountPath: '/src/main/resources/firebase/firebase_service_key.json'
+              mountPath: '/etc/secrets/firebase_service_key.json'
               subPath: 'firebase_service_key.json'
               readOnly: true
       imagePullSecrets:
