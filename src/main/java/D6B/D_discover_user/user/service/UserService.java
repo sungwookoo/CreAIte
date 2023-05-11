@@ -422,7 +422,7 @@ public class UserService {
     }
 
     /**
-     * 로그인 사용자가 특정인이 제작한 이미지 리스트를 찾는 함수
+     * 로그인 사용자가 다른이가 제작한 이미지 리스트를 찾는 함수
      * @param decodedToken : 로그인 유저의 토큰값
      * @param targetUid : 타겟 유저의 uid
      * @return : 타겟 유저가 제작한 이미지 리스트(디테일 정보도 담김)
