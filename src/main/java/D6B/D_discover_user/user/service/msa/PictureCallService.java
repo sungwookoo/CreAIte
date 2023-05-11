@@ -1,6 +1,7 @@
 package D6B.D_discover_user.user.service.msa;
 
 import D6B.D_discover_user.user.controller.dto.UserPicsResponseDto;
+import D6B.D_discover_user.user.service.dto.UserMadeDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -35,14 +36,14 @@ public class PictureCallService {
     }
 
     // List<UserPicsResponseDto>, get
-    public static List<UserPicsResponseDto> getMadePictureInfo(String uri) {
+    public static List<UserMadeDto> getMadePictureInfo(String uri) {
         try {
             return PICTURE_SERVER_CLIENT.post()
                     .uri(uri)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(new ParameterizedTypeReference<List<UserPicsResponseDto>>() {})
+                    .bodyToMono(new ParameterizedTypeReference<List<UserMadeDto>>() {})
                     .block();
         } catch (Exception e) {
             log.error("{}", e.getMessage());

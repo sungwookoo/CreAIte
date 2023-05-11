@@ -417,7 +417,22 @@ public class UserService {
      * @return : 타겟 유저(본인)가 제작한 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findMyMadePics(FirebaseToken decodedToken) {
-        List<UserPicsResponseDto> responseDtos = PictureCallService.getMadePictureInfo("/made/user/" + decodedToken.getUid() + "/1");
+
+        List<UserMadeDto> responseFromPics = PictureCallService.getMadePictureInfo("/made/user/" + decodedToken.getUid() + "/1");
+        List<UserPicsResponseDto> responseDtos = new ArrayList<>();
+        for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
+            responseDtos.add(UserPicsResponseDto.builder()
+                    .pictureId(responseFromPic.getPictureId())
+                    .pictureUrl(responseFromPic.getPictureUrl())
+                    .makerUid(responseFromPic.getMakerUid())
+                    .loveCount(responseFromPic.getLoveCount())
+                    .createdAt(responseFromPic.getCreatedAt())
+                    .pictureTags(responseFromPic.getPictureTags())
+                    .loveCheck(responseFromPic.getLoveCheck())
+                    .makerName(null)
+                    .build());
+        }
+
         return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
     }
 
@@ -428,7 +443,20 @@ public class UserService {
      * @return : 타겟 유저가 제작한 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findUserMadePicsCertified(FirebaseToken decodedToken, String targetUid) {
-        List<UserPicsResponseDto> responseDtos = PictureCallService.getMadePictureInfo("/made/user/" + targetUid + "/0");
+        List<UserMadeDto> responseFromPics = PictureCallService.getMadePictureInfo("/made/user/" + targetUid + "/0");
+        List<UserPicsResponseDto> responseDtos = new ArrayList<>();
+        for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
+            responseDtos.add(UserPicsResponseDto.builder()
+                    .pictureId(responseFromPic.getPictureId())
+                    .pictureUrl(responseFromPic.getPictureUrl())
+                    .makerUid(responseFromPic.getMakerUid())
+                    .loveCount(responseFromPic.getLoveCount())
+                    .createdAt(responseFromPic.getCreatedAt())
+                    .pictureTags(responseFromPic.getPictureTags())
+                    .loveCheck(responseFromPic.getLoveCheck())
+                    .makerName(null)
+                    .build());
+        }
         return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
     }
 
@@ -438,7 +466,20 @@ public class UserService {
      * @return : 유저가 만든 그림의 id, url, createdAt 리스트
      */
     public List<UserPicsResponseDto> findUserMadePics(String targetUid) {
-        List<UserPicsResponseDto> responseDtos = PictureCallService.getMadePictureInfo("/made/no_user/" + targetUid);
+        List<UserMadeDto> responseFromPics = PictureCallService.getMadePictureInfo("/made/no_user/" + targetUid);
+        List<UserPicsResponseDto> responseDtos = new ArrayList<>();
+        for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
+            responseDtos.add(UserPicsResponseDto.builder()
+                    .pictureId(responseFromPic.getPictureId())
+                    .pictureUrl(responseFromPic.getPictureUrl())
+                    .makerUid(responseFromPic.getMakerUid())
+                    .loveCount(responseFromPic.getLoveCount())
+                    .createdAt(responseFromPic.getCreatedAt())
+                    .pictureTags(responseFromPic.getPictureTags())
+                    .loveCheck(responseFromPic.getLoveCheck())
+                    .makerName(null)
+                    .build());
+        }
         return setMakerNameInResponse(responseDtos);    // 접속자가 아니라서 좋아요 눌렀는지 여부 판단 필요X
     }
 
@@ -457,10 +498,8 @@ public class UserService {
                 Optional<User> optUser = userRepository.findByUid(responseDto.getMakerUid());
                 optUser.ifPresent(user -> responseDto.setMakerName(user.getName()));
             }
-            return responseDtos;
-        } else {
-            return responseDtos;
         }
+        return responseDtos;
     }
 
     // responseDtos와 접속한 uid를 받아서 그림에 좋아요를 했는지를 파악한다.
