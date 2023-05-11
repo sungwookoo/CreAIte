@@ -92,7 +92,7 @@ public class AlarmController {
         alarmService.remove(user_uid);
         return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
-    @DeleteMapping("/alarm/delete/{alarm_id}")
+    @DeleteMapping("/delete/{alarm_id}")
     public ResponseEntity<String> deleteAlarm(@PathVariable Long alarm_id) {
         alarmService.deleteAlarm(alarm_id);
         return ResponseEntity.status(HttpStatus.OK).body("OK");

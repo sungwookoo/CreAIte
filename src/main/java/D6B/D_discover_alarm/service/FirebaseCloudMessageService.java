@@ -65,7 +65,7 @@ public class FirebaseCloudMessageService {
     public String getFCMTokenByUserId(String userUid) {
         try {
             return USER_SERVER_CLIENT.get()
-                    .uri("/user/fcm/" + userUid.toString())
+                    .uri("/fcm/" + userUid.toString())
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(Client4xxException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(Client5xxException::new))
