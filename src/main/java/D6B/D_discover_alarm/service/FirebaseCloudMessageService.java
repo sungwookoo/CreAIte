@@ -31,7 +31,7 @@ import static D6B.D_discover_alarm.common.ConstValues.USER_SERVER_CLIENT;
 @Slf4j
 public class FirebaseCloudMessageService {
 
-    private static final String FIREBASE_CONFIG_PATH = "/etc/secrets/firebase_service_key.json";
+    private static final String FIREBASE_CONFIG_PATH = "/servicekey/firebase_service_key.json";
     private final ObjectMapper objectMapper;
     OkHttpClient client = new OkHttpClient();
     public void sendMessageTo(String targetToken, String title, String body, String image) throws IOException {
