@@ -1,10 +1,13 @@
 package D6B.D_discover_user.user.service.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Data
+@NoArgsConstructor
 public class PostAlarmRequestDto {
     private String senderUid;
     private String receiverUid;
