@@ -67,6 +67,20 @@ public class UserController {
     }
 
     /**
+     * 다른 회원의 정보를 확인
+     */
+    @GetMapping("/{target_uid}")
+    public ResponseEntity<UserInfoResponseDto> readUserInfo(@PathVariable("target_uid") String targetUid) {
+        try {
+            return ResponseEntity.ok(UserInfoResponseDto
+                    .from(userService.findUserByUid(targetUid)));
+        } catch(Exception e) {
+            log.info("해당 회원의 정보가 없습니다.");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    /**
      * 회원정보 수정(구글에서 안오는 정보 : 나이, 성별)
      * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
      * @param userUpdateRequestDto : 변경 혹은 추가할 정보
@@ -205,7 +219,7 @@ public class UserController {
      * @throws FirebaseAuthException :
      */
     @PostMapping("/{target_uid}/made_picture/certified")
-    public ResponseEntity<List<UserPicsResponseDto>> readUserMadePics(@RequestHeader("Authorization") String idToken,
+    public ResponseEntity<List<UserPicsResponseDto>> readUserMadePicsCertified(@RequestHeader("Authorization") String idToken,
                                                                       @PathVariable("target_uid") String targetUid,
                                                                       @RequestBody UserMadeOrLoveRequestDto userMadeOrLoveRequestDto) throws IOException, FirebaseAuthException {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, userMadeOrLoveRequestDto.getUid());
@@ -229,7 +243,7 @@ public class UserController {
      * @return : 유저가 만든 이미지 정보
      */
     @GetMapping("/{uid}/made_picture")
-    public ResponseEntity<List<UserPicsResponseDto>> readUserMadePics(@PathVariable String uid){
+    public ResponseEntity<List<UserPicsResponseDto>> readUserMadePicsNotCert(@PathVariable String uid){
         return ResponseEntity.ok(userService.findUserMadePics(uid));
     }
 

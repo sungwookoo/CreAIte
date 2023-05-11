@@ -1,13 +1,17 @@
 package D6B.D_discover_user.user.controller.dto;
 
 import D6B.D_discover_user.user.domain.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
 @Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserInfoResponseDto {
 
     private String name;
