@@ -12,6 +12,7 @@ import com.google.common.net.HttpHeaders;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -30,7 +31,8 @@ import static D6B.D_discover_alarm.common.ConstValues.USER_SERVER_CLIENT;
 @Slf4j
 public class FirebaseCloudMessageService {
 
-    private static final String FIREBASE_CONFIG_PATH = "firebase/firebase_service_key.json";
+    @Value("${firebase.service-key-location}")
+    private static String FIREBASE_CONFIG_PATH;
     private final ObjectMapper objectMapper;
     OkHttpClient client = new OkHttpClient();
     public void sendMessageTo(String targetToken, String title, String body, String image) throws IOException {
