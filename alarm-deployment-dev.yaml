@@ -40,11 +40,11 @@ spec:
               mountPath: '/etc/secrets'
               readOnly: true
             - name: alarm-secret-firebase
-              mountPath: '/creaite-app-firebase-adminsdk.json'
+              mountPath: '/etc/secrets'
               subPath: 'creaite-app-firebase-adminsdk.json'
               readOnly: true
             - name: firebase-service-key
-              mountPath: '/firebase_service_key.json'
+              mountPath: '/etc/secrets'
               subPath: 'firebase_service_key.json'
               readOnly: true
       imagePullSecrets:
