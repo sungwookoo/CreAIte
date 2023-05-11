@@ -47,7 +47,7 @@ spec:
     }
 
     stages {
-        
+
 		/*
 		stage('Build') {
             steps {
@@ -55,7 +55,7 @@ spec:
                     script {
                         // 실행 권한 추가
                         sh 'chmod +x ./gradlew'
-                        
+
                         // Gradle을 사용해 빌드
                         sh './gradlew clean build'
                     }
@@ -75,6 +75,9 @@ spec:
 
                         // Git commit 해시 가져오기
                         def gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+
+                        // kubernetes secret에서 파일을 가져와 resources 디렉토리에 복사
+                        sh 'cp /etc/secrets/firebase_service_key.json src/main/resources/firebase_service_key.json'
 
                         // Docker 이미지 빌드 및 푸시
                         sh "docker build -t sungwookoo/alarm:develop-${gitCommitHash} ."
