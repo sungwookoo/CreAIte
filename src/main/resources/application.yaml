@@ -25,6 +25,11 @@ spring:
           uri: http://alarm-dev.dev.svc.cluster.local:8080 # 쿠버네티스 서비스의 FQDN
           predicates:
             - Path=/alarm/**
+
+        - id: flask
+          uri: http://175.209.203.185:5000
+          predicates:
+            - Path=/flask/**
   profiles:
     active: dev
 
