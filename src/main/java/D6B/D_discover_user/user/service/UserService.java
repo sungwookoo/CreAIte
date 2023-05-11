@@ -421,19 +421,20 @@ public class UserService {
         List<UserMadeDto> responseFromPics = PictureCallService.getMadePictureInfo("/made/user/" + decodedToken.getUid() + "/1");
         log.info("responseFromPics------------> {}", responseFromPics);
         List<UserPicsResponseDto> responseDtos = new ArrayList<>();
-        for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
-            responseDtos.add(UserPicsResponseDto.builder()
-                    .pictureId(responseFromPic.getPictureId())
-                    .pictureUrl(responseFromPic.getPictureUrl())
-                    .makerUid(responseFromPic.getMakerUid())
-                    .loveCount(responseFromPic.getLoveCount())
-                    .createdAt(responseFromPic.getCreatedAt())
-                    .pictureTags(responseFromPic.getPictureTags())
-                    .loveCheck(responseFromPic.getLoveCheck())
-                    .makerName(null)
-                    .build());
+        if(!responseFromPics.isEmpty()) {
+            for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
+                responseDtos.add(UserPicsResponseDto.builder()
+                        .pictureId(responseFromPic.getPictureId())
+                        .pictureUrl(responseFromPic.getPictureUrl())
+                        .makerUid(responseFromPic.getMakerUid())
+                        .loveCount(responseFromPic.getLoveCount())
+                        .createdAt(responseFromPic.getCreatedAt())
+                        .pictureTags(responseFromPic.getPictureTags())
+                        .loveCheck(responseFromPic.getLoveCheck())
+                        .makerName(null)
+                        .build());
+            }
         }
-
         return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
     }
 
