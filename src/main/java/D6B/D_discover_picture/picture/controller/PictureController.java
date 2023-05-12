@@ -366,7 +366,8 @@ public class PictureController {
     @GetMapping("/delete/like/test")
     public ResponseEntity<Object> deleteTest() {
         try {
-            pictureService.deleteLikeRequest(17L);
+            pictureService.updateMonthlyTop();
+            pictureService.updateWeeklyTop();
         } catch (Exception e) {
             log.error(e.getMessage());
         }

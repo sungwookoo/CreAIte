@@ -344,6 +344,7 @@ public class PictureService {
     // 검색한 이미지들 찾기(로그인 한 사용자)
     public List<PictureAllDetailResponse> getSearchListWithLogin(String uid, String keyword) {
         Optional<Tag> opTag = tagRepository.findByWord(keyword);
+        List<PictureAllDetailResponse> detailList = new ArrayList<>();
         if (opTag.isPresent()) {
             Tag tag = opTag.get();
             Set<PictureTag> pictureTags = tag.getPictureTags();
@@ -363,7 +364,6 @@ public class PictureService {
                 }
             }
             List<LoveCheckAndMakerResponse> checkedList = checkLoveAndGetName(checkList);
-            List<PictureAllDetailResponse> detailList = new ArrayList<>();
             for (int i = 0; i < checkList.size(); i++) {
                 Picture picture = findPictureById(checkList.get(i).getPictureId());
                 Set<PictureTag> tags = picture.getPictureTags();
@@ -375,10 +375,8 @@ public class PictureService {
                 PictureAllDetailResponse pictureAllDetailResponse = PictureAllDetailResponse.from(picture, tagWords, checkedList.get(i).getLoveCheck(), checkedList.get(i).getMakerName());
                 detailList.add(pictureAllDetailResponse);
             }
-            return detailList;
-        } else {
-            throw new IllegalStateException("검색 결과 없음");
         }
+        return detailList;
     }
 
     public List<String> checkMakerName(List<String> list) {
@@ -399,6 +397,7 @@ public class PictureService {
 
     public List<PictureAllDetailResponse> getSearchListWithoutLogin(String keyword) {
        Optional<Tag> opTag = tagRepository.findByWord(keyword);
+       List<PictureAllDetailResponse> detailList = new ArrayList<>();
        if (opTag.isPresent()) {
            Tag tag = opTag.get();
            Set<PictureTag> pictureTags = tag.getPictureTags();
@@ -412,7 +411,7 @@ public class PictureService {
                }
            }
            List<String> checkedList = checkMakerName(checkList);
-           List<PictureAllDetailResponse> detailList = new ArrayList<>();
+
            for (int i = 0; i < checkedList.size(); i++) {
                Picture picture = picList.get(i);
                Set<PictureTag> tags = picture.getPictureTags();
@@ -424,10 +423,8 @@ public class PictureService {
                PictureAllDetailResponse pictureAllDetailResponse = PictureAllDetailResponse.from(picture, tagWords, false, checkedList.get(i));
                detailList.add(pictureAllDetailResponse);
            }
-           return detailList;
-       } else {
-           throw new IllegalStateException("검색 결과 없음");
        }
+       return detailList;
     }
 
     // Weekly Top 업데이트
@@ -444,6 +441,9 @@ public class PictureService {
 
         List<Picture> picList = pictureRepository.findTop50ByIsPublicAndIsAliveAndCreatedAtBetweenOrderByLoveCountDesc(true, true,
                 mondayOneWeekAgoKST, sundayOneWeekAgoKST);
+
+        System.out.println("위클리 업데이트");
+        System.out.println(picList);
 
         for (Picture picture : picList) {
             WeeklyTopPicture weeklyTopPicture = new WeeklyTopPicture();
@@ -467,6 +467,8 @@ public class PictureService {
 
         List<Picture> picList = pictureRepository.findTop50ByIsPublicAndIsAliveAndCreatedAtBetweenOrderByLoveCountDesc(true, true,
                 firstDayOfLastMonthKST, lastDayOfLastMonthKST);
+
+        System.out.println(picList);
 
         for (Picture picture : picList) {
             MonthlyTopPicture monthlyTopPicture = new MonthlyTopPicture();
