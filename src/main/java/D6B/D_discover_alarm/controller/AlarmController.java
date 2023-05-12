@@ -53,8 +53,7 @@ public class AlarmController {
         try {
         firebaseCloudMessageService.sendMessageTo(notificationdto);
 // 원래 코드
-        } catch (IOException e) {
-
+        } catch (Exception  e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("sendMessageTo 오류");
         }
         return ResponseEntity.status(HttpStatus.OK).body(createDto);
