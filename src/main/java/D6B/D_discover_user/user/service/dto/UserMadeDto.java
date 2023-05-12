@@ -20,4 +20,5 @@ public class UserMadeDto {
     private Instant createdAt;
     private List<String> pictureTags;
     private Boolean loveCheck;
+    private Boolean isPublic;
 }

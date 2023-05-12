@@ -66,7 +66,7 @@ public class User {
         this.fcmToken = fcmToken;
         this.email = decodedToken.getEmail();
         this.profileImg = decodedToken.getPicture();
-        this.createdAt = Instant.now().plusSeconds(60 * 60 * 9);
+        this.createdAt = Instant.now();
         this.isActive = true;
     }
 }

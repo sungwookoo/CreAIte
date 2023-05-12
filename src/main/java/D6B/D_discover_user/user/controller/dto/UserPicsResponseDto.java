@@ -21,4 +21,5 @@ public class UserPicsResponseDto {
     private List<String> pictureTags;
     private Boolean loveCheck;
     private String makerName;
+    private Boolean isPublic;
 }

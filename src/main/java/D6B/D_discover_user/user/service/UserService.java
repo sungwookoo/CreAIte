@@ -58,7 +58,7 @@ public class UserService {
     // 회원정보를 초기화하고 활성화 시킨다.
     public User activateUser(User unActivateUser, FirebaseToken decodedToken) {
         unActivateUser.setIsActive(true);
-        unActivateUser.setCreatedAt(Instant.now().plusSeconds(60 * 60 * 9));
+        unActivateUser.setCreatedAt(Instant.now());
         unActivateUser.setEmail(decodedToken.getEmail());
         unActivateUser.setName(decodedToken.getName());
         unActivateUser.setProfileImg(decodedToken.getPicture());
@@ -396,6 +396,7 @@ public class UserService {
                         .createdAt(responseFromPic.getCreatedAt())
                         .pictureTags(responseFromPic.getPictureTags())
                         .loveCheck(responseFromPic.getLoveCheck())
+                        .isPublic(responseFromPic.getIsPublic())
                         .makerName(null)
                         .build());
             }
@@ -425,6 +426,7 @@ public class UserService {
                         .createdAt(responseFromPic.getCreatedAt())
                         .pictureTags(responseFromPic.getPictureTags())
                         .loveCheck(responseFromPic.getLoveCheck())
+                        .isPublic(responseFromPic.getIsPublic())
                         .makerName(null)
                         .build());
             }
@@ -453,6 +455,7 @@ public class UserService {
                         .createdAt(responseFromPic.getCreatedAt())
                         .pictureTags(responseFromPic.getPictureTags())
                         .loveCheck(responseFromPic.getLoveCheck())
+                        .isPublic(responseFromPic.getIsPublic())
                         .makerName(null)
                         .build());
             }
@@ -484,6 +487,7 @@ public class UserService {
                         .createdAt(responseFromPic.getCreatedAt())
                         .pictureTags(responseFromPic.getPictureTags())
                         .loveCheck(responseFromPic.getLoveCheck())
+                        .isPublic(responseFromPic.getIsPublic())
                         .makerName(null)
                         .build());
             }
@@ -512,6 +516,7 @@ public class UserService {
                     .createdAt(responseFromPic.getCreatedAt())
                     .pictureTags(responseFromPic.getPictureTags())
                     .loveCheck(responseFromPic.getLoveCheck())
+                    .isPublic(responseFromPic.getIsPublic())
                     .makerName(null)
                     .build());
         }
@@ -535,6 +540,7 @@ public class UserService {
                     .createdAt(responseFromPic.getCreatedAt())
                     .pictureTags(responseFromPic.getPictureTags())
                     .loveCheck(responseFromPic.getLoveCheck())
+                    .isPublic(responseFromPic.getIsPublic())
                     .makerName(null)
                     .build());
         }
