@@ -26,10 +26,22 @@ spring:
           predicates:
             - Path=/alarm/**
 
-        - id: flask
+        - id: flask1
           uri: http://175.209.203.185:5000
           predicates:
-            - Path=/flask/**
+            - Path=/flask1/**
+
+        - id: flask2
+          uri: http://175.209.203.185:5001
+          predicates:
+            - Path=/flask2/**
+
+        - id: flask3
+          uri: http://175.209.203.185:5002
+          predicates:
+            - Path=/flask3/**
+
+              
   profiles:
     active: dev
 
