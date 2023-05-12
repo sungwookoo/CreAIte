@@ -14,8 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 public class DeleteUserHistoryInPicture {
     private String uid;
-
-    @JsonSerialize(using = ToStringSerializer.class)
     private List<Long> pictureIdxs;
     public DeleteUserHistoryInPicture(String uid, List<Long> pictureIdxs) {
         this.uid = uid;
