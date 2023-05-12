@@ -21,6 +21,7 @@ public class PictureDetailResponse {
     public Instant createdAt;
     public List<String> pictureTags;
     public Boolean loveCheck;
+    public Boolean isPublic;
 
     public static PictureDetailResponse from(Picture picture, List<String> tags, Boolean isLoved) {
         return PictureDetailResponse.builder()
@@ -31,6 +32,7 @@ public class PictureDetailResponse {
                 .createdAt(picture.getCreatedAt())
                 .pictureTags(tags)
                 .loveCheck(isLoved)
+                .isPublic(picture.getIsPublic())
                 .build();
     }
 }
