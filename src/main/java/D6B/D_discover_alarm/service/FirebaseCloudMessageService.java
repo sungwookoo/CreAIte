@@ -15,6 +15,7 @@ import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -51,31 +52,25 @@ public class FirebaseCloudMessageService {
 
         System.out.println(response.body().string());
     }
-    public void sendMessageTo(NotificationDto dto) throws IOException {
-        // 해당 유저의 토큰값 가져오기.
-
-//        String fcmToken = "fEvCxJFWSjWZyfsqiqMFJl:APA91bGr7IPRVsNnTgNTm9IE4UEUbIdGApDci77uTPYRrQpAfMGD6QyDeqQRf0aPHfenMYvd9dJOQwQiaHfmSDyO-05aqUOTPxxXSe1LSBy8f1cpdjVVE_ZfUPqrvFmyWBc8N5UqvT49";
-        String fcmToken = getFCMTokenByUserId(dto.getReceiverUid());
-        String SenderName = dto.getSenderName();
-        // contentType 설정
-        String msg = SenderName + "님이 좋아요를 누르셨습니다.";
-
-        // overloading 함수 재사용
-//        sendMessageTo(fcmToken, "Creaite", msg, https://i.imgur.com/WUtsRM9.png);
-        sendMessageTo(fcmToken, "Creaite", msg, dto.getSenderImgSrc());
-    }
-    public String getFCMTokenByUserId(String userUid) {
+    public ResponseEntity<Object> sendMessageTo(NotificationDto dto) {
         try {
-            return USER_SERVER_CLIENT.get()
-                    .uri("/fcm/" + userUid.toString())
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(Client4xxException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(Client5xxException::new))
-                    .bodyToMono(String.class)
-                    .block();
+            String fcmToken = getFCMTokenByUserId(dto.getReceiverUid());
+            String SenderName = dto.getSenderName();
+            String msg = SenderName + "님이 좋아요를 누르셨습니다.";
+            // Send the message here...
+            return ResponseEntity.status(HttpStatus.OK).body("Message sent successfully");
         } catch (Exception e) {
-            return "Token 값 없음 ";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Token 값 없음");
         }
+    }
+    public String getFCMTokenByUserId(String userUid) throws Exception {
+        return USER_SERVER_CLIENT.get()
+                .uri("/fcm/" + userUid.toString())
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(Client4xxException::new))
+                .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(Client5xxException::new))
+                .bodyToMono(String.class)
+                .block();
     }
 
     private String makeMessage(String targetToken, String title, String body, String image) throws JsonParseException, JsonProcessingException {

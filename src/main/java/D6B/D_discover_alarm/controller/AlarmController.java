@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -47,13 +48,14 @@ public class AlarmController {
 
 
     @PostMapping("/create")
-    public  ResponseEntity<NotificationDto> createNotification(@RequestBody NotificationDto notificationdto){
+    public  ResponseEntity<Object> createNotification(@RequestBody NotificationDto notificationdto){
         NotificationDto createDto = notificationService.createNotification(notificationdto);
         try {
         firebaseCloudMessageService.sendMessageTo(notificationdto);
 // 원래 코드
         } catch (IOException e) {
-            System.out.println("IOException occurred: " + e.toString());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("sendMessageTo 오류");
         }
         return ResponseEntity.status(HttpStatus.OK).body(createDto);
     }
@@ -83,7 +85,7 @@ public class AlarmController {
             alarmService.marked(isalivedto);
             return ResponseEntity.status(HttpStatus.OK).body("OK");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("marked 에러 ");
         }
     }
 
