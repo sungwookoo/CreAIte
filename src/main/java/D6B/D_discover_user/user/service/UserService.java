@@ -413,7 +413,7 @@ public class UserService {
      * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findUserLovePicsCertified(FirebaseToken decodedToken, String targetUid) {
-        List<UserMadeDto> responseFromPics = PictureCallService.getLikePictureInfo("/like_pubic_list", getPictureIds(targetUid));
+        List<UserMadeDto> responseFromPics = PictureCallService.getLikePictureInfo("/like_public_list", getPictureIds(targetUid));
         List<UserPicsResponseDto> responseDtos = new ArrayList<>();
         if(!responseFromPics.isEmpty()) {
             for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
@@ -441,7 +441,7 @@ public class UserService {
      * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findUserLovePics(String targetUid) {
-        List<UserMadeDto> responseFromPics = PictureCallService.getLikePictureInfo("/like_pubic_list", getPictureIds(targetUid));
+        List<UserMadeDto> responseFromPics = PictureCallService.getLikePictureInfo("/like_public_list", getPictureIds(targetUid));
         List<UserPicsResponseDto> responseDtos = new ArrayList<>();
         if(!responseFromPics.isEmpty()) {
             for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
