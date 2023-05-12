@@ -117,7 +117,6 @@ public class UserController {
         }
     }
 
-
     /**
      * 회원탈퇴
      * @param idToken : Firebase 통해서 받은 해당 유저에 대한 idToken
@@ -251,12 +250,10 @@ public class UserController {
 
     /**
      * 삭제한 그림의 좋아요 기록을 disable 하기 위함
-     * @param picture_id : 삭제한 그림의 id
-     * @return :
      */
     @PostMapping("/like/delete/{picture_id}")
-    public ResponseEntity<Object> deleteLoveByPictureDead(@PathVariable Long picture_id) {
-        userService.deActiveLove(picture_id);
+    public ResponseEntity<Object> deleteLoveByPictureDead(@PathVariable("picture_id") Long pictureId) {
+        userService.deActiveLove(pictureId);
         return ResponseEntity.ok().build();
     }
 
@@ -291,7 +288,6 @@ public class UserController {
     }
 
     @GetMapping("/test")
-
     public String test() {
         return "test2";
     }
