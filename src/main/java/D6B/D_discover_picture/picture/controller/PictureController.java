@@ -362,4 +362,14 @@ public class PictureController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/delete/like/test")
+    public ResponseEntity<Object> deleteTest() {
+        try {
+            pictureService.deleteLikeRequest(17L);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return ResponseEntity.ok().build();
+    }
 }

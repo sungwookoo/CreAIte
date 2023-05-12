@@ -57,7 +57,7 @@ public class Picture {
                 .loveCount(0L)
                 .isAlive(Boolean.TRUE)
                 .isCreated(pictureSaveRequest.getIsCreated())
-                .createdAt(Instant.now().plusSeconds(60*60*9))
+                .createdAt(Instant.now())
                 .build();
     }
 }

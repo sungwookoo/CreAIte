@@ -166,7 +166,7 @@ public class PictureService {
 
     public List<PictureAllDetailResponse> getTodayPickWithLogin(String uid) {
         List<PictureAllDetailResponse> list = new ArrayList<>();
-        List<Picture> picList = pictureRepository.findByIsPublicAndIsAliveAndCreatedAtAfter(true, true, Instant.now().minusSeconds(15*60*60));
+        List<Picture> picList = pictureRepository.findAllByCreatedAtAfter(Instant.now().minusSeconds(15*60*60));
         List<PictureLoveCheckRequest> checkList = new ArrayList<>();
         for (Picture picture : picList) {
             PictureLoveCheckRequest pictureLoveCheckRequest = PictureLoveCheckRequest.from(picture, uid);
@@ -190,7 +190,7 @@ public class PictureService {
 
     public List<PictureAllDetailResponse> getTodayPickWithoutLogin() {
         List<PictureAllDetailResponse> list = new ArrayList<>();
-        List<Picture> picList = pictureRepository.findByIsPublicAndIsAliveAndCreatedAtAfter(true, true, Instant.now().minusSeconds(15*60*60));
+        List<Picture> picList = pictureRepository.findAllByCreatedAtAfter(Instant.now().minusSeconds(15*60*60));
         List<String> checkList = new ArrayList<>();
         for (Picture picture : picList) {
             checkList.add(picture.getMakerUid());
@@ -296,6 +296,7 @@ public class PictureService {
     // 해당 그림의 좋아요 삭제 요청, 추후 유저 서버와 협의 필요
     public void deleteLikeRequest(Long pictureId) {
         try {
+            System.out.println("/like/delete" + pictureId);
             USER_SERVER_CLIENT.post()
                     .uri("/like/delete/" + pictureId)
                     .retrieve()
@@ -412,7 +413,7 @@ public class PictureService {
            }
            List<String> checkedList = checkMakerName(checkList);
            List<PictureAllDetailResponse> detailList = new ArrayList<>();
-           for (int i = 0; i < picList.size(); i++) {
+           for (int i = 0; i < checkedList.size(); i++) {
                Picture picture = picList.get(i);
                Set<PictureTag> tags = picture.getPictureTags();
                List<String> tagWords = new ArrayList<>();
@@ -435,11 +436,11 @@ public class PictureService {
         weeklyTopPictureRepository.deleteAllInBatch();
         // 일주일 전 월요일 KST 기준 시간
         LocalDate oneWeekAgoMonday = LocalDate.now().minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        Instant mondayOneWeekAgoKST = oneWeekAgoMonday.atStartOfDay(ZoneId.of("Asia/Seoul")).toInstant().plusSeconds(60*60*9);
+        Instant mondayOneWeekAgoKST = oneWeekAgoMonday.atStartOfDay(ZoneId.of("Asia/Seoul")).toInstant();
 
         // 일주일 전 일요일 KST 기준 시간
         LocalDate oneWeekAgoSunday = LocalDate.now().minusWeeks(1).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-        Instant sundayOneWeekAgoKST = oneWeekAgoSunday.atStartOfDay(ZoneId.of("Asia/Seoul")).toInstant().plus(Duration.ofDays(1)).minusSeconds(1).plusSeconds(60*60*9);
+        Instant sundayOneWeekAgoKST = oneWeekAgoSunday.atStartOfDay(ZoneId.of("Asia/Seoul")).toInstant().plus(Duration.ofDays(1)).minusSeconds(1);
 
         List<Picture> picList = pictureRepository.findTop50ByIsPublicAndIsAliveAndCreatedAtBetweenOrderByLoveCountDesc(true, true,
                 mondayOneWeekAgoKST, sundayOneWeekAgoKST);
@@ -458,11 +459,11 @@ public class PictureService {
 
         // 지난 달 1일 KST 기준 시간
         LocalDate firstDayOfLastMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
-        Instant firstDayOfLastMonthKST = firstDayOfLastMonth.atStartOfDay(ZoneId.of("Asia/Seoul")).toInstant().plusSeconds(60*60*9);
+        Instant firstDayOfLastMonthKST = firstDayOfLastMonth.atStartOfDay(ZoneId.of("Asia/Seoul")).toInstant();
 
         // 지난 달 마지막 날짜 KST 기준 시간
         LocalDate lastDayOfLastMonth = LocalDate.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
-        Instant lastDayOfLastMonthKST = lastDayOfLastMonth.atStartOfDay(ZoneId.of("Asia/Seoul")).toInstant().plus(Duration.ofDays(1)).minusSeconds(1).plusSeconds(60*60*9);
+        Instant lastDayOfLastMonthKST = lastDayOfLastMonth.atStartOfDay(ZoneId.of("Asia/Seoul")).toInstant().plus(Duration.ofDays(1)).minusSeconds(1);
 
         List<Picture> picList = pictureRepository.findTop50ByIsPublicAndIsAliveAndCreatedAtBetweenOrderByLoveCountDesc(true, true,
                 firstDayOfLastMonthKST, lastDayOfLastMonthKST);
