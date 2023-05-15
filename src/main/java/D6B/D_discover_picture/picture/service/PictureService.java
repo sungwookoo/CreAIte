@@ -166,7 +166,7 @@ public class PictureService {
 
     public List<PictureAllDetailResponse> getTodayPickWithLogin(String uid) {
         List<PictureAllDetailResponse> list = new ArrayList<>();
-        List<Picture> picList = pictureRepository.findAllByCreatedAtAfter(Instant.now().minusSeconds(15*60*60));
+        List<Picture> picList = pictureRepository.findAllByCreatedAtAfter();
         List<PictureLoveCheckRequest> checkList = new ArrayList<>();
         for (Picture picture : picList) {
             PictureLoveCheckRequest pictureLoveCheckRequest = PictureLoveCheckRequest.from(picture, uid);
@@ -190,7 +190,7 @@ public class PictureService {
 
     public List<PictureAllDetailResponse> getTodayPickWithoutLogin() {
         List<PictureAllDetailResponse> list = new ArrayList<>();
-        List<Picture> picList = pictureRepository.findAllByCreatedAtAfter(Instant.now().minusSeconds(15*60*60));
+        List<Picture> picList = pictureRepository.findAllByCreatedAtAfter();
         List<String> checkList = new ArrayList<>();
         for (Picture picture : picList) {
             checkList.add(picture.getMakerUid());
