@@ -1,6 +1,5 @@
 package D6B.D_discover_user.user.service;
 
-import static D6B.D_discover_user.common.ConstValues.*;
 
 import D6B.D_discover_user.user.controller.dto.*;
 import D6B.D_discover_user.user.domain.Love;
@@ -8,15 +7,11 @@ import D6B.D_discover_user.user.domain.LoveRepository;
 import D6B.D_discover_user.user.domain.User;
 import D6B.D_discover_user.user.domain.UserRepository;
 import D6B.D_discover_user.user.service.dto.*;
+import D6B.D_discover_user.user.service.msa.AlarmCall;
 import D6B.D_discover_user.user.service.msa.PictureCallService;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -114,11 +109,11 @@ public class UserService {
             user.setIsActive(false);
             userRepository.save(user);
             // 좋아요 비활성화 시키기 및 해당 좋아요로부터 그림의 id 뽑아내기
-            List<Long> madeOrLoved = disableLove(uid);
+            List<Long> madeOrLoved = deactivateLove(uid);
             // 해당 유저가 그림 비활성화 및 좋아요 누른 그림의 좋아요 수 줄이기
-            disablePictureAndMinusLove(uid, madeOrLoved);
+            deactivatePictureAndMinusLove(uid, madeOrLoved);
             // 알람 비활성화 시키기 - 주는자, 받는자
-            disableAlarms(uid);
+            deactivateAlarms(uid);
         } else log.info("해당 uid에 대한 유저가 없습니다.");
     }
 
@@ -133,7 +128,7 @@ public class UserService {
     }
 
     // 비활성 유저의 좋아요는 비활성화 시키는 함수
-    public List<Long> disableLove(String uid) {
+    public List<Long> deactivateLove(String uid) {
         List<Love> loves = loveRepository.findByUserId(findIdByUid(uid));
         List<Long> loveIdxs = new ArrayList<>();
         for(Love love : loves) {
@@ -159,7 +154,7 @@ public class UserService {
             // 1-2. 좋아요 취소 -> 알람도 비활성화, 그림의 카운트를 하나 내려야한다.
             if(love.getIsActive()) {
                 love.setIsActive(false);    // 좋아요 취소
-                disableAlarm(senderUid, receiverUid, pictureId);    // 알람 비활성화
+                deactivateAlarm(senderUid, receiverUid, pictureId);    // 알람 비활성화
                 minusLoveCount(pictureId);  // 그림의 카운트 하나 내리기
                 loveRepository.save(love);
             // 1-3. 다시 좋아요 활성화 -> 알람 활성화, 그림의 카운트를 하나 올림
@@ -224,19 +219,20 @@ public class UserService {
      * @param uid : 탈퇴한 유저의 uid
      * @param pictureIdxs : 유저가 좋아요 눌렀던 그림 idx
      */
-    public void disablePictureAndMinusLove(String uid, List<Long> pictureIdxs) {
-        try {
-            PICTURE_SERVER_CLIENT.post()
-                    .uri("/delete/user")// 여기 바뀔예정
-                    .body(BodyInserters.fromValue(new DeleteUserHistoryInPicture(uid, pictureIdxs)))
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
-                    .block();
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
-        }
+    public void deactivatePictureAndMinusLove(String uid, List<Long> pictureIdxs) {
+//        try {
+//            PICTURE_SERVER_CLIENT.post()
+//                    .uri("/delete/user")// 여기 바뀔예정
+//                    .body(BodyInserters.fromValue(new DeleteUserHistoryInPicture(uid, pictureIdxs)))
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .bodyToMono(void.class)
+//                    .block();
+//        } catch (Exception e) {
+//            log.error("{}", e.getMessage());
+//        }
+        PictureCallService.deactivatePictureAndMinusLoveWhenDeleteUser("/delete/user", new DeleteUserHistoryInPicture(uid, pictureIdxs));
     }
 
     /**
@@ -244,17 +240,18 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void minusLoveCount(Long pictureId) {
-        try {
-            PICTURE_SERVER_CLIENT.post()
-                    .uri("/delete/count/" + pictureId)
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
-                    .block();
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
-        }
+//        try {
+//            PICTURE_SERVER_CLIENT.post()
+//                    .uri("/delete/count/" + pictureId)
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .bodyToMono(void.class)
+//                    .block();
+//        } catch (Exception e) {
+//            log.error("{}", e.getMessage());
+//        }
+        PictureCallService.minusLoveCountWhenLoveDeactivate("/delete/count/" + pictureId);
     }
 
     /**
@@ -262,36 +259,38 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void plusLoveCount(Long pictureId) {
-        try {
-
-            PICTURE_SERVER_CLIENT.get()
-                    .uri("/create/count/" + pictureId)
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(String.class)
-                    .block();
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
-        }
+//        try {
+//
+//            PICTURE_SERVER_CLIENT.get()
+//                    .uri("/create/count/" + pictureId)
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .bodyToMono(String.class)
+//                    .block();
+//        } catch (Exception e) {
+//            log.error("{}", e.getMessage());
+//        }
+        PictureCallService.plusLoveCountWhenLoveActivate("/create/count/" + pictureId);
     }
 
     /**
      * 유저 탈퇴 시, 유저의 모든 알람을 비활성화
      * @param uid : 탈퇴한 유저의 uid
      */
-    public void disableAlarms(String uid) {
-        try {
-            PICTURE_SERVER_CLIENT.put()
-                    .uri("/remove/" + uid)
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
-                    .block();
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
-        }
+    public void deactivateAlarms(String uid) {
+//        try {
+//            ALARM_SERVER_CLIENT.put()
+//                    .uri("/remove/" + uid)
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .bodyToMono(void.class)
+//                    .block();
+//        } catch (Exception e) {
+//            log.error("{}", e.getMessage());
+//        }
+        AlarmCall.deactivateAlarmsWhenDeleteUser("/remove/" + uid);
     }
 
     /**
@@ -299,19 +298,20 @@ public class UserService {
      * @param pictureId : 그림의 url
      */
     public String getPictureUrlAndPlusLove(Long pictureId) {
-        try {
-            return PICTURE_SERVER_CLIENT.post()
-                    .uri("/create/count/" + pictureId)
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(String.class)
-                    .block();
-
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
-        }
-        return null;
+//        try {
+//            return PICTURE_SERVER_CLIENT.post()
+//                    .uri("/create/count/" + pictureId)
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .bodyToMono(String.class)
+//                    .block();
+//
+//        } catch (Exception e) {
+//            log.error("{}", e.getMessage());
+//        }
+//        return null;
+        return PictureCallService.getPictureUrlAndPlusLoveWhenFirstLove("/create/count/" + pictureId);
     }
 
     /**
@@ -324,18 +324,19 @@ public class UserService {
      * @param pictureImgSrc: 그림의 url
      */
     public void PostAlarm(String senderUid, String receiverUid, Long pictureId, String senderName, String senderImgSrc, String pictureImgSrc) {
-        try {
-            ALARM_SERVER_CLIENT.post()
-                    .uri("/create")
-                    .body(BodyInserters.fromValue(new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc)))
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(String.class)
-                    .block();
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
-        }
+//        try {
+//            ALARM_SERVER_CLIENT.post()
+//                    .uri("/create")
+//                    .body(BodyInserters.fromValue(new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc)))
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .bodyToMono(String.class)
+//                    .block();
+//        } catch (Exception e) {
+//            log.error("{}", e.getMessage());
+//        }
+        AlarmCall.makeAlarmWhenLike("/create", new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc));
     }
 
     /**
@@ -345,19 +346,20 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void activateAlarm(String senderUid, String receiverUid, Long pictureId) {
-        try {
-            ALARM_SERVER_CLIENT.put()
-                    .uri("/marked")
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                    .body(BodyInserters.fromValue(new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId)))
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(Void.class)
-                    .block();
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
-        }
+//        try {
+//            ALARM_SERVER_CLIENT.put()
+//                    .uri("/marked")
+//                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+//                    .body(BodyInserters.fromValue(new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId)))
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .bodyToMono(Void.class)
+//                    .block();
+//        } catch (Exception e) {
+//            log.error("{}", e.getMessage());
+//        }
+        AlarmCall.activateAlarmWhenReLove("/marked", new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId));
     }
 
     /**
@@ -366,19 +368,20 @@ public class UserService {
      * @param receiverUid : 좋아요 받은 그림의 주인 uid
      * @param pictureId : 그림의 id
      */
-    public void disableAlarm(String senderUid, String receiverUid, Long pictureId) {
-        try {
-            ALARM_SERVER_CLIENT.put()
-                    .uri("/isalive")
-                    .body(BodyInserters.fromValue(new DisableAlarmRequestDto(senderUid, receiverUid, pictureId)))
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(Void.class)
-                    .block();
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
-        }
+    public void deactivateAlarm(String senderUid, String receiverUid, Long pictureId) {
+//        try {
+//            ALARM_SERVER_CLIENT.put()
+//                    .uri("/isalive")
+//                    .body(BodyInserters.fromValue(new DeactivateAlarmRequestDto(senderUid, receiverUid, pictureId)))
+//                    .retrieve()
+//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+//                    .bodyToMono(Void.class)
+//                    .block();
+//        } catch (Exception e) {
+//            log.error("{}", e.getMessage());
+//        }
+        AlarmCall.deactivateAlarmWhenCancelLove("/isalive", new DeactivateAlarmRequestDto(senderUid, receiverUid, pictureId));
     }
 
     //*******************************여기서부턴 좋아요 리스트*******************************//
