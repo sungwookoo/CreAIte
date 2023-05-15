@@ -1,6 +1,7 @@
 package D6B.D_discover_user.user.service;
 
 
+import D6B.D_discover_user.common.ConstValues;
 import D6B.D_discover_user.user.controller.dto.*;
 import D6B.D_discover_user.user.domain.Love;
 import D6B.D_discover_user.user.domain.LoveRepository;
@@ -223,7 +224,7 @@ public class UserService {
      * @param pictureIdxs : 유저가 좋아요 눌렀던 그림 idx
      */
     public void deactivatePictureAndMinusLove(String uid, List<Long> pictureIdxs) {
-        PictureCallService.postAndBodyRequestToPicture("/delete/user", new DeleteUserHistoryInPicture(uid, pictureIdxs));
+        PictureCallService.postAndBodyRequestToPicture(ConstValues.USER_HISTORY_DELETE_TO_PICTURE, new DeleteUserHistoryInPicture(uid, pictureIdxs));
     }
 
     /**
@@ -231,7 +232,7 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void minusLoveCount(Long pictureId) {
-        PictureCallService.postRequestToPictureThenVoid("/delete/count/" + pictureId);
+        PictureCallService.postRequestToPictureThenVoid(ConstValues.COUNT_DOWN_LOVE_TO_PICTURE + pictureId);
     }
 
     /**
@@ -239,7 +240,7 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void plusLoveCount(Long pictureId) {
-        PictureCallService.postRequestToPictureThenVoid("/create/count/" + pictureId);
+        PictureCallService.postRequestToPictureThenVoid(ConstValues.COUNT_UP_LOVE_TO_PICTURE + pictureId);
     }
 
     /**
@@ -247,7 +248,7 @@ public class UserService {
      * @param uid : 탈퇴한 유저의 uid
      */
     public void deactivateAlarms(String uid) {
-        AlarmCallService.deactivateAlarmsWhenDeleteUser("/remove/" + uid);
+        AlarmCallService.deactivateAlarmsWhenDeleteUser(ConstValues.USER_HISTORY_DELETE_TO_ALARM + uid);
     }
 
     /**
@@ -255,7 +256,7 @@ public class UserService {
      * @param pictureId : 그림의 url
      */
     public String getPictureUrlAndPlusLove(Long pictureId) {
-        return PictureCallService.postRequestToPicture("/create/count/" + pictureId);
+        return PictureCallService.postRequestToPicture(ConstValues.COUNT_UP_LOVE_TO_PICTURE + pictureId);
     }
 
     /**
@@ -268,7 +269,7 @@ public class UserService {
      * @param pictureImgSrc: 그림의 url
      */
     public void PostAlarm(String senderUid, String receiverUid, Long pictureId, String senderName, String senderImgSrc, String pictureImgSrc) {
-        AlarmCallService.makeAlarmWhenLike("/create", new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc));
+        AlarmCallService.makeAlarmWhenLike(ConstValues.CREATE_ALARM_TO_ALARM, new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc));
     }
 
     /**
@@ -278,7 +279,7 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void activateAlarm(String senderUid, String receiverUid, Long pictureId) {
-        AlarmCallService.activateAlarmWhenReLove("/marked", new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId));
+        AlarmCallService.activateAlarmWhenReLove(ConstValues.MARK_ALARM_TO_ALARM, new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId));
     }
 
     /**
@@ -288,7 +289,7 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void deactivateAlarm(String senderUid, String receiverUid, Long pictureId) {
-        AlarmCallService.deactivateAlarmWhenCancelLove("/isalive", new DeactivateAlarmRequestDto(senderUid, receiverUid, pictureId));
+        AlarmCallService.deactivateAlarmWhenCancelLove(ConstValues.CANCEL_ALARM_TO_ALARM, new DeactivateAlarmRequestDto(senderUid, receiverUid, pictureId));
     }
 
     //*******************************여기서부턴 좋아요 리스트*******************************//
@@ -298,7 +299,7 @@ public class UserService {
      * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findMyLovePics(FirebaseToken decodedToken) {
-        List<UserPicsResponseDto> responseDtos = MakeUserLikesResponseWithGettingPictureInfo("/like_all_list", getPictureIds(decodedToken.getUid()));
+        List<UserPicsResponseDto> responseDtos = MakeUserLikesResponseWithGettingPictureInfo(ConstValues.USER_LIKES_TO_PICTURE_WHEN_ME, getPictureIds(decodedToken.getUid()));
         return setMakerNameInResponse(responseDtos);
     }
 
@@ -309,7 +310,7 @@ public class UserService {
      * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findUserLovePicsCertified(FirebaseToken decodedToken, String targetUid) {
-        List<UserPicsResponseDto> responseDtos = MakeUserLikesResponseWithGettingPictureInfo("/like_public_list", getPictureIds(targetUid));
+        List<UserPicsResponseDto> responseDtos = MakeUserLikesResponseWithGettingPictureInfo(ConstValues.USER_LIKES_TO_PICTURE_WHEN_NOT_ME, getPictureIds(targetUid));
         return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
     }
 
@@ -319,7 +320,7 @@ public class UserService {
      * @return : 좋아요 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findUserLovePics(String targetUid) {
-        List<UserPicsResponseDto> responseDtos = MakeUserLikesResponseWithGettingPictureInfo("/like_public_list", getPictureIds(targetUid));
+        List<UserPicsResponseDto> responseDtos = MakeUserLikesResponseWithGettingPictureInfo(ConstValues.USER_LIKES_TO_PICTURE_WHEN_NOT_ME, getPictureIds(targetUid));
         return setMakerNameInResponse(responseDtos);    // 접속자가 아니라서 좋아요 눌렀는지 여부 판단 필요X
     }
 
@@ -341,7 +342,7 @@ public class UserService {
      * @return : 타겟 유저(본인)가 제작한 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findMyMadePics(FirebaseToken decodedToken) {
-        List<UserPicsResponseDto> responseDtos = MakeUserMadeResponseWithGettingPictureInfo("/made/user/" + decodedToken.getUid() + "/1");
+        List<UserPicsResponseDto> responseDtos = MakeUserMadeResponseWithGettingPictureInfo(ConstValues.USER_MADE_TO_PICTURE_WHEN_LOGIN + decodedToken.getUid() + "/1");
         return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
     }
 
@@ -352,7 +353,7 @@ public class UserService {
      * @return : 타겟 유저가 제작한 이미지 리스트(디테일 정보도 담김)
      */
     public List<UserPicsResponseDto> findUserMadePicsCertified(FirebaseToken decodedToken, String targetUid) {
-        List<UserPicsResponseDto> responseDtos = MakeUserMadeResponseWithGettingPictureInfo("/made/user/" + targetUid + "/0");
+        List<UserPicsResponseDto> responseDtos = MakeUserMadeResponseWithGettingPictureInfo(ConstValues.USER_MADE_TO_PICTURE_WHEN_LOGIN + targetUid + "/0");
         return checkPicsWhetherILoved(decodedToken.getUid(), setMakerNameInResponse(responseDtos));
     }
 
@@ -362,7 +363,7 @@ public class UserService {
      * @return : 유저가 만든 그림의 id, url, createdAt 리스트
      */
     public List<UserPicsResponseDto> findUserMadePics(String targetUid) {
-        List<UserPicsResponseDto> responseDtos = MakeUserMadeResponseWithGettingPictureInfo("/made/no_user/" + targetUid);
+        List<UserPicsResponseDto> responseDtos = MakeUserMadeResponseWithGettingPictureInfo(ConstValues.USER_MADE_TO_PICTURE_WHEN_NOT_LOGIN + targetUid);
         return setMakerNameInResponse(responseDtos);    // 접속자가 아니라서 좋아요 눌렀는지 여부 판단 필요X
     }
 
