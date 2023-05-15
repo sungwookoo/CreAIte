@@ -18,10 +18,7 @@ import static D6B.D_discover_user.common.ConstValues.PICTURE_SERVER_CLIENT;
 @Slf4j
 public class PictureCallService {
 
-    /**
-     * 좋아요 그림의 정보를 가져오는 WebClient 코드
-     */
-    public static List<UserMadeDto> getLikePictureInfo(String uri, List<Long> pictureIds) {
+    public static List<UserMadeDto> postAndBodyRequestToPicture(String uri, List<Long> pictureIds) {
         try {
             return PICTURE_SERVER_CLIENT.post()
                     .uri(uri)
@@ -37,42 +34,7 @@ public class PictureCallService {
         return null;
     }
 
-
-    /**
-     * 만든 그림의 정보를 가져오는 WebClient 코드
-     */
-    public static List<UserMadeDto> getMadePictureInfo(String uri) {
-        try {
-            return PICTURE_SERVER_CLIENT.get()
-                    .uri(uri)
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(new ParameterizedTypeReference<List<UserMadeDto>>() {})
-                    .block();
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
-        }
-        return null;
-    }
-
-    public static void deactivatePictureAndMinusLoveWhenDeleteUser(String url, DeleteUserHistoryInPicture deleteUserHistoryInPicture) {
-        try {
-            PICTURE_SERVER_CLIENT.post()
-                    .uri(url)// 여기 바뀔예정
-                    .body(BodyInserters.fromValue(deleteUserHistoryInPicture))
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
-                    .block();
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
-        }
-    }
-
-    //*****************body 없는 것*********************//
-    public static String getPictureUrlAndPlusLoveWhenFirstLove(String url) {
+    public static String postRequestToPicture(String url) {
         try {
             return PICTURE_SERVER_CLIENT.post()
                     .uri(url)
@@ -88,7 +50,7 @@ public class PictureCallService {
         return null;
     }
 
-    public static void plusLoveCountWhenLoveActivate(String url) {
+    public static void postRequestToPictureThenVoid(String url) {
         try {
             PICTURE_SERVER_CLIENT.post()
                     .uri(url)
@@ -102,10 +64,11 @@ public class PictureCallService {
         }
     }
 
-    public static void minusLoveCountWhenLoveDeactivate(String url) {
+    public static void postAndBodyRequestToPicture(String url, DeleteUserHistoryInPicture deleteUserHistoryInPicture) {
         try {
             PICTURE_SERVER_CLIENT.post()
                     .uri(url)
+                    .body(BodyInserters.fromValue(deleteUserHistoryInPicture))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
@@ -114,5 +77,20 @@ public class PictureCallService {
         } catch (Exception e) {
             log.error("{}", e.getMessage());
         }
+    }
+
+    public static List<UserMadeDto> getRequestToPicture(String url) {
+        try {
+            return PICTURE_SERVER_CLIENT.get()
+                    .uri(url)
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+                    .bodyToMono(new ParameterizedTypeReference<List<UserMadeDto>>() {})
+                    .block();
+        } catch (Exception e) {
+            log.error("{}", e.getMessage());
+        }
+        return null;
     }
 }

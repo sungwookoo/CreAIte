@@ -11,7 +11,6 @@ import D6B.D_discover_user.user.service.msa.AlarmCallService;
 import D6B.D_discover_user.user.service.msa.PictureCallService;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -224,19 +223,7 @@ public class UserService {
      * @param pictureIdxs : 유저가 좋아요 눌렀던 그림 idx
      */
     public void deactivatePictureAndMinusLove(String uid, List<Long> pictureIdxs) {
-//        try {
-//            PICTURE_SERVER_CLIENT.post()
-//                    .uri("/delete/user")// 여기 바뀔예정
-//                    .body(BodyInserters.fromValue(new DeleteUserHistoryInPicture(uid, pictureIdxs)))
-//                    .retrieve()
-//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .bodyToMono(void.class)
-//                    .block();
-//        } catch (Exception e) {
-//            log.error("{}", e.getMessage());
-//        }
-        PictureCallService.deactivatePictureAndMinusLoveWhenDeleteUser("/delete/user", new DeleteUserHistoryInPicture(uid, pictureIdxs));
+        PictureCallService.postAndBodyRequestToPicture("/delete/user", new DeleteUserHistoryInPicture(uid, pictureIdxs));
     }
 
     /**
@@ -244,18 +231,7 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void minusLoveCount(Long pictureId) {
-//        try {
-//            PICTURE_SERVER_CLIENT.post()
-//                    .uri("/delete/count/" + pictureId)
-//                    .retrieve()
-//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .bodyToMono(void.class)
-//                    .block();
-//        } catch (Exception e) {
-//            log.error("{}", e.getMessage());
-//        }
-        PictureCallService.minusLoveCountWhenLoveDeactivate("/delete/count/" + pictureId);
+        PictureCallService.postRequestToPictureThenVoid("/delete/count/" + pictureId);
     }
 
     /**
@@ -263,19 +239,7 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void plusLoveCount(Long pictureId) {
-//        try {
-//
-//            PICTURE_SERVER_CLIENT.post()
-//                    .uri("/create/count/" + pictureId)
-//                    .retrieve()
-//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .bodyToMono(String.class)
-//                    .block();
-//        } catch (Exception e) {
-//            log.error("{}", e.getMessage());
-//        }
-        PictureCallService.plusLoveCountWhenLoveActivate("/create/count/" + pictureId);
+        PictureCallService.postRequestToPictureThenVoid("/create/count/" + pictureId);
     }
 
     /**
@@ -283,17 +247,6 @@ public class UserService {
      * @param uid : 탈퇴한 유저의 uid
      */
     public void deactivateAlarms(String uid) {
-//        try {
-//            ALARM_SERVER_CLIENT.put()
-//                    .uri("/remove/" + uid)
-//                    .retrieve()
-//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .bodyToMono(void.class)
-//                    .block();
-//        } catch (Exception e) {
-//            log.error("{}", e.getMessage());
-//        }
         AlarmCallService.deactivateAlarmsWhenDeleteUser("/remove/" + uid);
     }
 
@@ -302,20 +255,7 @@ public class UserService {
      * @param pictureId : 그림의 url
      */
     public String getPictureUrlAndPlusLove(Long pictureId) {
-//        try {
-//            return PICTURE_SERVER_CLIENT.post()
-//                    .uri("/create/count/" + pictureId)
-//                    .retrieve()
-//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .bodyToMono(String.class)
-//                    .block();
-//
-//        } catch (Exception e) {
-//            log.error("{}", e.getMessage());
-//        }
-//        return null;
-        return PictureCallService.getPictureUrlAndPlusLoveWhenFirstLove("/create/count/" + pictureId);
+        return PictureCallService.postRequestToPicture("/create/count/" + pictureId);
     }
 
     /**
@@ -328,18 +268,6 @@ public class UserService {
      * @param pictureImgSrc: 그림의 url
      */
     public void PostAlarm(String senderUid, String receiverUid, Long pictureId, String senderName, String senderImgSrc, String pictureImgSrc) {
-//        try {
-//            ALARM_SERVER_CLIENT.post()
-//                    .uri("/create")
-//                    .body(BodyInserters.fromValue(new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc)))
-//                    .retrieve()
-//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .bodyToMono(String.class)
-//                    .block();
-//        } catch (Exception e) {
-//            log.error("{}", e.getMessage());
-//        }
         AlarmCallService.makeAlarmWhenLike("/create", new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc));
     }
 
@@ -350,19 +278,6 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void activateAlarm(String senderUid, String receiverUid, Long pictureId) {
-//        try {
-//            ALARM_SERVER_CLIENT.put()
-//                    .uri("/marked")
-//                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-//                    .body(BodyInserters.fromValue(new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId)))
-//                    .retrieve()
-//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .bodyToMono(Void.class)
-//                    .block();
-//        } catch (Exception e) {
-//            log.error("{}", e.getMessage());
-//        }
         AlarmCallService.activateAlarmWhenReLove("/marked", new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId));
     }
 
@@ -373,18 +288,6 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void deactivateAlarm(String senderUid, String receiverUid, Long pictureId) {
-//        try {
-//            ALARM_SERVER_CLIENT.put()
-//                    .uri("/isalive")
-//                    .body(BodyInserters.fromValue(new DeactivateAlarmRequestDto(senderUid, receiverUid, pictureId)))
-//                    .retrieve()
-//                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-//                    .bodyToMono(Void.class)
-//                    .block();
-//        } catch (Exception e) {
-//            log.error("{}", e.getMessage());
-//        }
         AlarmCallService.deactivateAlarmWhenCancelLove("/isalive", new DeactivateAlarmRequestDto(senderUid, receiverUid, pictureId));
     }
 
@@ -421,7 +324,7 @@ public class UserService {
     }
 
     public List<UserPicsResponseDto> MakeUserLikesResponseWithGettingPictureInfo(String url, List<Long> pictureIds) {
-        List<UserMadeDto> responseFromPics = PictureCallService.getLikePictureInfo(url, pictureIds);
+        List<UserMadeDto> responseFromPics = PictureCallService.postAndBodyRequestToPicture(url, pictureIds);
         List<UserPicsResponseDto> responseDtos = new ArrayList<>();
         if(!Objects.requireNonNull(responseFromPics).isEmpty()) {
             for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
@@ -464,7 +367,7 @@ public class UserService {
     }
 
     List<UserPicsResponseDto> MakeUserMadeResponseWithGettingPictureInfo(String url) {
-        List<UserMadeDto> responseFromPics = PictureCallService.getMadePictureInfo(url);
+        List<UserMadeDto> responseFromPics = PictureCallService.getRequestToPicture(url);
         List<UserPicsResponseDto> responseDtos = new ArrayList<>();
         for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
             responseDtos.add(UserPicsResponseDto.from(responseFromPic));
