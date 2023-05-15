@@ -44,7 +44,14 @@ public class UserService {
         if(optUser.isPresent()) {
             User user = optUser.get();
             // 비활성 회원의 경우 다시 activate 해야한다.
-            if(!user.getIsActive()) userRepository.save(activateUser(user, decodedToken));
+            if(!user.getIsActive()) userRepository.save(activateUser(user, fcmToken, decodedToken));
+            // 활성 회원의 경우 token값을 갱신한다.
+            else {
+                if(!user.getFcmToken().equals(fcmToken)) {
+                    user.setFcmToken(fcmToken);
+                    userRepository.save(user);
+                }
+            }
         // 신규 회원
         } else {
             User user = new User(fcmToken, decodedToken);
@@ -53,11 +60,12 @@ public class UserService {
     }
 
     // 회원정보를 초기화하고 활성화 시킨다.
-    public User activateUser(User unActivateUser, FirebaseToken decodedToken) {
+    public User activateUser(User unActivateUser, String fcmToken, FirebaseToken decodedToken) {
         unActivateUser.setIsActive(true);
         unActivateUser.setCreatedAt(Instant.now());
         unActivateUser.setEmail(decodedToken.getEmail());
         unActivateUser.setName(decodedToken.getName());
+        unActivateUser.setFcmToken(fcmToken);
         unActivateUser.setProfileImg(decodedToken.getPicture());
         unActivateUser.setGender(null);
         unActivateUser.setAge(null);
