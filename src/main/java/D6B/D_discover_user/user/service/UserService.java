@@ -31,14 +31,11 @@ import java.util.stream.Collectors;
 public class UserService {
     private final LoveRepository loveRepository;
     private final UserRepository userRepository;
-    private final PictureCallService pictureCallService;
 
     public UserService(LoveRepository loveRepository,
-                       UserRepository userRepository,
-                       PictureCallService pictureCallService) {
+                       UserRepository userRepository) {
         this.loveRepository = loveRepository;
         this.userRepository = userRepository;
-        this.pictureCallService = pictureCallService;
     }
 
     public void enrollUser(String fcmToken, FirebaseToken decodedToken) {
@@ -297,7 +294,6 @@ public class UserService {
         try {
             return PICTURE_SERVER_CLIENT.post()
                     .uri("/create/count/" + pictureId)
-
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
