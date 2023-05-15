@@ -139,7 +139,7 @@ public class UserService {
         }
         return loveIdxs;
     }
-    
+
     public void toggleLove(LoveToggleRequestDto loveToggleRequestDto) {
 //        log.info(loveToggleRequestDto+"여기는 러브 토글 리퀘");
         String uid = loveToggleRequestDto.getUid();
