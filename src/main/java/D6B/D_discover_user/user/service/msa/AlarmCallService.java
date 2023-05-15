@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 import static D6B.D_discover_user.common.ConstValues.ALARM_SERVER_CLIENT;
 
 @Slf4j
-public class AlarmCall {
+public class AlarmCallService {
     public static void makeAlarmWhenLike(String url, PostAlarmRequestDto postAlarmRequestDto) {
         try {
             ALARM_SERVER_CLIENT.post()

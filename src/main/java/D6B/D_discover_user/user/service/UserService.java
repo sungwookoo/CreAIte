@@ -7,7 +7,7 @@ import D6B.D_discover_user.user.domain.LoveRepository;
 import D6B.D_discover_user.user.domain.User;
 import D6B.D_discover_user.user.domain.UserRepository;
 import D6B.D_discover_user.user.service.dto.*;
-import D6B.D_discover_user.user.service.msa.AlarmCall;
+import D6B.D_discover_user.user.service.msa.AlarmCallService;
 import D6B.D_discover_user.user.service.msa.PictureCallService;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
@@ -153,12 +153,14 @@ public class UserService {
             Love love = optLove.get();
             // 1-2. 좋아요 취소 -> 알람도 비활성화, 그림의 카운트를 하나 내려야한다.
             if(love.getIsActive()) {
+                log.info("좋아요 취소를 수행합니다.");
                 love.setIsActive(false);    // 좋아요 취소
                 deactivateAlarm(senderUid, receiverUid, pictureId);    // 알람 비활성화
                 minusLoveCount(pictureId);  // 그림의 카운트 하나 내리기
                 loveRepository.save(love);
             // 1-3. 다시 좋아요 활성화 -> 알람 활성화, 그림의 카운트를 하나 올림
             } else {
+                log.info("좋아요를 다시 활성화 합니다.");
                 love.setIsActive(true);
                 activateAlarm(senderUid, receiverUid, pictureId);   // 알람 활성화
                 plusLoveCount(pictureId);   // 좋아요 하나 추가
@@ -166,6 +168,7 @@ public class UserService {
             }
         // 2. 좋아요 쌩처음
         } else {
+            log.info("첫 좋아요를 수행합니다.");
             // 2-1. 좋아요 만들어서 저장한다.
             loveRepository.save(Love.builder()
                             .isActive(true)
@@ -290,7 +293,7 @@ public class UserService {
 //        } catch (Exception e) {
 //            log.error("{}", e.getMessage());
 //        }
-        AlarmCall.deactivateAlarmsWhenDeleteUser("/remove/" + uid);
+        AlarmCallService.deactivateAlarmsWhenDeleteUser("/remove/" + uid);
     }
 
     /**
@@ -336,7 +339,7 @@ public class UserService {
 //        } catch (Exception e) {
 //            log.error("{}", e.getMessage());
 //        }
-        AlarmCall.makeAlarmWhenLike("/create", new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc));
+        AlarmCallService.makeAlarmWhenLike("/create", new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc));
     }
 
     /**
@@ -359,7 +362,7 @@ public class UserService {
 //        } catch (Exception e) {
 //            log.error("{}", e.getMessage());
 //        }
-        AlarmCall.activateAlarmWhenReLove("/marked", new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId));
+        AlarmCallService.activateAlarmWhenReLove("/marked", new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId));
     }
 
     /**
@@ -381,7 +384,7 @@ public class UserService {
 //        } catch (Exception e) {
 //            log.error("{}", e.getMessage());
 //        }
-        AlarmCall.deactivateAlarmWhenCancelLove("/isalive", new DeactivateAlarmRequestDto(senderUid, receiverUid, pictureId));
+        AlarmCallService.deactivateAlarmWhenCancelLove("/isalive", new DeactivateAlarmRequestDto(senderUid, receiverUid, pictureId));
     }
 
     //*******************************여기서부턴 좋아요 리스트*******************************//
