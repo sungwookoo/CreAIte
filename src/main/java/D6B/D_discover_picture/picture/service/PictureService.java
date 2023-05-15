@@ -10,9 +10,7 @@ import D6B.D_discover_picture.picture.service.dto.PictureLoveCheckRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -602,5 +600,20 @@ public class PictureService {
         } else {
             throw new IllegalStateException("본인이 만든 이미지가 아닙니다.");
         }
+    }
+
+    public PictureAllDetailResponse getPictureDetail(Long pictureId, String uid) {
+        Picture picture = findPictureById(pictureId);
+        Set<PictureTag> pTags = picture.getPictureTags();
+        List<String> tagWords = new ArrayList<>();
+        for (PictureTag pTag : pTags) {
+            tagWords.add(pTag.getTag().getWord());
+        }
+        List<PictureLoveCheckRequest> checkList = new ArrayList<>();
+        PictureLoveCheckRequest pictureLoveCheckRequest = PictureLoveCheckRequest.from(picture, uid);
+        checkList.add(pictureLoveCheckRequest);
+        List<LoveCheckAndMakerResponse> checkedList = checkLoveAndGetName(checkList);
+        PictureAllDetailResponse pADR = PictureAllDetailResponse.from(picture, tagWords, checkedList.get(0).getLoveCheck(), checkedList.get(0).getMakerName());
+        return pADR;
     }
 }
