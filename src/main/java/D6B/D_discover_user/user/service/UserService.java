@@ -223,7 +223,7 @@ public class UserService {
      * @param pictureIdxs : 유저가 좋아요 눌렀던 그림 idx
      */
     public void deactivatePictureAndMinusLove(String uid, List<Long> pictureIdxs) {
-        PictureCallService.deactivatePictureAndMinusLoveWhenDeleteUser("/delete/user", new DeleteUserHistoryInPicture(uid, pictureIdxs));
+        PictureCallService.postAndBodyRequestToPicture("/delete/user", new DeleteUserHistoryInPicture(uid, pictureIdxs));
     }
 
     /**
@@ -231,7 +231,7 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void minusLoveCount(Long pictureId) {
-        PictureCallService.minusLoveCountWhenLoveDeactivate("/delete/count/" + pictureId);
+        PictureCallService.postRequestToPictureThenVoid("/delete/count/" + pictureId);
     }
 
     /**
@@ -239,7 +239,7 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void plusLoveCount(Long pictureId) {
-        PictureCallService.plusLoveCountWhenLoveActivate("/create/count/" + pictureId);
+        PictureCallService.postRequestToPictureThenVoid("/create/count/" + pictureId);
     }
 
     /**
@@ -255,7 +255,7 @@ public class UserService {
      * @param pictureId : 그림의 url
      */
     public String getPictureUrlAndPlusLove(Long pictureId) {
-        return PictureCallService.getPictureUrlAndPlusLoveWhenFirstLove("/create/count/" + pictureId);
+        return PictureCallService.postRequestToPicture("/create/count/" + pictureId);
     }
 
     /**
@@ -324,7 +324,7 @@ public class UserService {
     }
 
     public List<UserPicsResponseDto> MakeUserLikesResponseWithGettingPictureInfo(String url, List<Long> pictureIds) {
-        List<UserMadeDto> responseFromPics = PictureCallService.getLikePictureInfo(url, pictureIds);
+        List<UserMadeDto> responseFromPics = PictureCallService.postAndBodyRequestToPicture(url, pictureIds);
         List<UserPicsResponseDto> responseDtos = new ArrayList<>();
         if(!Objects.requireNonNull(responseFromPics).isEmpty()) {
             for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
@@ -367,7 +367,7 @@ public class UserService {
     }
 
     List<UserPicsResponseDto> MakeUserMadeResponseWithGettingPictureInfo(String url) {
-        List<UserMadeDto> responseFromPics = PictureCallService.getMadePictureInfo(url);
+        List<UserMadeDto> responseFromPics = PictureCallService.getRequestToPicture(url);
         List<UserPicsResponseDto> responseDtos = new ArrayList<>();
         for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {
             responseDtos.add(UserPicsResponseDto.from(responseFromPic));
