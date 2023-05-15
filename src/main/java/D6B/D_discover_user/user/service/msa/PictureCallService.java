@@ -90,7 +90,7 @@ public class PictureCallService {
 
     public static void plusLoveCountWhenLoveActivate(String url) {
         try {
-            PICTURE_SERVER_CLIENT.get()
+            PICTURE_SERVER_CLIENT.post()
                     .uri(url)
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
