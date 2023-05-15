@@ -11,6 +11,7 @@ import D6B.D_discover_user.user.service.msa.AlarmCallService;
 import D6B.D_discover_user.user.service.msa.PictureCallService;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -139,6 +140,7 @@ public class UserService {
         return loveIdxs;
     }
 
+    @Scheduled(fixedDelay = 800)
     public void toggleLove(LoveToggleRequestDto loveToggleRequestDto) {
 //        log.info(loveToggleRequestDto+"여기는 러브 토글 리퀘");
         String uid = loveToggleRequestDto.getUid();
