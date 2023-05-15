@@ -373,4 +373,23 @@ public class PictureController {
         }
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/detail/{pictureId}/{uid}")
+    public ResponseEntity<PictureAllDetailResponse> getPictureDetail(
+            @PathVariable Long pictureId,
+            @PathVariable String uid,
+            @RequestHeader("Authorization") String idToken) throws IOException, FirebaseAuthException {
+        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
+        if (authResponse.getIsUser()) {
+            try {
+                PictureAllDetailResponse pictureDetail = pictureService.getPictureDetail(pictureId, uid);
+                return ResponseEntity.ok(pictureDetail);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
 }
