@@ -261,7 +261,7 @@ public class UserService {
     public void plusLoveCount(Long pictureId) {
 //        try {
 //
-//            PICTURE_SERVER_CLIENT.get()
+//            PICTURE_SERVER_CLIENT.post()
 //                    .uri("/create/count/" + pictureId)
 //                    .retrieve()
 //                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
