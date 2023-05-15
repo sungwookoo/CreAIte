@@ -224,7 +224,7 @@ public class UserService {
      * @param pictureIdxs : 유저가 좋아요 눌렀던 그림 idx
      */
     public void deactivatePictureAndMinusLove(String uid, List<Long> pictureIdxs) {
-        PictureCallService.postAndBodyRequestToPicture(ConstValues.USER_HISTORY_DELETE_TO_PICTURE, new DeleteUserHistoryInPicture(uid, pictureIdxs));
+        PictureCallService.postRequestWithBodyToPicture(ConstValues.USER_HISTORY_DELETE_TO_PICTURE, new DeleteUserHistoryInPicture(uid, pictureIdxs));
     }
 
     /**
@@ -248,7 +248,7 @@ public class UserService {
      * @param uid : 탈퇴한 유저의 uid
      */
     public void deactivateAlarms(String uid) {
-        AlarmCallService.deactivateAlarmsWhenDeleteUser(ConstValues.USER_HISTORY_DELETE_TO_ALARM + uid);
+        AlarmCallService.putRequestToAlarmThenVoid(ConstValues.USER_HISTORY_DELETE_TO_ALARM + uid);
     }
 
     /**
@@ -269,7 +269,7 @@ public class UserService {
      * @param pictureImgSrc: 그림의 url
      */
     public void PostAlarm(String senderUid, String receiverUid, Long pictureId, String senderName, String senderImgSrc, String pictureImgSrc) {
-        AlarmCallService.makeAlarmWhenLike(ConstValues.CREATE_ALARM_TO_ALARM, new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc));
+        AlarmCallService.postRequestWithBodyToAlarmThenVoid(ConstValues.CREATE_ALARM_TO_ALARM, new PostAlarmRequestDto(senderUid, receiverUid, pictureId, senderImgSrc,senderName, pictureImgSrc));
     }
 
     /**
@@ -279,7 +279,7 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void activateAlarm(String senderUid, String receiverUid, Long pictureId) {
-        AlarmCallService.activateAlarmWhenReLove(ConstValues.MARK_ALARM_TO_ALARM, new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId));
+        AlarmCallService.putRequestWithHeaderAndBodyToAlarmThenVoid(ConstValues.MARK_ALARM_TO_ALARM, new ActivateAlarmRequestDto(senderUid, receiverUid, pictureId));
     }
 
     /**
@@ -289,7 +289,7 @@ public class UserService {
      * @param pictureId : 그림의 id
      */
     public void deactivateAlarm(String senderUid, String receiverUid, Long pictureId) {
-        AlarmCallService.deactivateAlarmWhenCancelLove(ConstValues.CANCEL_ALARM_TO_ALARM, new DeactivateAlarmRequestDto(senderUid, receiverUid, pictureId));
+        AlarmCallService.putRequestWithBodyToAlarmThenVod(ConstValues.CANCEL_ALARM_TO_ALARM, new DeactivateAlarmRequestDto(senderUid, receiverUid, pictureId));
     }
 
     //*******************************여기서부턴 좋아요 리스트*******************************//
@@ -325,7 +325,7 @@ public class UserService {
     }
 
     public List<UserPicsResponseDto> MakeUserLikesResponseWithGettingPictureInfo(String url, List<Long> pictureIds) {
-        List<UserMadeDto> responseFromPics = PictureCallService.postAndBodyRequestToPicture(url, pictureIds);
+        List<UserMadeDto> responseFromPics = PictureCallService.postRequestWithBodyToPicture(url, pictureIds);
         List<UserPicsResponseDto> responseDtos = new ArrayList<>();
         if(!Objects.requireNonNull(responseFromPics).isEmpty()) {
             for(UserMadeDto responseFromPic : Objects.requireNonNull(responseFromPics)) {

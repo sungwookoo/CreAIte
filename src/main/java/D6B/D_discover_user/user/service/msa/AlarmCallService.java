@@ -14,7 +14,11 @@ import static D6B.D_discover_user.common.ConstValues.ALARM_SERVER_CLIENT;
 
 @Slf4j
 public class AlarmCallService {
-    public static void makeAlarmWhenLike(String url, PostAlarmRequestDto postAlarmRequestDto) {
+    /**
+     * 함수명 : (요청구분) + Request + (요청에 추가로 들어가는 값들) + (어느 서비스에 요청하는지) + (Void)
+     */
+
+    public static void postRequestWithBodyToAlarmThenVoid(String url, PostAlarmRequestDto postAlarmRequestDto) {
         try {
             ALARM_SERVER_CLIENT.post()
                     .uri(url)
@@ -29,23 +33,21 @@ public class AlarmCallService {
         }
     }
 
-    public static void activateAlarmWhenReLove(String url, ActivateAlarmRequestDto activateAlarmRequestDto) {
+    public static void putRequestToAlarmThenVoid(String url) {
         try {
             ALARM_SERVER_CLIENT.put()
                     .uri(url)
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                    .body(BodyInserters.fromValue(activateAlarmRequestDto))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(Void.class)
+                    .bodyToMono(void.class)
                     .block();
         } catch (Exception e) {
             log.error("{}", e.getMessage());
         }
     }
 
-    public static void deactivateAlarmWhenCancelLove(String url, DeactivateAlarmRequestDto deactivateAlarmRequestDto) {
+    public static void putRequestWithBodyToAlarmThenVod(String url, DeactivateAlarmRequestDto deactivateAlarmRequestDto) {
         try {
             ALARM_SERVER_CLIENT.put()
                     .uri(url)
@@ -60,14 +62,16 @@ public class AlarmCallService {
         }
     }
 
-    public static void deactivateAlarmsWhenDeleteUser(String url) {
+    public static void putRequestWithHeaderAndBodyToAlarmThenVoid(String url, ActivateAlarmRequestDto activateAlarmRequestDto) {
         try {
             ALARM_SERVER_CLIENT.put()
                     .uri(url)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .body(BodyInserters.fromValue(activateAlarmRequestDto))
                     .retrieve()
                     .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
                     .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(void.class)
+                    .bodyToMono(Void.class)
                     .block();
         } catch (Exception e) {
             log.error("{}", e.getMessage());
