@@ -15,10 +15,9 @@ public interface PictureRepository extends JpaRepository<Picture, Long> {
     @Query(value = "SELECT * FROM picture " +
             "WHERE is_public = true " +
             "AND is_alive = true " +
-            "AND created_at >= :createdAt " +
             "ORDER BY RAND() " +
             "LIMIT 50", nativeQuery = true)
-    List<Picture> findAllByCreatedAtAfter(@Param(value = "createdAt") Instant createdAt);
+    List<Picture> findAllByCreatedAtAfter();
 
     List<Picture> findTop50ByIsPublicAndIsAliveAndCreatedAtBetweenOrderByLoveCountDesc(Boolean isPublic, Boolean isAlive, Instant start, Instant end);
 }
