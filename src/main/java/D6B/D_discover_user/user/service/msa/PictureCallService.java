@@ -17,22 +17,9 @@ import static D6B.D_discover_user.common.ConstValues.PICTURE_SERVER_CLIENT;
 @Service
 @Slf4j
 public class PictureCallService {
-
-    public static List<UserMadeDto> postAndBodyRequestToPicture(String uri, List<Long> pictureIds) {
-        try {
-            return PICTURE_SERVER_CLIENT.post()
-                    .uri(uri)
-                    .body(BodyInserters.fromValue(pictureIds))
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(new ParameterizedTypeReference<List<UserMadeDto>>() {})
-                    .block();
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
-        }
-        return null;
-    }
+    /**
+     * 함수명 : (요청구분) + Request + (요청에 추가로 들어가는 값들) + (어느 서비스에 요청하는지) + (Void)
+     */
 
     public static String postRequestToPicture(String url) {
         try {
@@ -44,6 +31,22 @@ public class PictureCallService {
                     .bodyToMono(String.class)
                     .block();
 
+        } catch (Exception e) {
+            log.error("{}", e.getMessage());
+        }
+        return null;
+    }
+
+    public static List<UserMadeDto> postRequestWithBodyToPicture(String url, List<Long> pictureIds) {
+        try {
+            return PICTURE_SERVER_CLIENT.post()
+                    .uri(url)
+                    .body(BodyInserters.fromValue(pictureIds))
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+                    .bodyToMono(new ParameterizedTypeReference<List<UserMadeDto>>() {})
+                    .block();
         } catch (Exception e) {
             log.error("{}", e.getMessage());
         }
@@ -64,7 +67,7 @@ public class PictureCallService {
         }
     }
 
-    public static void postAndBodyRequestToPicture(String url, DeleteUserHistoryInPicture deleteUserHistoryInPicture) {
+    public static void postRequestWithBodyToPicture(String url, DeleteUserHistoryInPicture deleteUserHistoryInPicture) {
         try {
             PICTURE_SERVER_CLIENT.post()
                     .uri(url)
