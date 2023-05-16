@@ -37,6 +37,24 @@ public class PictureCallService {
         return null;
     }
 
+    /**
+     * Picture 서비스에 post 요청을 보냄
+     * @param url : picture/*** -> 여기 ***에 들어갈 url
+     */
+    public static void postRequestToPictureThenVoid(String url) {
+        try {
+            PICTURE_SERVER_CLIENT.post()
+                    .uri(url)
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
+                    .bodyToMono(String.class)
+                    .block();
+        } catch (Exception e) {
+            log.error("{}", e.getMessage());
+        }
+    }
+
     public static List<UserMadeDto> postRequestWithBodyToPicture(String url, List<Long> pictureIds) {
         try {
             return PICTURE_SERVER_CLIENT.post()
@@ -51,20 +69,6 @@ public class PictureCallService {
             log.error("{}", e.getMessage());
         }
         return null;
-    }
-
-    public static void postRequestToPictureThenVoid(String url) {
-        try {
-            PICTURE_SERVER_CLIENT.post()
-                    .uri(url)
-                    .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(RuntimeException::new))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(RuntimeException::new))
-                    .bodyToMono(String.class)
-                    .block();
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
-        }
     }
 
     public static void postRequestWithBodyToPicture(String url, DeleteUserHistoryInPicture deleteUserHistoryInPicture) {
