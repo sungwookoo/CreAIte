@@ -5,6 +5,7 @@ import D6B.D_discover_picture.common.service.AuthorizeService;
 import D6B.D_discover_picture.picture.controller.dto.*;
 import D6B.D_discover_picture.picture.domain.*;
 import D6B.D_discover_picture.picture.service.PictureService;
+import D6B.D_discover_picture.picture.service.UserPictureService;
 import D6B.D_discover_picture.picture.service.exceptions.DeletePictureFailException;
 import D6B.D_discover_picture.picture.service.exceptions.PictureNotSavedException;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -26,15 +27,18 @@ public class PictureController {
     private final PictureTagRepository pictureTagRepository;
     private final TagRepository tagRepository;
     private final PictureService pictureService;
+    private final UserPictureService userPictureService;
     private final AuthorizeService authorizeService;
 
     @Autowired
     public PictureController(PictureRepository pictureRepository, PictureTagRepository pictureTagRepository,
-                             TagRepository tagRepository, PictureService pictureService, AuthorizeService authorizeService) {
+                             TagRepository tagRepository, PictureService pictureService,
+                             UserPictureService userPictureService, AuthorizeService authorizeService) {
         this.pictureRepository = pictureRepository;
         this.pictureTagRepository = pictureTagRepository;
         this.tagRepository = tagRepository;
         this.pictureService = pictureService;
+        this.userPictureService = userPictureService;
         this.authorizeService = authorizeService;
     }
 
@@ -117,7 +121,7 @@ public class PictureController {
     public ResponseEntity<List<PictureDetailResponse>> getLikeAllList(
             @RequestBody List<Long> pictureIds) {
         try {
-            List<PictureDetailResponse> list = pictureService.getLikeAllList(pictureIds);
+            List<PictureDetailResponse> list = userPictureService.getLikeAllList(pictureIds);
             return ResponseEntity.ok(list);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -130,7 +134,7 @@ public class PictureController {
     public ResponseEntity<List<PictureDetailResponse>> getLikePublicList(
             @RequestBody List<Long> pictureIds) {
         try {
-            List<PictureDetailResponse> list = pictureService.getLikePublicList(pictureIds);
+            List<PictureDetailResponse> list = userPictureService.getLikePublicList(pictureIds);
             return ResponseEntity.ok(list);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -146,9 +150,9 @@ public class PictureController {
         try {
             List<PictureDetailResponse> list;
             if (isMe.equals("1")) {
-                list = pictureService.getPicMadeByMe(uid);
+                list = userPictureService.getPicMadeByMe(uid);
             } else {
-                list = pictureService.getPicMadeByOther(uid);
+                list = userPictureService.getPicMadeByOther(uid);
             }
             return ResponseEntity.ok(list);
         } catch (Exception e) {
@@ -162,7 +166,7 @@ public class PictureController {
     public ResponseEntity<List<PictureDetailResponse>> getMadePicWithoutLogin(
             @PathVariable String uid) {
         try {
-            List<PictureDetailResponse> list = pictureService.getPicMadeByOther(uid);
+            List<PictureDetailResponse> list = userPictureService.getPicMadeByOther(uid);
             return ResponseEntity.ok(list);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -175,7 +179,7 @@ public class PictureController {
     public ResponseEntity<String> plusLoveCount(
             @PathVariable Long pictureId) {
         try {
-            String imgUrl = pictureService.plusCount(pictureId);
+            String imgUrl = userPictureService.plusCount(pictureId);
             return ResponseEntity.ok(imgUrl);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -188,7 +192,7 @@ public class PictureController {
     public ResponseEntity<Object> minusLoveCount(
             @PathVariable Long pictureId) {
         try {
-            pictureService.minusCount(pictureId);
+            userPictureService.minusCount(pictureId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -201,7 +205,7 @@ public class PictureController {
     public ResponseEntity<Object> deleteUser(
             @RequestBody DeleteUserRequest deleteUserRequest) {
         try {
-            pictureService.deleteUser(deleteUserRequest);
+            userPictureService.deleteUser(deleteUserRequest);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -363,18 +367,8 @@ public class PictureController {
         }
     }
 
-    @GetMapping("/delete/like/test")
-    public ResponseEntity<Object> deleteTest() {
-        try {
-            pictureService.updateMonthlyTop();
-            pictureService.updateWeeklyTop();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/detail/{pictureId}/{uid}")
+    // 알림에서 디테일로 이동할 때 필요한 거 -> 그래서 로그인 안된 사용자를 고려할 필요 없음
     public ResponseEntity<PictureAllDetailResponse> getPictureDetail(
             @PathVariable Long pictureId,
             @PathVariable String uid,

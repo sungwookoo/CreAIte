@@ -10,14 +10,15 @@ import java.util.Optional;
 
 public interface PictureRepository extends JpaRepository<Picture, Long> {
     List<Picture> findAllByMakerUid(String makerUid);
-    List<Picture> findAllByMakerUidAndIsPublic(String makerUid, Boolean isPublic);
+    List<Picture> findAllByMakerUidAndIsAlive(String makerUid, Boolean isAlive);
+    List<Picture> findAllByMakerUidAndIsPublicAndIsAlive(String makerUid, Boolean isPublic, Boolean isAlive);
 
     @Query(value = "SELECT * FROM picture " +
             "WHERE is_public = true " +
             "AND is_alive = true " +
             "ORDER BY RAND() " +
             "LIMIT 50", nativeQuery = true)
-    List<Picture> findAllByCreatedAtAfter();
+    List<Picture> findRandPictures();
 
     List<Picture> findTop50ByIsPublicAndIsAliveAndCreatedAtBetweenOrderByLoveCountDesc(Boolean isPublic, Boolean isAlive, Instant start, Instant end);
 }
