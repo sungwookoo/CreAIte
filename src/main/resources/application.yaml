@@ -4,7 +4,7 @@ server:
 logging:
   level:
     root:
-      DEBUG
+      INFO
 
 spring:
   cloud:
