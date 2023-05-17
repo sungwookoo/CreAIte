@@ -27,7 +27,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: dev
             - name: SPRING_CONFIG_LOCATION
-              value: '/etc/secrets/application.yaml'
+              value: '/etc/secrets/'
           resources:
             limits:
               cpu: 500m
