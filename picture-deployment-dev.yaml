@@ -25,7 +25,7 @@ spec:
             - containerPort: 8080
           env:
             - name: SPRING_CONFIG_LOCATION
-              value: '/etc/secrets/application.yaml'
+              value: 'file:/etc/secrets/application.yaml'
           resources:
             limits:
               cpu: 500m
