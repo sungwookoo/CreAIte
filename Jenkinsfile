@@ -46,7 +46,7 @@ spec:
     emptyDir: {}
   - name: application-secret-volume
     secret:
-      secretName: application-secret
+      secretName: picture-secret
 """
         }
     }
