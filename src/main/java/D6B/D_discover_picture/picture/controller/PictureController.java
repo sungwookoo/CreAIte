@@ -93,6 +93,7 @@ public class PictureController {
         AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
         if (authResponse.getIsUser()) {
             try {
+                log.trace("Today's pick (로그인 유저)");
                 List<PictureAllDetailResponse> list = pictureService.getTodayPickWithLogin(uid);
                 return ResponseEntity.ok(list);
             } catch (Exception e) {
