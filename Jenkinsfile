@@ -17,8 +17,6 @@ spec:
     volumeMounts:
       - mountPath: /var/jenkins_home
         name: workspace-volume
-      - name: application-secret-volume
-        mountPath: /etc/secrets
   - name: docker
     image: docker:latest
     command:
@@ -44,9 +42,6 @@ spec:
       path: /var/run/docker.sock
   - name: workspace-volume
     emptyDir: {}
-  - name: application-secret-volume
-    secret:
-      secretName: picture-secret
 """
         }
     }
@@ -82,7 +77,7 @@ spec:
                         def gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
 
                         // Docker 이미지 빌드 및 푸시
-                        sh "docker build --no-cache -t sungwookoo/picture:develop-${gitCommitHash} ."
+                        sh "docker build -t sungwookoo/picture:develop-${gitCommitHash} ."
                         withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
                             sh 'docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD'
                             sh "docker push sungwookoo/picture:develop-${gitCommitHash}"
