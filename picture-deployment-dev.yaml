@@ -23,9 +23,9 @@ spec:
           image: ${DOCKER_IMAGE_TAG}
           ports:
             - containerPort: 8080
-#          env:
-#            - name: SPRING_CONFIG_LOCATION
-#              value: '/etc/secrets/application.yaml'
+          env:
+            - name: SPRING_CONFIG_LOCATION
+              value: '/etc/secrets/application.yaml'
           resources:
             limits:
               cpu: 500m
