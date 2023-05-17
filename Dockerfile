@@ -10,4 +10,5 @@ RUN ./gradlew bootJAR
 FROM adoptopenjdk/openjdk11
 COPY --from=builder build/libs/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app.jar", "--spring.config.name=application", "--spring.config.location=file:/etc/secrets/"]
+ENTRYPOINT ["java", "-jar", "/app.jar", "--spring.config.location=file:/etc/secrets/application.yaml"]
+
