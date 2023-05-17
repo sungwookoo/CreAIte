@@ -17,6 +17,8 @@ spec:
     volumeMounts:
       - mountPath: /var/jenkins_home
         name: workspace-volume
+      - name: application-secret-volume
+        mountPath: /etc/secrets
   - name: docker
     image: docker:latest
     command:
@@ -42,6 +44,9 @@ spec:
       path: /var/run/docker.sock
   - name: workspace-volume
     emptyDir: {}
+  - name: application-secret-volume
+    secret:
+      secretName: application-secret
 """
         }
     }
