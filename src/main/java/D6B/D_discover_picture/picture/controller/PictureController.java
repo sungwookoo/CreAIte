@@ -340,18 +340,13 @@ public class PictureController {
     public ResponseEntity<List<PictureAllDetailResponse>> getTagImageListWithLogin(
             @RequestHeader("Authorization") String idToken,
             @PathVariable String tag,
-            @PathVariable String uid) throws IOException, FirebaseAuthException {
-        AuthResponse authResponse = authorizeService.isAuthorized(idToken, uid);
-        if (authResponse.getIsUser()) {
-            try {
-                List<PictureAllDetailResponse> list = pictureService.getSearchListWithLogin(uid, tag);
-                return ResponseEntity.ok(list);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            @PathVariable String uid) {
+        try {
+            List<PictureAllDetailResponse> list = pictureService.getSearchListWithLogin(uid, tag);
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
