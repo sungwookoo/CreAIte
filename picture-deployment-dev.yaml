@@ -34,9 +34,9 @@ spec:
               cpu: 250m
               memory: 256Mi
           volumeMounts:
-#            - name: picture-secret-application
-#              mountPath: '/etc/secrets'
-#              readOnly: true
+            - name: picture-secret-application
+              mountPath: '/etc/secrets'
+              readOnly: true
             - name: picture-secret-firebase
               mountPath: '/creaite-app-firebase-adminsdk.json'
               subPath: 'creaite-app-firebase-adminsdk.json'
@@ -44,12 +44,12 @@ spec:
       imagePullSecrets:
         - name: dockerhub-secret
       volumes:
-#        - name: picture-secret-application
-#          secret:
-#            secretName: picture-secret
-#            items:
-#              - key: application.yaml
-#                path: application.yaml
+        - name: picture-secret-application
+          secret:
+            secretName: picture-secret
+            items:
+              - key: application.yaml
+                path: application.yaml
         - name: picture-secret-firebase
           secret:
             secretName: picture-secret
