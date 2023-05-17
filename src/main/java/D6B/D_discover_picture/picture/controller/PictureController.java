@@ -386,4 +386,17 @@ public class PictureController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+    // 추가 요청으로 작성 (idtoken 없이 그냥 detail)
+    @GetMapping("/detail/no_user/{pictureId}")
+    public ResponseEntity<PictureAllDetailResponse> getPictureDetailNoUserVer(
+            @PathVariable Long pictureId) {
+        try {
+            PictureAllDetailResponse pictureDetail = pictureService.getPictureDetail(pictureId);
+            return ResponseEntity.ok(pictureDetail);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

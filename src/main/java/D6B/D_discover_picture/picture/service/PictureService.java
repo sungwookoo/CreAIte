@@ -140,6 +140,16 @@ public class PictureService {
         return pADR;
     }
 
+    public PictureAllDetailResponse getPictureDetail(Long pictureId) {
+        Picture picture = findPictureById(pictureId);
+        List<String> tagWords = getTagWords(picture);
+        List<String> checkList = new ArrayList<>();
+        checkList.add(picture.getMakerUid());
+        List<String> checkedList = MsaService.checkMakerName(checkList);
+        PictureAllDetailResponse pictureAllDetailResponse = PictureAllDetailResponse.from(picture, tagWords, false, checkedList.get(0));
+        return pictureAllDetailResponse;
+    }
+
     // 검색한 이미지들 또는 태그별 이미지들 찾기(로그인 한 사용자)
     public List<PictureAllDetailResponse> getSearchListWithLogin(String uid, String keyword) {
         Optional<Tag> opTag = tagRepository.findByWord(keyword);
