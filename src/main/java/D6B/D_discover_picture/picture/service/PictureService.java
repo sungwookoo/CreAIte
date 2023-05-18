@@ -212,7 +212,8 @@ public class PictureService {
 
     public List<PictureAllDetailResponse> getTodayPickWithLogin(String uid) {
         List<PictureAllDetailResponse> list = new ArrayList<>();
-        List<Picture> picList = pictureRepository.findRandPictures();
+//        List<Picture> picList = pictureRepository.findRandPictures();
+        List<Picture> picList = pictureRepository.findTop50ByIsPublicAndIsAliveOrderByIdDesc(true, true);
         List<PictureLoveCheckRequest> checkList = new ArrayList<>();
         for (Picture picture : picList) {
             PictureLoveCheckRequest pictureLoveCheckRequest = PictureLoveCheckRequest.from(picture, uid);
@@ -231,7 +232,9 @@ public class PictureService {
 
     public List<PictureAllDetailResponse> getTodayPickWithoutLogin() {
         List<PictureAllDetailResponse> list = new ArrayList<>();
-        List<Picture> picList = pictureRepository.findRandPictures();
+//        List<Picture> picList = pictureRepository.findRandPictures();
+        List<Picture> picList = pictureRepository.findTop50ByIsPublicAndIsAliveOrderByIdDesc(true, true);
+        System.out.println(picList);
         List<String> checkList = new ArrayList<>();
         for (Picture picture : picList) {
             checkList.add(picture.getMakerUid());
