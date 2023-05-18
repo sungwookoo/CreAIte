@@ -9,16 +9,18 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PictureRepository extends JpaRepository<Picture, Long> {
-    List<Picture> findAllByMakerUid(String makerUid);
+    List<Picture> findAllByMakerUidOrderByIdDesc(String makerUid);
     List<Picture> findAllByMakerUidAndIsAlive(String makerUid, Boolean isAlive);
-    List<Picture> findAllByMakerUidAndIsPublicAndIsAlive(String makerUid, Boolean isPublic, Boolean isAlive);
+    List<Picture> findAllByMakerUidAndIsPublicAndIsAliveOrderByIdDesc(String makerUid, Boolean isPublic, Boolean isAlive);
 
-    @Query(value = "SELECT * FROM picture " +
-            "WHERE is_public = true " +
-            "AND is_alive = true " +
-            "ORDER BY RAND() " +
-            "LIMIT 50", nativeQuery = true)
-    List<Picture> findRandPictures();
+//    @Query(value = "SELECT * FROM picture " +
+//            "WHERE is_public = true " +
+//            "AND is_alive = true " +
+//            "ORDER BY RAND() " +
+//            "LIMIT 50", nativeQuery = true)
+//    List<Picture> findRandPictures();
+
+    List<Picture> findTop50ByIsPublicAndIsAliveOrderByIdDesc(boolean isPublic, boolean isAlive);
 
     List<Picture> findTop50ByIsPublicAndIsAliveAndCreatedAtBetweenOrderByLoveCountDesc(Boolean isPublic, Boolean isAlive, Instant start, Instant end);
 }

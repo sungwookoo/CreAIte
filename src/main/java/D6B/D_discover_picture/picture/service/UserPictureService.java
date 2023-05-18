@@ -84,7 +84,7 @@ public class UserPictureService {
 
     // 내가 만든 이미지들 반환
     public List<PictureDetailResponse> getPicMadeByMe(String uid) {
-        List<Picture> pictureList = pictureRepository.findAllByMakerUid(uid);
+        List<Picture> pictureList = pictureRepository.findAllByMakerUidOrderByIdDesc(uid);
         List<PictureDetailResponse> list = new ArrayList<>();
         for (Picture picture : pictureList) {
             if (picture.getIsAlive() == Boolean.TRUE) {
@@ -98,7 +98,7 @@ public class UserPictureService {
 
     // 다른 사람이 만든 이미지들 반환
     public List<PictureDetailResponse> getPicMadeByOther(String uid) {
-        List<Picture> pictureList = pictureRepository.findAllByMakerUidAndIsPublicAndIsAlive(uid, true, true);
+        List<Picture> pictureList = pictureRepository.findAllByMakerUidAndIsPublicAndIsAliveOrderByIdDesc(uid, true, true);
         List<PictureDetailResponse> list = new ArrayList<>();
         for (Picture picture : pictureList) {
             List<String> tagWords = pictureService.getTagWords(picture);

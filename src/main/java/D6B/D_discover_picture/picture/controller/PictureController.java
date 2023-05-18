@@ -394,4 +394,17 @@ public class PictureController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    // 테스트 함수
+    @GetMapping("/test/test/{uid}")
+    public ResponseEntity<List<PictureDetailResponse>> getTest(
+            @PathVariable String uid) {
+        try {
+            List<PictureDetailResponse> list = userPictureService.getPicMadeByMe(uid);
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
