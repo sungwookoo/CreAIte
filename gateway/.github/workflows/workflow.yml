@@ -1,0 +1,68 @@
+# This is a workflow that syncs everything on this repository to another repository
+name: Build gradle -> Sync github to gitlab
+on:
+  push:
+    branches: ["main"]
+  #pull_request:
+    #branches: ["main"]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+jobs:
+  
+  #build:
+    # 실행 환경 지정
+    #runs-on: ubuntu-latest
+
+    # Task의 sequence를 명시한다.
+    #steps:
+      #- uses: actions/checkout@v3
+      # temurin jdk 11 적용
+      #- uses: actions/setup-java@v3
+       # with:
+        #  distribution: temurin
+         # java-version: 11
+      
+      # gradlew 권한 부여
+      #- name: Grant execute permission for gradlew
+       # run: chmod +x gradlew
+        
+      # Gradle build 실행
+      #- name: Execute Gradle build
+       # run: ./gradlew clean build
+
+  push-to-gitlab:
+    #needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository to be synced
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Fetch all history for all tags and branches
+      # Get the repository name and branch
+      - name: Get repository name and branch
+        id: repo_info
+        run: |
+          echo "::set-output name=name::$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)"
+          echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/})"
+      # Create directory with the repository name and branch in GitLab
+      - name: Create directory
+        env:
+          gitlab_url: ${{ secrets.TARGET_URL }}
+          gitlab_username: ${{ secrets.TARGET_USERNAME }}
+          gitlab_token: ${{ secrets.TARGET_TOKEN }}
+        run: |
+          curl --request POST --header "PRIVATE-TOKEN: ${gitlab_token}" "${gitlab_url}/api/v4/projects/${gitlab_username}%2F${{ steps.repo_info.outputs.name }}/repository/tree" --form "branch_name=main" --form "commit_message=Create directory" --form "actions=[{\"action\":\"create\",\"file_path\":\"${{ steps.repo_info.outputs.name }}_${{ steps.repo_info.outputs.branch }}\"}]"
+      # Set remote repository
+      - name: Set remote repository
+        env:
+          gitlab_url: ${{ secrets.TARGET_URL }}
+          gitlab_username: ${{ secrets.TARGET_USERNAME }}
+          gitlab_token: ${{ secrets.TARGET_TOKEN }}
+        run: |
+          git remote add gitlab "https://${gitlab_username}:${gitlab_token}@${gitlab_url#https://}"
+      # Push everything to GitLab
+      - name: Push to GitLab
+        run: |
+          git push -f gitlab HEAD:${{ steps.repo_info.outputs.name }}/${{ steps.repo_info.outputs.branch }}
+          git push -f gitlab --tags
