@@ -1,70 +1,68 @@
-# Getting Started with Create React App
+# Site
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Production
 
-## Available Scripts
+## Develop
 
-In the project directory, you can run:
+## Backend
 
-### `npm start`
+> Gateway
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- https://dev-gateway.hexa-backenders.com/
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+> MSA 내부
 
-### `npm test`
+- https://dev-gateway.hexa-backenders.com/alarm
+- https://dev-gateway.hexa-backenders.com/picture
+- https://dev-gateway.hexa-backenders.com/user
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Jenkins
 
-### `npm run build`
+> https://dev-jenkins.hexa-backenders.com/
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- ID : admin
+- PW : wkdbffodzld1dnl!
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Nginx manager
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+> https://npm.hexa-backenders.com/
 
-### `npm run eject`
+- ID : hexabackenders@gmail.com
+- PW : wkdbffodzld1dnl!
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## EFK Stack
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+> https://kibana.hexa-backenders.com/
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- ID : N/A
+- PW : N/A
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Database
 
-## Learn More
+### Mariadb
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+> DEV : jdbc:mariadb://k8e104.p.ssafy.io:3506
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- ID : 3d6b / root
+- PW : wkdbffodzld1dnl!
 
-### Code Splitting
+> PROD : jdbc:mariadb://k8e104.p.ssafy.io:3406
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- ID : 3d6b / root
+- PW : wkdbffodzld1dnl!
 
-### Analyzing the Bundle Size
+## Architecture
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+> ##### Kubernetes Cluster
 
-### Making a Progressive Web App
+![Kubernetes_Cluster](readme/CreAIte-Cluster.jpg)
+<br>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+> ##### Jenkins Pipeline
 
-### Advanced Configuration
+![Jenkins_Pipeline](readme/CreAIte-Pipeline.jpg)
+<br>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+> ##### Architecture Flow
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+![Architecture_Flow](readme/CreAIte-Flow.jpg)
