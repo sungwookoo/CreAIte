@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-dev
+  namespace: dev
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - name: user
+          image: ${DOCKER_IMAGE_TAG}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: dev
+            - name: SPRING_CONFIG_LOCATION
+              value: '/etc/secrets/application.yaml'
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          volumeMounts:
+            - name: user-secret-application
+              mountPath: '/etc/secrets'
+              readOnly: true
+            - name: user-secret-firebase
+              mountPath: '/creaite-app-firebase-adminsdk.json'
+              subPath: 'creaite-app-firebase-adminsdk.json'
+              readOnly: true
+      imagePullSecrets:
+        - name: dockerhub-secret
+      volumes:
+        - name: user-secret-application
+          secret:
+            secretName: user-secret
+            items:
+              - key: application.yaml
+                path: application.yaml
+        - name: user-secret-firebase
+          secret:
+            secretName: user-secret
+            items:
+              - key: creaite-app-firebase-adminsdk.json
+                path: creaite-app-firebase-adminsdk.json

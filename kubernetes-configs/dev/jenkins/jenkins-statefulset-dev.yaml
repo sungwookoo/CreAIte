@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: jenkins-dev
+  namespace: dev
+spec:
+  serviceName: "jenkins-dev"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: jenkins
+          image: jenkins/jenkins:lts-jdk11
+          env:
+            - name: JAVA_OPTS
+              value: -Djenkins.install.runSetupWizard=true -Xms256m -Xmx512m
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /var/jenkins_home
+              name: jenkins-persistent-storage
+            - name: kubeconfig
+              mountPath: /var/lib/jenkins/.kube
+              readOnly: true
+      volumes:
+        - name: jenkins-persistent-storage
+          persistentVolumeClaim:
+            claimName: jenkins-pv-claim
+        - name: kubeconfig
+          configMap:
+            name: kubeconfig
