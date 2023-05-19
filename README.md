@@ -78,87 +78,87 @@
 
 ## Home
 ### Today's Pick
-    ![1. 홈페이지.jpg](./sources/1. 홈페이지.jpg)
+    ![home.jpg](./sources/home.jpg)
 
 ### Monthly
-    ![월간.jpg](./sources/월간.jpg)
+    ![monthly.jpg](./sources/monthly.jpg)
 
 ### FloatingButton
-    ![2. 플로팅버튼드랍다운.jpg](./sources/2. 플로팅버튼드랍다운.jpg)
+    ![fdd.jpg](./sources/fdd.jpg)
 
 ## Detail
 ### ![이미지디테일.jpg](./이미지디테일.jpg)
 
 ## Notification
 ### push message
-    ![푸시알람.jpg](./sources/푸시알람.jpg)
+    ![pushnoti.jpg](./sources/pushnoti.jpg)
 
 ### in app message
-    ![알람목록.jpg](./sources/알람목록.jpg)
+    ![pushnotilist.jpg](./sources/pushnotilist.jpg)
 
 ## Search
 ### ![검색결과.jpg](./검색결과.jpg)
 
 ## ProfilePage
 ### myworks
-    ![프로필갤러리_my.jpg](./sources/프로필갤러리_my.jpg)
+    ![profile_my.jpg](./sources/profile_my.jpg)
 
 ### likes
-    ![프로필갤러리_like.jpg](./sources/프로필갤러리_like.jpg)
+    ![profile_like.jpg](./sources/profile_like.jpg)
 
 ## Text2Image
 ### selection
-    ![이미지생성선택.jpg](./sources/이미지생성선택.jpg)
+    ![gen_select.jpg](./sources/gen_select.jpg)
 
 ### generation activity
-    ![이미지생성1.jpg](./sources/이미지생성1.jpg)
+    ![image_gen1.jpg](./sources/image_gen1.jpg)
 
 ### text input
-    ![이미지생성_텍스트입력.jpg](./sources/이미지생성_텍스트입력.jpg)
+    ![image_gen_text_input.jpg](./sources/image_gen_text_input.jpg)
 
 ### example result
-    ![이미지생성결과_예시.jpg](./sources/이미지생성결과_예시.jpg)
+    ![image_gen_ex_result.jpg](./sources/image_gen_ex_result.jpg)
 
 ## Edit
 ### selection
-    ![편집선택.jpg](./sources/편집선택.jpg)
+    ![edit_select.jpg](./sources/edit_select.jpg)
 
 ### base edit
-    ![기본편집.jpg](./sources/기본편집.jpg)
+    ![base_edit.jpg](./sources/base_edit.jpg)
 
 ### face swap
 - 1. source
-    ![얼굴소스.jpg](./sources/얼굴소스.jpg)
+    ![face_source.jpg](./sources/face_source.jpg)
 
 - 2. target
-    ![얼굴타겟.jpg](./sources/얼굴타겟.jpg)
+    ![face_target.jpg](./sources/face_target.jpg)
 
 - 3. result
-    ![얼굴결과.jpg](./sources/얼굴결과.jpg)
+    ![face_result.jpg](./sources/face_result.jpg)
 
 ### AI Reinforcements
 - one function of them (Deblur)
 - 1. before
-    ![블러_비포어.jpg](./sources/블러_비포어.jpg)
+    ![blur_before.jpg](./sources/blur_before.jpg)
 
 - 2. after 
-    ![블러_애프터-1.jpg](./sources/블러_애프터-1.jpg)
+    ![blur_after.jpg](./sources/blur_after.jpg)
 
 ### Change Style
 - 1. before
-    ![스타일변환비포.jpg](./sources/스타일변환비포.jpg)
+    ![style_change_before.jpg](./sources/style_change_before.jpg)
 
 - 2. after
-    ![스타일변환애프터.jpg](./sources/스타일변환애프터.jpg)
+    ![style_change_after.jpg](./sources/style_change_after.jpg)
 
 ### Super Resolution
 - 1. before
     ![srBefore.jpg](./sources/srBefore.jpg)
-    ![픽셀before.jpg](./sources/픽셀before.jpg)
+    ![pixel_before.jpg](./sources/pixel_before.jpg)
 
 - 2. after
-    ![srBefore-1.jpg](./sources/srBefore-1.jpg)
     ![srAfter.jpg](./sources/srAfter.jpg)
+    ![pixel_after.jpg](./pixel_after.jpg)
 
 ### Loading Screen
-    ![로딩중.jpg](./sources/로딩중.jpg)
+    ![loading.jpg](./sources/loading.jpg)
