@@ -26,22 +26,13 @@
 
 > https://dev-jenkins.hexa-backenders.com/
 
-- ID : admin
-- PW : wkdbffodzld1dnl!
-
 ## Nginx manager
 
 > https://npm.hexa-backenders.com/
 
-- ID : hexabackenders@gmail.com
-- PW : wkdbffodzld1dnl!
-
 ## EFK Stack
 
 > https://kibana.hexa-backenders.com/
-
-- ID : N/A
-- PW : N/A
 
 ## Database
 
@@ -49,13 +40,7 @@
 
 > DEV : jdbc:mariadb://k8e104.p.ssafy.io:3506
 
-- ID : 3d6b / root
-- PW : wkdbffodzld1dnl!
-
 > PROD : jdbc:mariadb://k8e104.p.ssafy.io:3406
-
-- ID : 3d6b / root
-- PW : wkdbffodzld1dnl!
 
 ## Architecture
 
