@@ -1,5 +1,5 @@
 # Site
-![image.png](./sources/image.png)
+<img src="./sources/image.png" width="50%" height="50%">
 - https://home.hexa-backenders.com/
 
 
@@ -72,7 +72,7 @@
     ![fdd.jpg](./sources/fdd.jpg)
 
 ## Detail
-### ![이미지디테일.jpg](./sources/이미지디테일.jpg)
+<img src="./sources/이미지디테일.jpg" width="50%" height="50%">
 
 ## Notification
 ### push message
@@ -82,68 +82,68 @@
     ![pushnotilist.jpg](./sources/pushnotilist.jpg)
 
 ## Search
-### ![검색결과.jpg](./sources/검색결과.jpg)
+<img src="./sources/검색결과.jpg" width="50%" height="50%">
 
 ## ProfilePage
 ### myworks
-    ![profile_my.jpg](./sources/profile_my.jpg)
+    <img src="./sources/profile_my.jpg" width="50%" height="50%">
+
 
 ### likes
-    ![profile_like.jpg](./sources/profile_like.jpg)
+    <img src="./sources/profile_like.jpg" width="50%" height="50%">
 
 ## Text2Image
 ### selection
-    ![gen_select.jpg](./sources/gen_select.jpg)
+    <img src="./sources/gen_select.jpg" width="50%" height="50%">
 
 ### generation activity
-    ![image_gen1.jpg](./sources/image_gen1.jpg)
+    <img src="./sources/image_gen1.jpg" width="50%" height="50%">
 
 ### text input
-    ![image_gen_text_input.jpg](./sources/image_gen_text_input.jpg)
+    <img src="./sources/image_gen_text_input.jpg" width="50%" height="50%">
 
 ### example result
-    ![image_gen_ex_result.jpg](./sources/image_gen_ex_result.jpg)
+    <img src="./sources/image_gen_ex_result.jpg" width="50%" height="50%">
 
 ## Edit
 ### selection
-    ![edit_select.jpg](./sources/edit_select.jpg)
+    <img src="./sources/edit_select.jpg" width="50%" height="50%">
 
 ### base edit
-    ![base_edit.jpg](./sources/base_edit.jpg)
+    <img src="./sources/base_edit.jpg" width="50%" height="50%">
 
 ### face swap
 - 1. source
-    ![face_source.jpg](./sources/face_source.jpg)
+    <img src="./sources/face_source.jpg" width="50%" height="50%">
 
 - 2. target
-    ![face_target.jpg](./sources/face_target.jpg)
+    <img src="./sources/face_target.jpg" width="50%" height="50%">
 
 - 3. result
-    ![face_result.jpg](./sources/face_result.jpg)
+    <img src="./sources/face_result.jpg" width="50%" height="50%">
 
 ### AI Reinforcements
 - one function of them (Deblur)
 - 1. before
-    ![blur_before.jpg](./sources/blur_before.jpg)
+    <img src="./sources/blur_before.jpg" width="50%" height="50%">
 
-- 2. after 
-    ![blur_after.jpg](./sources/blur_after.jpg)
+- 2. after
+    <img src="./sources/blur_after.jpg" width="50%" height="50%">
 
 ### Change Style
 - 1. before
-    ![style_change_before.jpg](./sources/style_change_before.jpg)
+    <img src="./sources/style_change_before.jpg" width="50%" height="50%">
+
 
 - 2. after
-    ![style_change_after.jpg](./sources/style_change_after.jpg)
+    <img src="./sources/style_change_after.jpg" width="50%" height="50%">
+    
 
 ### Super Resolution
 - 1. before
-    ![srBefore.jpg](./sources/srBefore.jpg)
-    ![pixel_before.jpg](./sources/pixel_before.jpg)
+    <img src="./sources/srBefore.jpg" width="50%" height="50%">
+    <img src="./sources/pixel_before.jpg" width="50%" height="50%">
 
 - 2. after
-    ![srAfter.jpg](./sources/srAfter.jpg)
-    ![pixel_after.jpg](./pixel_after.jpg)
-
-### Loading Screen
-    ![loading.jpg](./sources/loading.jpg)
+    <img src="./sources/srAfter.jpg" width="50%" height="50%">
+    <img src="./sources/pixel_after.jpg" width="50%" height="50%">
