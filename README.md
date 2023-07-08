@@ -145,6 +145,3 @@
 - 2. after
 <img src="./sources/srAfter.jpg" width="35%" height="35%">
 <img src="./sources/pixel_after.jpg" width="35%" height="35%">
-
-### Loading
-<img src="./sources/loading.jpg" width="35%" height="35%">
