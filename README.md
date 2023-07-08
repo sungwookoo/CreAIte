@@ -72,7 +72,7 @@
     ![fdd.jpg](./sources/fdd.jpg)
 
 ## Detail
-### ![이미지디테일.jpg](./이미지디테일.jpg)
+### ![이미지디테일.jpg](./sources/이미지디테일.jpg)
 
 ## Notification
 ### push message
@@ -82,7 +82,7 @@
     ![pushnotilist.jpg](./sources/pushnotilist.jpg)
 
 ## Search
-### ![검색결과.jpg](./검색결과.jpg)
+### ![검색결과.jpg](./sources/검색결과.jpg)
 
 ## ProfilePage
 ### myworks
