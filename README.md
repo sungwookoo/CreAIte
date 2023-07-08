@@ -1,5 +1,5 @@
 # Site
-<img src="./sources/image.png" width="35%" height="35%">
+<img src="./sources/image.png" width="45%" height="35%">
 - https://home.hexa-backenders.com/
 
 
