@@ -94,9 +94,6 @@
 <img src="./sources/profile_like.jpg" width="50%" height="50%">
 
 ## Text2Image
-### selection
-<img src="./sources/gen_select.jpg" width="50%" height="50%">
-
 ### generation activity
 <img src="./sources/image_gen1.jpg" width="50%" height="50%">
 
