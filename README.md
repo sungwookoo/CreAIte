@@ -16,7 +16,7 @@
 
 - https://dev-gateway.hexa-backenders.com/
 
-> MSA 내부
+> Micro Services
 
 - https://dev-gateway.hexa-backenders.com/alarm
 - https://dev-gateway.hexa-backenders.com/picture
